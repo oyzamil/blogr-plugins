@@ -12,6 +12,40 @@ export interface CookifySetOptions {
 	sameSite?: "Strict" | "Lax" | "None";
 }
 
+export interface Cookify {
+	/**
+	 * Writes a cookie.
+	 * @param name - Cookie name.
+	 * @param value - Any JSON-serializable value.
+	 * @param options - {@link CookifySetOptions}
+	 */
+	set(name: string, value: unknown, options?: CookifySetOptions): void;
+
+	/**
+	 * Reads a cookie.
+	 * @param name - Cookie name.
+	 * @returns Parsed value, or `undefined` if not set.
+	 */
+	get<T = string>(name: string): T | undefined;
+
+	/**
+	 * Reads every cookie.
+	 * @returns Record containing all cookies.
+	 */
+	getAll(): Record<string, unknown>;
+
+	/**
+	 * Deletes a cookie.
+	 * @param name - Cookie name.
+	 * @param options - Must match `path`/`domain` used when setting cookie.
+	 * @returns `true` if cookie existed.
+	 */
+	remove(
+		name: string,
+		options?: Pick<CookifySetOptions, "path" | "domain">,
+	): boolean;
+}
+
 /**
  * Small, dependency-free cookie utility (a typed replacement for the classic
  * `js-cookie` plugin). Values are JSON-encoded automatically, so you can
@@ -25,7 +59,7 @@ export interface CookifySetOptions {
  * cookify.remove("theme");
  * ```
  */
-export const cookify = {
+export const cookify: Cookify = {
 	/**
 	 * Writes a cookie.
 	 * @param name - Cookie name.
