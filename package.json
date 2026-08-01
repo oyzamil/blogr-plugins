@@ -1,0 +1,64 @@
+{
+	"name": "blogr-plugins",
+	"version": "0.0.1",
+	"description": "Typed, modular Blogr plugin kit — sticky sidebar, menu, lazy-load, TOC, text-replace and cookie utils. Works standalone or as jQuery plugins.",
+	"type": "module",
+	"main": "./dist/blogr-plugins.cjs",
+	"module": "./dist/blogr-plugins.mjs",
+	"types": "./dist/blogr-plugins.d.mts",
+	"unpkg": "./dist/blogr-plugins.min.js",
+	"jsdelivr": "./dist/blogr-plugins.min.js",
+	"exports": {
+		".": {
+			"types": "./dist/blogr-plugins.d.mts",
+			"import": "./dist/blogr-plugins.mjs",
+			"require": "./dist/blogr-plugins.cjs"
+		},
+		"./iife": "./dist/blogr-plugins.js",
+		"./iife.min": "./dist/blogr-plugins.min.js",
+		"./stickify": "./dist/stickify.js",
+		"./menuify": "./dist/menuify.js",
+		"./lazify": "./dist/lazify.js",
+		"./tocify": "./dist/tocify.js",
+		"./replacify": "./dist/replacify.js",
+		"./cookify": "./dist/cookify.js",
+		"./resizeImage": "./dist/resizeImage.js",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist"
+	],
+	"sideEffects": false,
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit",
+		"prepublishOnly": "bun run build && bun run test",
+		"format": "biome format --write ./src",
+		"git": "bun run ./scripts/git-helper.ts add-git"
+	},
+	"keywords": [
+		"blogr",
+		"blogger",
+		"plugins",
+		"jquery",
+		"sticky-sidebar",
+		"lazy-load",
+		"table-of-contents",
+		"typescript"
+	],
+	"author": "M.Muzammil <https://muzammil.work/>",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/jquery": "^4.0.1",
+		"@types/node": "^26.1.2",
+		"@biomejs/biome": "^2.5.6",
+		"jsdom": "^30.0.1",
+		"tsdown": "^0.22.14",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.10",
+		"unrun": "^0.3.1"
+	}
+}
