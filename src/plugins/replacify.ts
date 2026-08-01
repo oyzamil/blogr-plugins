@@ -1,4 +1,5 @@
 import type { ElementInput, PluginInstance } from "../types.js";
+
 import { resolveElements } from "../utils/dom.js";
 
 /** Configuration options for {@link replacify}. */
@@ -41,7 +42,7 @@ export function replacify(
 		const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
 		const textNodes: Text[] = [];
 		let node: Node | null;
-		// eslint-disable-next-line no-cond-assign
+		// biome-ignore lint/suspicious/noAssignInExpressions: No Condition Assign
 		while ((node = walker.nextNode())) textNodes.push(node as Text);
 
 		for (const textNode of textNodes) {

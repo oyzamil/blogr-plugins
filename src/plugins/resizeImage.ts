@@ -4,7 +4,8 @@
  * format, flip, rotation and grayscale parameters.
  */
 
-const HOST_PATTERN = /^(https?:)?(\/\/)[^/]*\.(googleusercontent\.com|blogspot\.com)/;
+const HOST_PATTERN =
+	/^(https?:)?(\/\/)[^/]*\.(googleusercontent\.com|blogspot\.com)/;
 const PARAM_SEGMENT_PATTERN =
 	/[^/]+(?=\/[^/]+\.[^/?]+(?:\?|$))|(?<==)[^=&?/]+(?=\?|$)/;
 
@@ -26,7 +27,12 @@ export interface ResizeImageOptions {
 	grayscale?: boolean;
 }
 
-const defaults: Required<Pick<ResizeImageOptions, "height" | "width" | "format" | "rotate" | "grayscale">> = {
+const defaults: Required<
+	Pick<
+		ResizeImageOptions,
+		"height" | "width" | "format" | "rotate" | "grayscale"
+	>
+> = {
 	height: 360,
 	width: 640,
 	format: "webp",
@@ -78,7 +84,10 @@ export function isSupportedImage(url: string | URL): boolean {
  * });
  * ```
  */
-export function resizeImage(url: string | URL, options: ResizeImageOptions = {}): string {
+export function resizeImage(
+	url: string | URL,
+	options: ResizeImageOptions = {},
+): string {
 	const str = toUrlString(url);
 
 	if (!HOST_PATTERN.test(str)) return str;

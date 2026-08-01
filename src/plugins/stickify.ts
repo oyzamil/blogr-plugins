@@ -11,6 +11,7 @@
  */
 
 import type { ElementInput, PluginInstance } from "../types.js";
+
 import { resolveElements } from "../utils/dom.js";
 
 /** Configuration options for {@link stickify}. */
@@ -75,11 +76,19 @@ function getOffset(element: HTMLElement): { top: number; left: number } {
 
 function getOuterWidth(element: HTMLElement): number {
 	const style = getComputedStyle(element);
-	return element.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+	return (
+		element.getBoundingClientRect().width +
+		parseFloat(style.marginLeft) +
+		parseFloat(style.marginRight)
+	);
 }
 
 function isVisible(element: HTMLElement): boolean {
-	return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+	return !!(
+		element.offsetWidth ||
+		element.offsetHeight ||
+		element.getClientRects().length
+	);
 }
 
 function resetSidebar(s: SidebarState): void {
@@ -132,7 +141,8 @@ export function stickify(
 
 	function tryInit(): boolean {
 		if (initialized) return true;
-		if (document.body.getBoundingClientRect().width < opts.minWidth) return false;
+		if (document.body.getBoundingClientRect().width < opts.minWidth)
+			return false;
 		init();
 		return true;
 	}
@@ -155,9 +165,11 @@ export function stickify(
 		}
 
 		for (const sidebar of elements) {
-			const container = (
-				opts.containerSelector ? document.querySelector(opts.containerSelector) : null
-			) as HTMLElement | null ?? (sidebar.parentNode as HTMLElement | null);
+			const container =
+				((opts.containerSelector
+					? document.querySelector(opts.containerSelector)
+					: null) as HTMLElement | null) ??
+				(sidebar.parentNode as HTMLElement | null);
 
 			if (!container) continue;
 
@@ -167,11 +179,15 @@ export function stickify(
 				boxSizing: "border-box",
 			});
 
-			let stickySidebar = sidebar.querySelector(".theiaStickySidebar") as HTMLElement | null;
+			let stickySidebar = sidebar.querySelector(
+				".theiaStickySidebar",
+			) as HTMLElement | null;
 			if (!stickySidebar) {
-				const jsMimeTypes = /(?:text|application)\/(?:x-)?(?:javascript|ecmascript)/i;
+				const jsMimeTypes =
+					/(?:text|application)\/(?:x-)?(?:javascript|ecmascript)/i;
 				for (const script of Array.from(sidebar.querySelectorAll("script"))) {
-					if (script.type.length === 0 || jsMimeTypes.test(script.type)) script.remove();
+					if (script.type.length === 0 || jsMimeTypes.test(script.type))
+						script.remove();
 				}
 				stickySidebar = document.createElement("div");
 				stickySidebar.classList.add("theiaStickySidebar");
@@ -190,12 +206,15 @@ export function stickify(
 			stickySidebar.style.paddingTop = "1px";
 			stickySidebar.style.paddingBottom = "1px";
 			collapsedTopHeight -= getOffset(stickySidebar).top;
-			collapsedBottomHeight = stickySidebar.offsetHeight - collapsedBottomHeight - collapsedTopHeight;
+			collapsedBottomHeight =
+				stickySidebar.offsetHeight - collapsedBottomHeight - collapsedTopHeight;
 
 			const stickySidebarPaddingTop = collapsedTopHeight === 0 ? 0 : 1;
 			const stickySidebarPaddingBottom = collapsedBottomHeight === 0 ? 0 : 1;
-			stickySidebar.style.paddingTop = stickySidebarPaddingTop === 0 ? "0px" : "1px";
-			stickySidebar.style.paddingBottom = stickySidebarPaddingBottom === 0 ? "0px" : "1px";
+			stickySidebar.style.paddingTop =
+				stickySidebarPaddingTop === 0 ? "0px" : "1px";
+			stickySidebar.style.paddingBottom =
+				stickySidebarPaddingBottom === 0 ? "0px" : "1px";
 
 			const state: SidebarState = {
 				sidebar,
@@ -223,7 +242,9 @@ export function stickify(
 
 				if (opts.disableOnResponsiveLayouts) {
 					const sidebarWidth =
-						getComputedStyle(sidebar).float === "none" ? getOuterWidth(sidebar) : sidebar.offsetWidth;
+						getComputedStyle(sidebar).float === "none"
+							? getOuterWidth(sidebar)
+							: sidebar.offsetWidth;
 					if (sidebarWidth + 50 > container.getBoundingClientRect().width) {
 						resetSidebar(state);
 						return;
@@ -235,30 +256,50 @@ export function stickify(
 				const sidebarOffset = getOffset(sidebar);
 				let top = 0;
 
-				if (scrollTop >= sidebarOffset.top + (state.paddingTop - opts.additionalMarginTop)) {
+				if (
+					scrollTop >=
+					sidebarOffset.top + (state.paddingTop - opts.additionalMarginTop)
+				) {
 					const offsetTop = state.paddingTop + opts.additionalMarginTop;
-					const offsetBottom = state.paddingBottom + state.marginBottom + opts.additionalMarginBottom;
+					const offsetBottom =
+						state.paddingBottom +
+						state.marginBottom +
+						opts.additionalMarginBottom;
 
 					const containerTop = sidebarOffset.top;
-					const containerBottom = getOffset(container).top + getClearedHeight(container);
+					const containerBottom =
+						getOffset(container).top + getClearedHeight(container);
 
 					const windowOffsetTop = opts.additionalMarginTop;
 					let windowOffsetBottom: number;
 
-					const sidebarSmallerThanWindow = stickySidebar.offsetHeight + offsetTop + offsetBottom < window.innerHeight;
+					const sidebarSmallerThanWindow =
+						stickySidebar.offsetHeight + offsetTop + offsetBottom <
+						window.innerHeight;
 					if (sidebarSmallerThanWindow) {
 						windowOffsetBottom = windowOffsetTop + stickySidebar.offsetHeight;
 					} else {
-						windowOffsetBottom = window.innerHeight - state.marginBottom - state.paddingBottom - opts.additionalMarginBottom;
+						windowOffsetBottom =
+							window.innerHeight -
+							state.marginBottom -
+							state.paddingBottom -
+							opts.additionalMarginBottom;
 					}
 
 					const staticLimitTop = containerTop - scrollTop + state.paddingTop;
-					const staticLimitBottom = containerBottom - scrollTop - state.paddingBottom - state.marginBottom;
+					const staticLimitBottom =
+						containerBottom -
+						scrollTop -
+						state.paddingBottom -
+						state.marginBottom;
 
 					top = getOffset(stickySidebar).top - scrollTop;
 					const scrollTopDiff = state.previousScrollTop - scrollTop;
 
-					if (getComputedStyle(stickySidebar).position === "fixed" && opts.sidebarBehavior === "modern") {
+					if (
+						getComputedStyle(stickySidebar).position === "fixed" &&
+						opts.sidebarBehavior === "modern"
+					) {
 						top += scrollTopDiff;
 					}
 
@@ -272,19 +313,30 @@ export function stickify(
 					if (scrollTopDiff > 0) {
 						top = Math.min(top, windowOffsetTop);
 					} else {
-						top = Math.max(top, windowOffsetBottom - stickySidebar.offsetHeight);
+						top = Math.max(
+							top,
+							windowOffsetBottom - stickySidebar.offsetHeight,
+						);
 					}
 
 					top = Math.max(top, staticLimitTop);
 					top = Math.min(top, staticLimitBottom - stickySidebar.offsetHeight);
 
-					const sidebarSameHeightAsContainer = container.getBoundingClientRect().height === stickySidebar.offsetHeight;
+					const sidebarSameHeightAsContainer =
+						container.getBoundingClientRect().height ===
+						stickySidebar.offsetHeight;
 
 					if (!sidebarSameHeightAsContainer && top === windowOffsetTop) {
 						position = "fixed";
-					} else if (!sidebarSameHeightAsContainer && top === windowOffsetBottom - stickySidebar.offsetHeight) {
+					} else if (
+						!sidebarSameHeightAsContainer &&
+						top === windowOffsetBottom - stickySidebar.offsetHeight
+					) {
 						position = "fixed";
-					} else if (scrollTop + top - sidebarOffset.top - state.paddingTop <= opts.additionalMarginTop) {
+					} else if (
+						scrollTop + top - sidebarOffset.top - state.paddingTop <=
+						opts.additionalMarginTop
+					) {
 						position = "static";
 					} else {
 						position = "absolute";

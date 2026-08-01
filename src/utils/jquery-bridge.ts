@@ -25,5 +25,8 @@ export function bindJQueryPlugin(
 
 /** True when jQuery is present on `window`. */
 export function hasJQuery(): boolean {
-	return typeof window !== "undefined" && typeof (window as any).jQuery === "function";
+	return (
+		typeof window !== "undefined" &&
+		typeof (window as any).jQuery === "function"
+	);
 }

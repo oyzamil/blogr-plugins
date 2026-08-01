@@ -91,7 +91,10 @@ export const cookify = {
 	 * @param options - Must match the `path`/`domain` used when setting it.
 	 * @returns `true` if the cookie was present beforehand.
 	 */
-	remove(name: string, options: Pick<CookifySetOptions, "path" | "domain"> = {}): boolean {
+	remove(
+		name: string,
+		options: Pick<CookifySetOptions, "path" | "domain"> = {},
+	): boolean {
 		const existed = this.get(name) !== undefined;
 		this.set(name, "", { ...options, expiresDays: -1 });
 		return existed;

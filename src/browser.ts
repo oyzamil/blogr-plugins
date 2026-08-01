@@ -1,11 +1,16 @@
-import { stickify, type StickifyOptions } from "./plugins/stickify.js";
-import { menuify, type MenuifyOptions } from "./plugins/menuify.js";
-import { lazify, type LazifyOptions } from "./plugins/lazify.js";
-import { tocify, type TocifyOptions } from "./plugins/tocify.js";
-import { replacify, type ReplacifyOptions } from "./plugins/replacify.js";
-import { cookify } from "./plugins/cookify.js";
-import { resizeImage, isSupportedImage, type ResizeImageOptions } from "./plugins/resizeImage.js";
 import type { PluginInstance } from "./types.js";
+
+import { cookify } from "./plugins/cookify.js";
+import { type LazifyOptions, lazify } from "./plugins/lazify.js";
+import { type MenuifyOptions, menuify } from "./plugins/menuify.js";
+import { type ReplacifyOptions, replacify } from "./plugins/replacify.js";
+import {
+	isSupportedImage,
+	type ResizeImageOptions,
+	resizeImage,
+} from "./plugins/resizeImage.js";
+import { type StickifyOptions, stickify } from "./plugins/stickify.js";
+import { type TocifyOptions, tocify } from "./plugins/tocify.js";
 import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge.js";
 
 /**
@@ -16,15 +21,27 @@ import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge.js";
  * @param jq - A jQuery instance (`window.jQuery` / `window.$`).
  */
 export function registerJQueryPlugins(jq: any): void {
-	bindJQueryPlugin(jq, "stickify", (els, options?: StickifyOptions) => stickify(els, options));
-	bindJQueryPlugin(jq, "menuify", (els, options?: MenuifyOptions) => menuify(els, options));
-	bindJQueryPlugin(jq, "lazify", (els, options?: LazifyOptions) => lazify(els, options));
-	bindJQueryPlugin(jq, "tocify", (els, options?: TocifyOptions) => tocify(els, options));
+	bindJQueryPlugin(jq, "stickify", (els, options?: StickifyOptions) =>
+		stickify(els, options),
+	);
+	bindJQueryPlugin(jq, "menuify", (els, options?: MenuifyOptions) =>
+		menuify(els, options),
+	);
+	bindJQueryPlugin(jq, "lazify", (els, options?: LazifyOptions) =>
+		lazify(els, options),
+	);
+	bindJQueryPlugin(jq, "tocify", (els, options?: TocifyOptions) =>
+		tocify(els, options),
+	);
 	bindJQueryPlugin(
 		jq,
 		"replacify",
-		(els, search: string | RegExp, replacement: string, options?: ReplacifyOptions) =>
-			replacify(els, search, replacement, options),
+		(
+			els,
+			search: string | RegExp,
+			replacement: string,
+			options?: ReplacifyOptions,
+		) => replacify(els, search, replacement, options),
 	);
 }
 
@@ -32,14 +49,23 @@ if (hasJQuery()) {
 	registerJQueryPlugins((window as any).jQuery);
 }
 
-export { stickify, menuify, lazify, tocify, replacify, cookify };
-export { resizeImage, isSupportedImage };
 export type {
-	StickifyOptions,
-	MenuifyOptions,
 	LazifyOptions,
-	TocifyOptions,
+	MenuifyOptions,
+	PluginInstance,
 	ReplacifyOptions,
 	ResizeImageOptions,
-	PluginInstance,
+	StickifyOptions,
+	TocifyOptions,
+};
+
+export {
+	cookify,
+	isSupportedImage,
+	lazify,
+	menuify,
+	replacify,
+	resizeImage,
+	stickify,
+	tocify,
 };

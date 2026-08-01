@@ -1,4 +1,5 @@
 import type { ElementInput, PluginInstance } from "../types.js";
+
 import { resolveElements } from "../utils/dom.js";
 
 /** Configuration options for {@link tocify}. */
@@ -14,7 +15,7 @@ const defaults: Required<Pick<TocifyOptions, "headings">> = {
 };
 
 function slugify(text: string, used: Set<string>): string {
-	let base = text.trim().replace(/\s+/g, "_") || "heading";
+	const base = text.trim().replace(/\s+/g, "_") || "heading";
 	let id = base;
 	let i = 1;
 	while (used.has(id) || document.getElementById(id)) {
@@ -49,7 +50,7 @@ export function tocify(
 
 	for (const target of targets) {
 		const contentRoot = opts.content
-			? resolveElements(opts.content)[0] ?? target
+			? (resolveElements(opts.content)[0] ?? target)
 			: target;
 
 		const headings = Array.from(
