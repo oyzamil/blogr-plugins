@@ -1,3 +1,7 @@
+**blogr-plugins**
+
+***
+
 # blogr-plugins
 
 Typed, modular plugin kit for Blogr templates — sticky sidebar, dropdown
@@ -263,7 +267,7 @@ menu.destroy();
 
 ## Examples
 
-See [`examples/index.html`](./examples/index.html) for a full page exercising
+See [`examples/index.html`](_media/index.html) for a full page exercising
 every plugin via both the vanilla API and the jQuery bridge.
 
 ## Development

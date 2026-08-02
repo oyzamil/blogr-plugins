@@ -80,6 +80,7 @@ export const cookify: Cookify = {
 		if (options.secure) parts.push("secure");
 		parts.push(`samesite=${options.sameSite ?? "Lax"}`);
 
+		// biome-ignore lint/suspicious/noDocumentCookie: Expected because its a plugin file
 		document.cookie = parts.join("; ");
 	},
 

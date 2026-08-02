@@ -1,4 +1,4 @@
-export type { CookifySetOptions } from "./plugins/cookify.js";
+export type { Cookify, CookifySetOptions } from "./plugins/cookify.js";
 export type { LazifyOptions } from "./plugins/lazify.js";
 export type { MenuifyOptions } from "./plugins/menuify.js";
 export type { ReplacifyOptions } from "./plugins/replacify.js";

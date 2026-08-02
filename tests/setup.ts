@@ -7,3 +7,10 @@ class ResizeObserverStub {
 }
 
 globalThis.ResizeObserver ??= ResizeObserverStub;
+
+// jsdom doesn't implement media loading; lazify's video handling calls
+// .load() after filling in sources, which would otherwise spam
+// "Not implemented" console errors during tests.
+if (typeof HTMLMediaElement !== "undefined") {
+	HTMLMediaElement.prototype.load = () => {};
+}

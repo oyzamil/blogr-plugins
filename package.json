@@ -30,12 +30,13 @@
 	],
 	"sideEffects": false,
 	"scripts": {
+		"docs": "typedoc",
 		"build": "tsdown",
 		"dev": "tsdown --watch",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
-		"prepublishOnly": "bun run build && bun run test",
+		"prepublishOnly": "bun run build && bun run test && bun run docs",
 		"format": "biome format --write ./src",
 		"git": "bun run ./scripts/git-helper.ts add-git"
 	},
@@ -52,13 +53,15 @@
 	"author": "M.Muzammil <https://muzammil.work/>",
 	"license": "MIT",
 	"devDependencies": {
+		"@biomejs/biome": "^2.5.6",
 		"@types/jquery": "^4.0.1",
 		"@types/node": "^26.1.2",
-		"@biomejs/biome": "^2.5.6",
 		"jsdom": "^30.0.1",
 		"tsdown": "^0.22.14",
-		"typescript": "^7.0.2",
-		"vitest": "^4.1.10",
-		"unrun": "^0.3.1"
+		"typedoc": "^0.28.20",
+		"typedoc-plugin-markdown": "^4.12.0",
+		"typescript": "6.0.3",
+		"unrun": "^0.3.1",
+		"vitest": "^4.1.10"
 	}
 }

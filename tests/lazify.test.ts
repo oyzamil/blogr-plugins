@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { lazify } from "../src/plugins/lazify.js";
 
 class MockIntersectionObserver {
@@ -55,6 +56,72 @@ describe("lazify", () => {
 		observer.trigger(box);
 
 		expect(box.style.backgroundImage).toContain("/bg.jpg");
+	});
+
+	it("sets iframe src when it intersects", () => {
+		document.body.innerHTML = `<iframe id="embed" data-src="https://example.com/embed"></iframe>`;
+		lazify("#embed");
+
+		const observer = MockIntersectionObserver.instances[0];
+		const iframe = document.getElementById("embed") as HTMLIFrameElement;
+		observer.trigger(iframe);
+
+		expect(iframe.src).toBe("https://example.com/embed");
+		expect(iframe.classList.contains("lazy-ify")).toBe(true);
+	});
+
+	it("sets video src directly when there are no <source> children", () => {
+		document.body.innerHTML = `<video id="clip" data-src="/clip.mp4"></video>`;
+		lazify("#clip");
+
+		const observer = MockIntersectionObserver.instances[0];
+		const video = document.getElementById("clip") as HTMLVideoElement;
+		observer.trigger(video);
+
+		expect(video.src).toContain("/clip.mp4");
+		expect(video.classList.contains("lazy-ify")).toBe(true);
+	});
+
+	it("fills in <source data-src> children and skips the video's own src", () => {
+		document.body.innerHTML = `
+			<video id="clip">
+				<source data-src="/clip.webm" type="video/webm" />
+				<source data-src="/clip.mp4" type="video/mp4" />
+			</video>
+		`;
+		lazify("#clip");
+
+		const observer = MockIntersectionObserver.instances[0];
+		const video = document.getElementById("clip") as HTMLVideoElement;
+		observer.trigger(video);
+
+		const sources = video.querySelectorAll("source");
+		expect(sources[0].src).toContain("/clip.webm");
+		expect(sources[1].src).toContain("/clip.mp4");
+		expect(video.classList.contains("lazy-ify")).toBe(true);
+	});
+
+	it("sets a video's poster from data-poster", () => {
+		document.body.innerHTML = `<video id="clip" data-poster="/poster.jpg" data-src="/clip.mp4"></video>`;
+		lazify("#clip");
+
+		const observer = MockIntersectionObserver.instances[0];
+		const video = document.getElementById("clip") as HTMLVideoElement;
+		observer.trigger(video);
+
+		expect(video.poster).toContain("/poster.jpg");
+	});
+
+	it("leaves a video untouched (no lazy-ify, still observed) when it has nothing to load", () => {
+		document.body.innerHTML = `<video id="clip"></video>`;
+		lazify("#clip");
+
+		const observer = MockIntersectionObserver.instances[0];
+		const video = document.getElementById("clip") as HTMLVideoElement;
+		observer.trigger(video);
+
+		expect(video.classList.contains("lazy-ify")).toBe(false);
+		expect(observer.observed).toContain(video);
 	});
 
 	it("calls onLoad callback", () => {
