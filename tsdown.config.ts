@@ -1,119 +1,132 @@
 import { readFileSync } from "node:fs";
+import type { OutputOptions } from "rolldown";
 import { defineConfig, type UserConfig } from "tsdown";
 
 const pkg = JSON.parse(
 	readFileSync(new URL("./package.json", import.meta.url), "utf8"),
 );
 
+const PLUGINS = [
+	"stickify",
+	"menuify",
+	"lazify",
+	"tocify",
+	"replacify",
+	"cookify",
+	"resizeImage",
+	"shortcodify",
+	"createWidget",
+] as const;
+
+const BANNER = (format: string) =>
+	`/*! ${pkg.name} v${pkg.version} - ${format} | M.Muzammil <https://muzammil.work/> | MIT License */`;
+
+const applyOutputOptions = (
+	options: OutputOptions,
+	format: string,
+	globalName?: string,
+	entryFileName?: string,
+) => {
+	options.banner = BANNER(format);
+
+	options.comments = {
+		legal: true,
+	};
+
+	if (globalName) {
+		options.name = globalName;
+	}
+
+	if (entryFileName) {
+		options.entryFileNames = entryFileName;
+	}
+
+	return options;
+};
+
 const shared: UserConfig = {
 	sourcemap: false,
 	target: "es2020",
-	banner(ctx) {
-		return {
-			js: `/* blogr-plugins v${pkg.version} - ${ctx.format} | M.Muzammil <https://muzammil.work/> | MIT License */`,
-		};
+	deps: {
+		onlyBundle: false,
+		alwaysBundle: ["blogr"],
 	},
 };
 
-// Rolldown always stamps a format tag into IIFE filenames (".iife.js"), so
-// CDN-facing builds still need entryFileNames driven manually. ESM/CJS
-// don't: tsdown's own defaults (.mjs/.cjs/.d.mts/.d.cts) are already clean,
-// so those builds are left alone below — no postbuild rename step needed.
-function namedOutput(
-	fileName: string,
-	globalName?: string,
-): UserConfig["outputOptions"] {
-	return (options) => {
-		options.entryFileNames = fileName;
-		if (globalName) options.name = globalName;
+const packageBuild = (minify: boolean): UserConfig => ({
+	...shared,
+	entry: {
+		[pkg.name]: "src/index.ts",
+	},
+	format: ["esm", "cjs"],
+	dts: !minify,
+	clean: !minify,
+	minify,
+	outputOptions(options, format) {
+		applyOutputOptions(options, format);
+
+		// options.entryFileNames =
+		// 	format === "cjs"
+		// 		? `${pkg.name}${minify ? ".min" : ""}.cjs`
+		// 		: `${pkg.name}${minify ? ".min" : ""}.mjs`;
+
 		return options;
-	};
-}
+	},
+	outExtensions({ format }) {
+		return {
+			js: minify
+				? format === "es"
+					? ".esm.min.js"
+					: ".min.cjs"
+				: format === "es"
+					? ".esm.js"
+					: ".cjs",
+			...(minify
+				? {}
+				: {
+						dts: format === "es" ? ".ts" : ".cts",
+					}),
+		};
+	},
+});
+
+const browserBuild = (
+	entry: string,
+	fileName: string,
+	globalName: string,
+	minify: boolean,
+): UserConfig => ({
+	...shared,
+	entry: {
+		[fileName]: entry,
+	},
+	format: ["iife"],
+	dts: false,
+	clean: false,
+	minify,
+	outputOptions(options, format) {
+		return applyOutputOptions(
+			options,
+			format,
+			globalName,
+			`${fileName}${minify ? ".min" : ""}.js`,
+		);
+	},
+});
 
 export default defineConfig([
-	// Plain ESM + CJS, with declaration files (tsdown's defaults: .mjs, .cjs,
-	// .d.mts, .d.cts — no naming overrides needed here).
-	{
-		...shared,
-		entry: { "blogr-plugins": "src/index.ts" },
-		format: ["esm", "cjs"],
-		dts: true,
-		clean: true,
-		minify: false,
-	},
-	// Minified twins. dts stays off here (already emitted above), so there's
-	// no format-tag/dts naming collision to work around — just add ".min".
-	{
-		...shared,
-		entry: { "blogr-plugins": "src/index.ts" },
-		format: ["esm", "cjs"],
-		dts: false,
-		clean: false,
-		minify: true,
-		outputOptions(options, format) {
-			options.entryFileNames =
-				format === "cjs" ? "blogr-plugins.min.cjs" : "blogr-plugins.min.mjs";
-			return options;
-		},
-	},
-	{
-		...shared,
-		entry: { "blogr-plugins": "src/browser.ts" },
-		format: ["iife"],
-		globalName: "BlogrPlugins",
-		dts: false,
-		clean: false,
-		minify: false,
-		outputOptions: namedOutput("blogr-plugins.js"),
-	},
-	{
-		...shared,
-		entry: { "blogr-plugins": "src/browser.ts" },
-		format: ["iife"],
-		globalName: "BlogrPlugins",
-		dts: false,
-		clean: false,
-		minify: true,
-		outputOptions: namedOutput("blogr-plugins.min.js"),
-	},
-	// standalone per-plugin CDN builds — each merges onto window.BlogrPlugins
-	// on its own, so a page can load just `stickify.min.js` instead of the
-	// full bundle. Rolldown can't code-split IIFE output, so each plugin
-	// gets its own single-entry config rather than one multi-entry block.
-	...(
-		[
-			"stickify",
-			"menuify",
-			"lazify",
-			"tocify",
-			"replacify",
-			"cookify",
-			"resizeImage",
-		] as const
-	).flatMap((name): UserConfig[] => [
-		{
-			...shared,
-			entry: { [name]: `src/browser/${name}.ts` },
-			format: ["iife"],
-			dts: false,
-			clean: false,
-			minify: false,
-			outputOptions: namedOutput(
-				`${name}.js`,
-				`Blogr${name[0].toUpperCase()}${name.slice(1)}`,
-			),
-		},
-		{
-			...shared,
-			entry: { [name]: `src/browser/${name}.ts` },
-			format: ["iife"],
-			dts: false,
-			clean: false,
-			minify: true,
-			outputOptions: namedOutput(
-				`${name}.min.js`,
-				`Blogr${name[0].toUpperCase()}${name.slice(1)}`,
-			),
-		},
-	]),
+	packageBuild(false),
+	packageBuild(true),
+
+	browserBuild("src/browser.ts", pkg.name, "BlogrPlugins", false),
+	browserBuild("src/browser.ts", pkg.name, "BlogrPlugins", true),
+
+	...PLUGINS.flatMap((plugin) => {
+		const globalName = `Blogr${plugin[0].toUpperCase()}${plugin.slice(1)}`;
+
+		return [
+			browserBuild(`src/browser/${plugin}.ts`, plugin, globalName, false),
+			browserBuild(`src/browser/${plugin}.ts`, plugin, globalName, true),
+		];
+	}),
 ]);

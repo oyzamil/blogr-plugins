@@ -31,7 +31,8 @@ function slugify(text: string, used: Set<string>): string {
  * one) so the TOC links can jump to them.
  *
  * @param input - Selector, element, or jQuery collection to render the TOC into.
- * @param options - {@link TocifyOptions}
+ * @param options Configuration object.
+ * See {@link TocifyOptions}.
  * @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
  *
  * @example

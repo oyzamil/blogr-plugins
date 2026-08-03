@@ -8,7 +8,7 @@
 
 > **menuify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [plugins/menuify.ts:46](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/menuify.ts#L46)
+Defined in: [plugins/menuify.ts:47](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/menuify.ts#L47)
 
 Converts a flat `<ul><li><a>` link list into a nested dropdown menu.
 Any link whose text starts with the nesting prefix (default `_`) is moved
@@ -27,7 +27,8 @@ Selector, element(s), or jQuery collection for the menu list(s).
 
 [`MenuifyOptions`](../interfaces/MenuifyOptions.md) = `{}`
 
-[MenuifyOptions](../interfaces/MenuifyOptions.md)
+Configuration object.
+See [MenuifyOptions](../interfaces/MenuifyOptions.md).
 
 ## Returns
 

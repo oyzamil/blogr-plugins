@@ -8,7 +8,7 @@
 
 > **tocify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [plugins/tocify.ts:43](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/tocify.ts#L43)
+Defined in: [plugins/tocify.ts:44](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/tocify.ts#L44)
 
 Builds a nested table-of-contents `<ul>` from the headings found inside a
 container, assigning an `id` to each heading (if it doesn't already have
@@ -26,7 +26,8 @@ Selector, element, or jQuery collection to render the TOC into.
 
 [`TocifyOptions`](../interfaces/TocifyOptions.md) = `{}`
 
-[TocifyOptions](../interfaces/TocifyOptions.md)
+Configuration object.
+See [TocifyOptions](../interfaces/TocifyOptions.md).
 
 ## Returns
 

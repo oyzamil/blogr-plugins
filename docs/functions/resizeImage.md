@@ -8,11 +8,21 @@
 
 > **resizeImage**(`url`, `options?`): `string`
 
-Defined in: [plugins/resizeImage.ts:87](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/resizeImage.ts#L87)
+Defined in: [plugins/resizeImage.ts:253](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/resizeImage.ts#L253)
 
 Builds a resized/transformed URL for a Blogger/Google-hosted image.
 Unsupported URLs are returned unchanged rather than throwing, so it's
 always safe to run any image URL through this function.
+
+For Blogger images, this parses the URL's existing param segment and
+only overrides the params implied by `options` — width, height and
+format always apply (falling back to their defaults), while crop, flip
+and rotate are left untouched unless explicitly requested. Any other
+recognized param already on the URL (e.g. `nu`, `pd`, `d`) is preserved.
+
+For YouTube thumbnail URLs, `width`/`height`/`crop`/`format`/`flip`/`rotate`
+are ignored — YouTube only serves fixed quality presets — and only
+`ytThumbnail` applies, always rewritten to the WebP variant.
 
 ## Parameters
 
@@ -20,13 +30,14 @@ always safe to run any image URL through this function.
 
 `string` \| `URL`
 
-Source image URL.
+Source image or YouTube thumbnail URL.
 
 ### options?
 
 [`ResizeImageOptions`](../interfaces/ResizeImageOptions.md) = `{}`
 
-[ResizeImageOptions](../interfaces/ResizeImageOptions.md)
+Configuration object.
+See [ResizeImageOptions](../interfaces/ResizeImageOptions.md).
 
 ## Returns
 

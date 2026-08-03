@@ -1,4 +1,4 @@
-/* blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrStickify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -77,7 +77,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* stacking) as the original.
 	*
 	* @param input - Selector, element(s), or jQuery collection for the sidebar(s).
-	* @param options - {@link StickifyOptions}
+	* @param options Configuration object.
+	* See {@link StickifyOptions}.
 	* @returns A {@link PluginInstance} with `destroy()` to unbind everything and restore original styles.
 	*
 	* @example

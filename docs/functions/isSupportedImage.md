@@ -8,10 +8,10 @@
 
 > **isSupportedImage**(`url`): `boolean`
 
-Defined in: [plugins/resizeImage.ts:62](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/resizeImage.ts#L62)
+Defined in: [plugins/resizeImage.ts:216](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/resizeImage.ts#L216)
 
-Checks whether a URL is a Blogger/Google-hosted image that supports
-these transformation parameters.
+Checks whether a URL is a Blogger/Google-hosted image (old or new URL
+shape) or a YouTube video thumbnail that [resizeImage](resizeImage.md) can handle.
 
 ## Parameters
 
@@ -25,11 +25,12 @@ Image URL to check.
 
 `boolean`
 
-`true` if the host and image-size path segment are recognized.
+`true` if the URL is a recognized Blogger image or YouTube thumbnail.
 
 ## Example
 
 ```ts
 import { isSupportedImage } from "blogr-plugins";
 isSupportedImage("https://1.bp.blogspot.com/path/s72-c/image.jpg"); // true
+isSupportedImage("https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"); // true
 ```

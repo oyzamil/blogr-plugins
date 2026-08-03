@@ -1,4 +1,4 @@
-/* blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrTocify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -21,7 +21,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 //#region src/plugins/tocify.ts
 	const defaults = { headings: "h1,h2,h3" };
 	function slugify(text, used) {
-		let base = text.trim().replace(/\s+/g, "_") || "heading";
+		const base = text.trim().replace(/\s+/g, "_") || "heading";
 		let id = base;
 		let i = 1;
 		while (used.has(id) || document.getElementById(id)) id = `${base}_${i++}`;
@@ -34,7 +34,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* one) so the TOC links can jump to them.
 	*
 	* @param input - Selector, element, or jQuery collection to render the TOC into.
-	* @param options - {@link TocifyOptions}
+	* @param options Configuration object.
+	* See {@link TocifyOptions}.
 	* @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
 	*
 	* @example

@@ -118,7 +118,8 @@ function getClearedHeight(element: HTMLElement): number {
  * stacking) as the original.
  *
  * @param input - Selector, element(s), or jQuery collection for the sidebar(s).
- * @param options - {@link StickifyOptions}
+ * @param options Configuration object.
+ * See {@link StickifyOptions}.
  * @returns A {@link PluginInstance} with `destroy()` to unbind everything and restore original styles.
  *
  * @example

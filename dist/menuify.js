@@ -1,4 +1,4 @@
-/* blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrMenuify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -31,7 +31,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* stripped from its visible text.
 	*
 	* @param input - Selector, element(s), or jQuery collection for the menu list(s).
-	* @param options - {@link MenuifyOptions}
+	* @param options Configuration object.
+	* See {@link MenuifyOptions}.
 	* @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
 	*
 	* @example

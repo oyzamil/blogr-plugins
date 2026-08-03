@@ -17,7 +17,8 @@ export interface Cookify {
 	 * Writes a cookie.
 	 * @param name - Cookie name.
 	 * @param value - Any JSON-serializable value.
-	 * @param options - {@link CookifySetOptions}
+	 * @param options Configuration object.
+	 * See {@link CookifySetOptions}.
 	 */
 	set(name: string, value: unknown, options?: CookifySetOptions): void;
 

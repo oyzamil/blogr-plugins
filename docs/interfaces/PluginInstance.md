@@ -6,10 +6,14 @@
 
 # Interface: PluginInstance
 
-Defined in: [types.ts:16](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/types.ts#L16)
+Defined in: [types.ts:16](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/types.ts#L16)
 
 Common shape returned by every plugin instance so callers always have a
 predictable way to tear a plugin down.
+
+## Extended by
+
+- [`WidgetInstance`](WidgetInstance.md)
 
 ## Methods
 
@@ -17,7 +21,7 @@ predictable way to tear a plugin down.
 
 > **destroy**(): `void`
 
-Defined in: [types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/types.ts#L18)
+Defined in: [types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 

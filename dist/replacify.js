@@ -1,4 +1,4 @@
-/* blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrReplacify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -27,7 +27,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* @param input - Selector, element(s), or jQuery collection to search within.
 	* @param search - String or RegExp to find.
 	* @param replacement - Replacement text (or HTML, if `allowHtml` is set).
-	* @param options - {@link ReplacifyOptions}
+	* @param options Configuration object.
+	* See {@link ReplacifyOptions}.
 	* @returns A {@link PluginInstance} with `destroy()` to revert the text.
 	*
 	* @example

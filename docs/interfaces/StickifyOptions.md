@@ -6,7 +6,7 @@
 
 # Interface: StickifyOptions
 
-Defined in: [plugins/stickify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L18)
+Defined in: [plugins/stickify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L18)
 
 Configuration options for [stickify](../functions/stickify.md).
 
@@ -16,7 +16,7 @@ Configuration options for [stickify](../functions/stickify.md).
 
 > `optional` **additionalMarginBottom?**: `number`
 
-Defined in: [plugins/stickify.ts:24](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L24)
+Defined in: [plugins/stickify.ts:24](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L24)
 
 Extra px gap kept below the sidebar before it stops at the container's end.
 
@@ -26,7 +26,7 @@ Extra px gap kept below the sidebar before it stops at the container's end.
 
 > `optional` **additionalMarginTop?**: `number`
 
-Defined in: [plugins/stickify.ts:22](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L22)
+Defined in: [plugins/stickify.ts:22](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L22)
 
 Extra px gap kept above the sidebar while stuck.
 
@@ -36,7 +36,7 @@ Extra px gap kept above the sidebar while stuck.
 
 > `optional` **containerSelector?**: `string`
 
-Defined in: [plugins/stickify.ts:20](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L20)
+Defined in: [plugins/stickify.ts:20](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L20)
 
 Selector for the sidebar's scroll container. Defaults to the sidebar's parent.
 
@@ -46,7 +46,7 @@ Selector for the sidebar's scroll container. Defaults to the sidebar's parent.
 
 > `optional` **defaultPosition?**: `string`
 
-Defined in: [plugins/stickify.ts:38](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L38)
+Defined in: [plugins/stickify.ts:38](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L38)
 
 Inline `position` applied to the sidebar itself before stickiness kicks in. Default `"relative"`.
 
@@ -56,7 +56,7 @@ Inline `position` applied to the sidebar itself before stickiness kicks in. Defa
 
 > `optional` **disableOnResponsiveLayouts?**: `boolean`
 
-Defined in: [plugins/stickify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L30)
+Defined in: [plugins/stickify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L30)
 
 Disable stickiness when the sidebar no longer fits its container (e.g. stacked mobile layouts). Default `true`.
 
@@ -66,7 +66,7 @@ Disable stickiness when the sidebar no longer fits its container (e.g. stacked m
 
 > `optional` **minWidth?**: `number`
 
-Defined in: [plugins/stickify.ts:28](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L28)
+Defined in: [plugins/stickify.ts:28](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L28)
 
 Viewport width (px) below which stickiness is disabled entirely.
 
@@ -76,7 +76,7 @@ Viewport width (px) below which stickiness is disabled entirely.
 
 > `optional` **sidebarBehavior?**: `"modern"` \| `"stick-to-top"` \| `"stick-to-bottom"`
 
-Defined in: [plugins/stickify.ts:36](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L36)
+Defined in: [plugins/stickify.ts:36](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L36)
 
 `"modern"` follows scroll direction the way a native sticky element
 would. `"stick-to-top"` pins the top edge at `additionalMarginTop`.
@@ -88,7 +88,7 @@ would. `"stick-to-top"` pins the top edge at `additionalMarginTop`.
 
 > `optional` **updateSidebarHeight?**: `boolean`
 
-Defined in: [plugins/stickify.ts:26](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L26)
+Defined in: [plugins/stickify.ts:26](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L26)
 
 Keep the sidebar's wrapper `min-height` in sync so the container never collapses. Default `true`.
 
@@ -98,6 +98,6 @@ Keep the sidebar's wrapper `min-height` in sync so the container never collapses
 
 > `optional` **verbose?**: `boolean`
 
-Defined in: [plugins/stickify.ts:40](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/stickify.ts#L40)
+Defined in: [plugins/stickify.ts:40](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/stickify.ts#L40)
 
 Log a note to the console when init is delayed because the viewport is under `minWidth`.

@@ -23,6 +23,8 @@
 		"./replacify": "./dist/replacify.js",
 		"./cookify": "./dist/cookify.js",
 		"./resizeImage": "./dist/resizeImage.js",
+		"./shortcodify": "./dist/shortcodify.js",
+		"./createWidget": "./dist/createWidget.js",
 		"./package.json": "./package.json"
 	},
 	"files": [
@@ -48,9 +50,12 @@
 		"sticky-sidebar",
 		"lazy-load",
 		"table-of-contents",
+		"shortcode",
+		"widget",
+		"related-posts",
 		"typescript"
 	],
-	"author": "M.Muzammil <https://muzammil.work/>",
+	"author": "M.Muzammil <qazi.web@gmail.com> (https://muzammil.work/)",
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.6",
@@ -63,5 +68,8 @@
 		"typescript": "6.0.3",
 		"unrun": "^0.3.1",
 		"vitest": "^4.1.10"
+	},
+	"dependencies": {
+		"blogr": "^0.0.1"
 	}
 }

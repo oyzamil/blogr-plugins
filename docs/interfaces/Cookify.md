@@ -6,7 +6,7 @@
 
 # Interface: Cookify
 
-Defined in: [plugins/cookify.ts:15](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/cookify.ts#L15)
+Defined in: [plugins/cookify.ts:15](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/cookify.ts#L15)
 
 ## Methods
 
@@ -14,7 +14,7 @@ Defined in: [plugins/cookify.ts:15](https://github.com/oyzamil/blogr-plugins/blo
 
 > **get**\<`T`\>(`name`): `T` \| `undefined`
 
-Defined in: [plugins/cookify.ts:29](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/cookify.ts#L29)
+Defined in: [plugins/cookify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/cookify.ts#L30)
 
 Reads a cookie.
 
@@ -44,7 +44,7 @@ Parsed value, or `undefined` if not set.
 
 > **getAll**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [plugins/cookify.ts:35](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/cookify.ts#L35)
+Defined in: [plugins/cookify.ts:36](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/cookify.ts#L36)
 
 Reads every cookie.
 
@@ -60,7 +60,7 @@ Record containing all cookies.
 
 > **remove**(`name`, `options?`): `boolean`
 
-Defined in: [plugins/cookify.ts:43](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/cookify.ts#L43)
+Defined in: [plugins/cookify.ts:44](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/cookify.ts#L44)
 
 Deletes a cookie.
 
@@ -90,7 +90,7 @@ Must match `path`/`domain` used when setting cookie.
 
 > **set**(`name`, `value`, `options?`): `void`
 
-Defined in: [plugins/cookify.ts:22](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/cookify.ts#L22)
+Defined in: [plugins/cookify.ts:23](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/cookify.ts#L23)
 
 Writes a cookie.
 
@@ -112,7 +112,8 @@ Any JSON-serializable value.
 
 [`CookifySetOptions`](CookifySetOptions.md)
 
-[CookifySetOptions](CookifySetOptions.md)
+Configuration object.
+See [CookifySetOptions](CookifySetOptions.md).
 
 #### Returns
 

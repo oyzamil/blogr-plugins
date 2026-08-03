@@ -8,7 +8,7 @@
 
 > **lazify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [plugins/lazify.ts:93](https://github.com/oyzamil/blogr-plugins/blob/7c9761d7144e5f99842f890efb3515619017d4ea/src/plugins/lazify.ts#L93)
+Defined in: [plugins/lazify.ts:94](https://github.com/oyzamil/blogr-plugins/blob/fa7f5eae266e54892098130cd2f5ac5e41005e1c/src/plugins/lazify.ts#L94)
 
 Lazily loads media once it scrolls near the viewport, using
 `IntersectionObserver`. Handles `<img>` (sets `src`), `<iframe>` (sets
@@ -28,7 +28,8 @@ Selector, element(s), or jQuery collection to lazy-load.
 
 [`LazifyOptions`](../interfaces/LazifyOptions.md) = `{}`
 
-[LazifyOptions](../interfaces/LazifyOptions.md)
+Configuration object.
+See [LazifyOptions](../interfaces/LazifyOptions.md).
 
 ## Returns
 

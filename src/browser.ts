@@ -1,14 +1,29 @@
 import type { PluginInstance } from "./types.js";
 
 import { cookify } from "./plugins/cookify.js";
+import {
+	type CreateWidgetOptions,
+	createWidget,
+	type WidgetEntry,
+	type WidgetInstance,
+	type WidgetTransformer,
+} from "./plugins/createWidget.js";
 import { type LazifyOptions, lazify } from "./plugins/lazify.js";
 import { type MenuifyOptions, menuify } from "./plugins/menuify.js";
 import { type ReplacifyOptions, replacify } from "./plugins/replacify.js";
 import {
+	installResizeImagePrototypes,
 	isSupportedImage,
 	type ResizeImageOptions,
 	resizeImage,
 } from "./plugins/resizeImage.js";
+import {
+	createShortcodeRegistry,
+	defaultShortcodeTags,
+	renderShortcodes,
+	type ShortcodifyDomOptions,
+	shortcodify,
+} from "./plugins/shortcodify.js";
 import { type StickifyOptions, stickify } from "./plugins/stickify.js";
 import { type TocifyOptions, tocify } from "./plugins/tocify.js";
 import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge.js";
@@ -43,6 +58,9 @@ export function registerJQueryPlugins(jq: any): void {
 			options?: ReplacifyOptions,
 		) => replacify(els, search, replacement, options),
 	);
+	bindJQueryPlugin(jq, "shortcodify", (els, options: ShortcodifyDomOptions) =>
+		shortcodify(els, options),
+	);
 }
 
 if (hasJQuery()) {
@@ -50,22 +68,33 @@ if (hasJQuery()) {
 }
 
 export type {
+	CreateWidgetOptions,
 	LazifyOptions,
 	MenuifyOptions,
 	PluginInstance,
 	ReplacifyOptions,
 	ResizeImageOptions,
+	ShortcodifyDomOptions,
 	StickifyOptions,
 	TocifyOptions,
+	WidgetEntry,
+	WidgetInstance,
+	WidgetTransformer,
 };
 
 export {
 	cookify,
+	createShortcodeRegistry,
+	createWidget,
+	defaultShortcodeTags,
+	installResizeImagePrototypes,
 	isSupportedImage,
 	lazify,
 	menuify,
+	renderShortcodes,
 	replacify,
 	resizeImage,
+	shortcodify,
 	stickify,
 	tocify,
 };

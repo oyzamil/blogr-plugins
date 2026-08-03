@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { stickify } from "../src/plugins/stickify.js";
 
 function makeLayout(): void {
@@ -32,7 +33,11 @@ describe("stickify", () => {
 	});
 
 	it("accepts every sidebarBehavior without throwing", () => {
-		for (const sidebarBehavior of ["modern", "stick-to-top", "stick-to-bottom"] as const) {
+		for (const sidebarBehavior of [
+			"modern",
+			"stick-to-top",
+			"stick-to-bottom",
+		] as const) {
 			makeLayout();
 			expect(() => stickify("#sidebar", { sidebarBehavior })).not.toThrow();
 		}

@@ -73,7 +73,8 @@ function loadVideo(
  * `background-image` on any other element.
  *
  * @param input - Selector, element(s), or jQuery collection to lazy-load.
- * @param options - {@link LazifyOptions}
+ * @param options Configuration object.
+ * See {@link LazifyOptions}.
  * @returns A {@link PluginInstance} with `destroy()` to stop observing.
  *
  * @example

@@ -25,7 +25,8 @@ const defaults: Required<MenuifyOptions> = {
  * stripped from its visible text.
  *
  * @param input - Selector, element(s), or jQuery collection for the menu list(s).
- * @param options - {@link MenuifyOptions}
+ * @param options Configuration object.
+ * See {@link MenuifyOptions}.
  * @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
  *
  * @example

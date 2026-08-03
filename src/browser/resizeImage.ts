@@ -1,7 +1,9 @@
 import {
+	installResizeImagePrototypes,
 	isSupportedImage,
 	type ResizeImageOptions,
 	resizeImage,
+	type YouTubeThumbnailQuality,
 } from "../plugins/resizeImage.js";
 
 (window as any).BlogrPlugins = Object.assign(
@@ -9,9 +11,10 @@ import {
 	{
 		resizeImage,
 		isSupportedImage,
+		installResizeImagePrototypes,
 	},
 );
 
-export type { ResizeImageOptions };
+export type { ResizeImageOptions, YouTubeThumbnailQuality };
 
-export { isSupportedImage, resizeImage };
+export { installResizeImagePrototypes, isSupportedImage, resizeImage };

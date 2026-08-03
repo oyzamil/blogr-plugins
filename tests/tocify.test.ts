@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { tocify } from "../src/plugins/tocify.js";
+
+import { tocify } from "../src/plugins/tocify";
 
 function makeArticle(): void {
 	document.body.innerHTML = `
@@ -14,16 +15,18 @@ function makeArticle(): void {
 	`;
 }
 
-describe("tocify", () => {
+describe("toc", () => {
 	it("builds a nested list matching heading hierarchy", () => {
 		makeArticle();
 		tocify("#toc", { content: "#article", headings: "h2,h3" });
 
-		const toc = document.getElementById("toc")!;
-		const topLevelLinks = toc.querySelectorAll(":scope > ul > li > a");
+		const tocElem = document.getElementById("toc")!;
+		const topLevelLinks = tocElem.querySelectorAll(":scope > ul > li > a");
 		expect(topLevelLinks).toHaveLength(3); // Intro, Getting Started, FAQ
 
-		const nested = toc.querySelectorAll(":scope > ul > li:nth-child(2) ul > li > a");
+		const nested = tocElem.querySelectorAll(
+			":scope > ul > li:nth-child(2) ul > li > a",
+		);
 		expect(nested).toHaveLength(2); // Installation, Usage
 	});
 
