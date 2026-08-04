@@ -34,9 +34,9 @@ export { lazify } from "./plugins/lazify.js";
 export { menuify } from "./plugins/menuify.js";
 export { replacify } from "./plugins/replacify.js";
 export {
-	installResizeImagePrototypes,
 	isSupportedImage,
 	resizeImage,
+	resizeImageInDom,
 } from "./plugins/resizeImage.js";
 export {
 	createShortcodeRegistry,

@@ -1,0 +1,38 @@
+#relatedPosts {
+	@apply space-y-2;
+}
+.entry {
+	@apply flex flex-col gap-6 overflow-hidden border-x-0 border-t-0 text-sm transition-all duration-300;
+}
+
+.entry-content {
+	@apply px-2;
+}
+
+.entry-layout {
+	@apply flex items-center gap-4;
+}
+
+.entry-thumbnail {
+	@apply aspect-square size-20 shrink-0 overflow-hidden rounded-lg;
+}
+
+.entry-image {
+	@apply size-full object-cover transition-transform duration-300;
+}
+
+.group\/card:hover .entry-image {
+	@apply scale-105;
+}
+
+.entry-body {
+	@apply flex flex-1 flex-col justify-between gap-1.5;
+}
+
+.entry-title {
+	@apply line-clamp-2 font-medium text-sm mb-0;
+}
+
+.entry-description {
+	@apply line-clamp-2 text-xs text-gray-500 dark:text-gray-400;
+}

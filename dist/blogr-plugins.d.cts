@@ -162,16 +162,6 @@ interface PluginInstance {
 }
 //#endregion
 //#region src/plugins/resizeImage.d.ts
-/**
- * Detects and rewrites Blogger-hosted media URLs:
- * - Blogger/Google-hosted images (`googleusercontent.com` / `*.blogspot.com`,
- *   both the old path-segment URL shape and the newer `=`-suffixed shape)
- *   with new size, crop, format, flip and rotation parameters.
- * - YouTube video thumbnails (`i.ytimg.com`, `img.youtube.com`, and the
- *   `i1`–`i4.ytimg.com` mirrors), rewritten to a chosen quality preset and
- *   always served as WebP — YouTube's thumbnail CDN doesn't support the
- *   width/height/crop/flip/rotate params Blogger images do.
- */
 /** Recognized YouTube thumbnail quality presets. */
 type YouTubeThumbnailQuality = "default" | "mqdefault" | "hqdefault" | "sddefault" | "maxresdefault";
 /** Configuration options for {@link resizeImage}. */
@@ -243,40 +233,22 @@ declare function isSupportedImage(url: string | URL): boolean;
  */
 declare function resizeImage(url: string | URL, options?: ResizeImageOptions): string;
 /**
- * Defines `resizeImage(options?)` on `String.prototype`, `Array.prototype`,
- * `Element.prototype` and `NodeList.prototype` (non-enumerable, so it won't
- * show up in `for...in`/`JSON.stringify`), so it can be called directly on
- * a URL, an array of URLs/elements, a single element, or a `NodeList`:
+ * Applies {@link resizeImage} to every matched element in place — `<img>`
+ * (`src` + `srcset`) or any element with an inline `background-image`.
+ * Elements matching neither are left untouched. No setup call required.
  *
+ * @param input - Selector, element(s), or jQuery collection to resize.
+ * @param options Configuration object.
+ * See {@link ResizeImageOptions}.
+ *
+ * @example
  * ```ts
- * installResizeImagePrototypes();
- *
- * "https://1.bp.blogspot.com/.../s1600/photo.jpg".resizeImage({ width: 400 });
- * [url1, url2].resizeImage({ width: 400 });
- * document.querySelector(".images")?.resizeImage({ width: 400 });
- * document.querySelectorAll(".images").resizeImage({ width: 400 });
+ * import { resizeImageInDom } from "blogr-plugins";
+ * resizeImageInDom(".post-thumb img", { width: 400, height: 400 });
+ * resizeImageInDom(".thumb", { ytThumbnail: "mqdefault" });
  * ```
- *
- * This patches built-in prototypes, which is inherently a bit invasive —
- * call it once during setup (e.g. your content script's entry point), not
- * per-use. Safe to call more than once; it won't redefine an existing
- * `resizeImage` property.
  */
-declare function installResizeImagePrototypes(): void;
-declare global {
-  interface String {
-    resizeImage(options?: ResizeImageOptions): string;
-  }
-  interface Array<T> {
-    resizeImage(options?: ResizeImageOptions): T[];
-  }
-  interface Element {
-    resizeImage(options?: ResizeImageOptions): Element;
-  }
-  interface NodeListOf<TNode extends Node> {
-    resizeImage(options?: ResizeImageOptions): NodeListOf<TNode>;
-  }
-}
+declare function resizeImageInDom(input: ElementInput, options?: ResizeImageOptions): void;
 //#endregion
 //#region src/plugins/createWidget.d.ts
 /** Which Blogger feed a widget lists. */
@@ -500,19 +472,38 @@ interface LazifyOptions {
   attribute?: string;
   /** Attribute holding a `<video>`'s poster image URL. Default `"data-poster"`. */
   posterAttribute?: string;
+  /** Attribute holding a CSS background-image URL. Applies to any element. Default `"data-bg-image"`. */
+  bgImageAttribute?: string;
   /** Class added once an element has finished loading. Default `"lazy-ify"`. */
   loadedClass?: string;
+  /** Class added if an element fails to load. Default `"lazy-ify-error"`. */
+  errorClass?: string;
   /** Root margin passed to the underlying `IntersectionObserver`. Default `"200px"`. */
   rootMargin?: string;
-  /** Called after each element finishes loading. */
+  /**
+   * URL applied immediately (before intersection) so there's no broken-image
+   * flash while waiting to load. Set to `false` to disable. Applied to
+   * `<img src>`, `<video poster>`, and `background-image` targets only —
+   * skipped for `<iframe>`. Default is a 1x1 transparent gif.
+   */
+  placeholder?: string | false;
+  /** Called after each element finishes loading successfully. */
   onLoad?: (el: Element) => void;
+  /** Called if an element's real media fails to load. */
+  onError?: (el: Element, event: Event) => void;
 }
 /**
  * Lazily loads media once it scrolls near the viewport, using
  * `IntersectionObserver`. Handles `<img>` (sets `src`), `<iframe>` (sets
  * `src`), `<video>` (sets `src`/poster directly, or fills in `<source
- * data-src>` children and calls `.load()`), and falls back to setting
- * `background-image` on any other element.
+ * data-src>` children and calls `.load()`), and any element with
+ * `data-bg-image` (or, failing that, any other element) sets
+ * `background-image`.
+ *
+ * A blank placeholder is applied immediately (before intersection) so
+ * nothing shows a broken-image icon while it waits to load. `onLoad` fires
+ * only once the real media has actually finished loading; `onError` fires
+ * if it fails, and `errorClass` is added to the element.
  *
  * @param input - Selector, element(s), or jQuery collection to lazy-load.
  * @param options Configuration object.
@@ -523,6 +514,7 @@ interface LazifyOptions {
  * ```html
  * <img data-src="/photo.jpg" alt="" />
  * <iframe data-src="https://example.com/embed"></iframe>
+ * <div data-bg-image="/hero.jpg"></div>
  * <video data-poster="/poster.jpg" controls>
  * 	<source data-src="/clip.webm" type="video/webm" />
  * 	<source data-src="/clip.mp4" type="video/mp4" />
@@ -530,7 +522,9 @@ interface LazifyOptions {
  * ```
  * ```ts
  * import { lazify } from "blogr-plugins";
- * lazify("img[data-src], iframe[data-src], video");
+ * lazify("img[data-src], iframe[data-src], video, [data-bg-image]", {
+ * 	onError: (el) => el.classList.add("broken"),
+ * });
  * ```
  */
 declare function lazify(input: ElementInput, options?: LazifyOptions): PluginInstance;
@@ -828,4 +822,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LazifyOptions, type MenuifyOptions, type PluginInstance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetFeed, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, installResizeImagePrototypes, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, shortcodify, stickify, tocify };
+export { type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LazifyOptions, type MenuifyOptions, type PluginInstance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetFeed, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stickify, tocify };

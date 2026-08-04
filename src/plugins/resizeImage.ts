@@ -1,3 +1,7 @@
+import type { ElementInput } from "../types.js";
+
+import { resolveElements } from "../utils/dom.js";
+
 /**
  * Detects and rewrites Blogger-hosted media URLs:
  * - Blogger/Google-hosted images (`googleusercontent.com` / `*.blogspot.com`,
@@ -349,123 +353,26 @@ function applyResizeImageToElement(
 }
 
 /**
- * Defines `resizeImage(options?)` on `String.prototype`, `Array.prototype`,
- * `Element.prototype` and `NodeList.prototype` (non-enumerable, so it won't
- * show up in `for...in`/`JSON.stringify`), so it can be called directly on
- * a URL, an array of URLs/elements, a single element, or a `NodeList`:
+ * Applies {@link resizeImage} to every matched element in place — `<img>`
+ * (`src` + `srcset`) or any element with an inline `background-image`.
+ * Elements matching neither are left untouched. No setup call required.
  *
+ * @param input - Selector, element(s), or jQuery collection to resize.
+ * @param options Configuration object.
+ * See {@link ResizeImageOptions}.
+ *
+ * @example
  * ```ts
- * installResizeImagePrototypes();
- *
- * "https://1.bp.blogspot.com/.../s1600/photo.jpg".resizeImage({ width: 400 });
- * [url1, url2].resizeImage({ width: 400 });
- * document.querySelector(".images")?.resizeImage({ width: 400 });
- * document.querySelectorAll(".images").resizeImage({ width: 400 });
+ * import { resizeImageInDom } from "blogr-plugins";
+ * resizeImageInDom(".post-thumb img", { width: 400, height: 400 });
+ * resizeImageInDom(".thumb", { ytThumbnail: "mqdefault" });
  * ```
- *
- * This patches built-in prototypes, which is inherently a bit invasive —
- * call it once during setup (e.g. your content script's entry point), not
- * per-use. Safe to call more than once; it won't redefine an existing
- * `resizeImage` property.
  */
-export function installResizeImagePrototypes(): void {
-	if (
-		typeof String !== "undefined" &&
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn needs ES2022 lib, keeping es2020-safe
-		!Object.prototype.hasOwnProperty.call(String.prototype, "resizeImage")
-	) {
-		Object.defineProperty(String.prototype, "resizeImage", {
-			value: function resizeImageMethod(
-				this: string,
-				options?: ResizeImageOptions,
-			): string {
-				return resizeImage(String(this), options ?? {});
-			},
-			writable: true,
-			configurable: true,
-			enumerable: false,
-		});
-	}
-
-	if (
-		typeof Array !== "undefined" &&
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn needs ES2022 lib, keeping es2020-safe
-		!Object.prototype.hasOwnProperty.call(Array.prototype, "resizeImage")
-	) {
-		Object.defineProperty(Array.prototype, "resizeImage", {
-			value: function resizeImageMethod<T>(
-				this: T[],
-				options?: ResizeImageOptions,
-			): T[] {
-				const opts = options ?? {};
-				return this.map((item) => {
-					if (typeof item === "string") return resizeImage(item, opts) as T;
-					if (typeof Element !== "undefined" && item instanceof Element) {
-						applyResizeImageToElement(item, opts);
-						return item;
-					}
-					return item;
-				});
-			},
-			writable: true,
-			configurable: true,
-			enumerable: false,
-		});
-	}
-
-	if (
-		typeof Element !== "undefined" &&
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn needs ES2022 lib, keeping es2020-safe
-		!Object.prototype.hasOwnProperty.call(Element.prototype, "resizeImage")
-	) {
-		Object.defineProperty(Element.prototype, "resizeImage", {
-			value: function resizeImageMethod(
-				this: Element,
-				options?: ResizeImageOptions,
-			): Element {
-				applyResizeImageToElement(this, options ?? {});
-				return this;
-			},
-			writable: true,
-			configurable: true,
-			enumerable: false,
-		});
-	}
-
-	if (
-		typeof NodeList !== "undefined" &&
-		// biome-ignore lint/suspicious/noPrototypeBuiltins: Object.hasOwn needs ES2022 lib, keeping es2020-safe
-		!Object.prototype.hasOwnProperty.call(NodeList.prototype, "resizeImage")
-	) {
-		Object.defineProperty(NodeList.prototype, "resizeImage", {
-			value: function resizeImageMethod<TNode extends Node>(
-				this: NodeListOf<TNode>,
-				options?: ResizeImageOptions,
-			): NodeListOf<TNode> {
-				const opts = options ?? {};
-				this.forEach((node) => {
-					if (node instanceof Element) applyResizeImageToElement(node, opts);
-				});
-				return this;
-			},
-			writable: true,
-			configurable: true,
-			enumerable: false,
-		});
-	}
-}
-
-declare global {
-	interface String {
-		resizeImage(options?: ResizeImageOptions): string;
-	}
-	interface Array<T> {
-		resizeImage(options?: ResizeImageOptions): T[];
-	}
-	interface Element {
-		resizeImage(options?: ResizeImageOptions): Element;
-	}
-	interface NodeListOf<TNode extends Node> {
-		resizeImage(options?: ResizeImageOptions): NodeListOf<TNode>;
+export function resizeImageInDom(
+	input: ElementInput,
+	options: ResizeImageOptions = {},
+): void {
+	for (const el of resolveElements(input)) {
+		applyResizeImageToElement(el, options);
 	}
 }
