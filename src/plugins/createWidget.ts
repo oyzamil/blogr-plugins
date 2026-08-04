@@ -1,4 +1,4 @@
-import type { Comment, Pager, Post } from "blogr";
+import type { Author, Comment, Pager, Post } from "blogr";
 import { Blogr } from "blogr";
 
 import type { ElementInput, PluginInstance } from "../types.js";
@@ -8,6 +8,12 @@ import { type ResizeImageOptions, resizeImage } from "./resizeImage.js";
 
 /** Which Blogger feed a widget lists. */
 export type WidgetFeed = "posts" | "comments" | "pages";
+
+/** New: What type of data the widget displays. */
+export type WidgetType =
+	| "posts" // Display blog posts (default)
+	| "authors" // Display blog authors
+	| "labels"; // Display blog labels/categories
 
 /** How the initial batch of entries is sourced. */
 export type WidgetSourceType = "recent" | "random";
@@ -47,7 +53,7 @@ export interface WidgetEntry {
 	/** Plain-text summary, truncated to `summaryLength` characters. */
 	content: string;
 	/** The original, un-normalized SDK object, for anything not exposed above. */
-	raw: Post | Comment;
+	raw: Post | Comment | Author | string; // Extended for new types
 }
 
 /**
@@ -66,10 +72,18 @@ export interface CreateWidgetOptions {
 	/** Enable JSONP transport (browser-only). @default false */
 	jsonp?: boolean;
 	/**
+	 * What type of data to display.
+	 * - "posts": Blog posts (default)
+	 * - "authors": Blog authors
+	 * - "labels": Blog labels/categories
+	 * @default "posts"
+	 */
+	type?: WidgetType;
+	/**
 	 * How the initial batch is sourced: `"recent"` lists newest-first,
 	 * `"random"` samples random entries. Default `"recent"`.
 	 */
-	type?: WidgetSourceType;
+	source?: WidgetSourceType;
 	/** Where the widget mounts and renders. **Required.** */
 	containerSelector: ElementInput;
 	/** URL (or numeric id) of the Blogger blog to read from. **Required.** */
@@ -108,7 +122,7 @@ export interface CreateWidgetOptions {
 	 * identified by `currentPostId`. Requires `currentPostId`. Default `false`.
 	 */
 	related?: boolean;
-	/** Shuffle the final rendered order (independent of `type`). Default `false`. */
+	/** Shuffle the final rendered order (independent of `source`). Default `false`. */
 	random?: boolean;
 	/** Drop `currentPostId` from the results. Default `false`. */
 	excludeCurrent?: boolean;
@@ -213,7 +227,8 @@ const DEFAULT_FALLBACK_IMAGE =
 
 const defaults = {
 	jsonp: true,
-	type: "recent" as WidgetSourceType,
+	type: "posts" as WidgetType,
+	source: "recent" as WidgetSourceType,
 	feed: "posts" as WidgetFeed,
 	labels: [] as string[],
 	orderBy: "published" as WidgetOrderBy,
@@ -373,6 +388,7 @@ function detectCurrentPostId(): string | undefined {
  * const widget = createWidget({
  * 	containerSelector: "#relatedPosts",
  * 	blogUrl: "https://example.blogspot.com",
+ * 	type: "posts", // or "authors" or "labels"
  * 	related: true,
  * 	excludeCurrent: true,
  * 	currentPostId: "1234567890123456789",
@@ -393,6 +409,35 @@ function detectCurrentPostId(): string | undefined {
  * ```
  */
 export function createWidget(options: CreateWidgetOptions): WidgetInstance {
+	// Check if Blogr is available (for CDN usage)
+	if (typeof Blogr === "undefined") {
+		console.warn(
+			"[blogr-widget] Blogr SDK not found. Please add it via CDN: " +
+				'<script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"></script> ' +
+				"or install via npm: npm install blogr",
+		);
+		// Return a minimal instance that shows an error message
+		const container = resolveElements(options.containerSelector)?.[0];
+		if (container) {
+			container.innerHTML = `
+				<div class="blogr-widget-error" style="padding: 1rem; background: #fee; border: 1px solid #fcc; color: #c00; border-radius: 4px;">
+					<p><strong>Blogr SDK not loaded.</strong></p>
+					<p>Please include the Blogr library:</p>
+					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
+					</code>
+				</div>
+			`;
+		}
+		return {
+			refresh: async () => {},
+			setQuery: async () => {},
+			destroy: () => {
+				if (container) container.innerHTML = "";
+			},
+		};
+	}
+
 	const opts = { ...defaults, ...options };
 	const container = resolveElements(opts.containerSelector)[0] as
 		| HTMLElement
@@ -434,49 +479,111 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	let loadMoreBtn: HTMLButtonElement | null = null;
 
 	const usesBuffer =
-		opts.type === "random" || (!opts.deepSearch && !!opts.query);
+		opts.source === "random" || (!opts.deepSearch && !!opts.query);
+
+	function isPostEntry(raw: Post | Comment | Author | string): raw is Post {
+		return (
+			typeof raw === "object" &&
+			raw !== null &&
+			"labels" in raw &&
+			"content" in raw
+		);
+	}
+
+	function isCommentEntry(
+		raw: Post | Comment | Author | string,
+	): raw is Comment {
+		return typeof raw === "object" && raw !== null && "post" in raw;
+	}
+
+	function isAuthorEntry(raw: Post | Comment | Author | string): raw is Author {
+		return (
+			typeof raw === "object" && raw !== null && "name" in raw && !("id" in raw)
+		);
+	}
 
 	async function normalize(
-		raw: Post | Comment,
+		raw: Post | Comment | Author | string,
 		index: number,
 	): Promise<WidgetEntry> {
-		const post = isPost(raw) ? raw : null;
-		let thumb = "";
+		let entry: WidgetEntry;
 
-		if (opts.thumbnail !== false) {
-			thumb =
-				post?.thumbnailAlt ||
-				post?.thumbnail ||
-				blog.thumbnail(post ?? raw.content) ||
-				"";
-			if (thumb) {
-				const resizeOpts: ResizeImageOptions =
-					opts.thumbnail === "default"
-						? {}
-						: (opts.thumbnail as ResizeImageOptions);
-				thumb = resizeImage(thumb, resizeOpts);
-			} else {
-				thumb = opts.fallbackImage;
+		if (opts.type === "authors") {
+			if (!isAuthorEntry(raw)) throw new Error("Expected Author");
+			const author = raw;
+			entry = {
+				id: author.url || `author-${index}`,
+				title: author.name || "Unknown Author",
+				url: author.url || "#",
+				author: author.name || "",
+				published: "",
+				updated: "",
+				labels: [],
+				thumbnail: author.image || opts.fallbackImage,
+				content: "",
+				raw: author,
+			};
+		} else if (opts.type === "labels") {
+			if (typeof raw !== "string") throw new Error("Expected label string");
+			const label = raw;
+			entry = {
+				id: `label-${label}`,
+				title: label,
+				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
+				author: "",
+				published: "",
+				updated: "",
+				labels: [label],
+				thumbnail: opts.fallbackImage,
+				content: "",
+				raw: label,
+			};
+		} else {
+			if (typeof raw === "string" || isAuthorEntry(raw)) {
+				throw new Error("Expected Post or Comment");
 			}
-		}
 
-		let content = blog.htmlToText(raw.content ?? raw.summary ?? "");
-		if (opts.summaryLength > 0 && content.length > opts.summaryLength) {
-			content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
-		}
+			const post = isPostEntry(raw) ? raw : null;
+			let thumb = "";
 
-		let entry: WidgetEntry = {
-			id: raw.id,
-			title: post?.title ?? "",
-			url: raw.url,
-			author: raw.author?.name ?? "",
-			published: formatDate(raw.published, opts.dateFormat),
-			updated: formatDate(raw.updated, opts.dateFormat),
-			labels: post?.labels ?? [],
-			thumbnail: thumb,
-			content,
-			raw,
-		};
+			if (opts.thumbnail !== false) {
+				const contentForThumb = post ? post.content : raw.content;
+				thumb =
+					post?.thumbnailAlt ||
+					post?.thumbnail ||
+					blog.thumbnail(contentForThumb) ||
+					"";
+				if (thumb) {
+					const resizeOpts: ResizeImageOptions =
+						opts.thumbnail === "default"
+							? {}
+							: (opts.thumbnail as ResizeImageOptions);
+					thumb = resizeImage(thumb, resizeOpts);
+				} else {
+					thumb = opts.fallbackImage;
+				}
+			}
+
+			const contentSource = post ? post.content : raw.content;
+			const summarySource = post ? post.summary : raw.summary;
+			let content = blog.htmlToText(contentSource ?? summarySource ?? "");
+			if (opts.summaryLength > 0 && content.length > opts.summaryLength) {
+				content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
+			}
+
+			entry = {
+				id: raw.id,
+				title: post?.title ?? "",
+				url: raw.url,
+				author: raw.author?.name ?? "",
+				published: formatDate(raw.published, opts.dateFormat),
+				updated: formatDate(raw.updated, opts.dateFormat),
+				labels: post?.labels ?? [],
+				thumbnail: thumb,
+				content,
+				raw,
+			};
+		}
 
 		for (const transform of opts.transformers) {
 			entry = await transform(entry, index);
@@ -523,6 +630,24 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 			return { entries: applyFilters(normalized), nextPager: next };
 		}
 
+		// Handle different widget types
+		if (opts.type === "authors") {
+			const authors = await blog.authors({
+				sampleSize: opts.maxVisibleItems * 4,
+			});
+			const normalized = await Promise.all(
+				authors.map((author, i) => normalize(author, i)),
+			);
+			return { entries: applyFilters(normalized), nextPager: null };
+		} else if (opts.type === "labels") {
+			const labels = await blog.labels();
+			const normalized = await Promise.all(
+				labels.map((label, i) => normalize(label, i)),
+			);
+			return { entries: applyFilters(normalized), nextPager: null };
+		}
+
+		// Default: posts, comments, pages
 		const baseOptions = {
 			limit: opts.maxVisibleItems,
 			orderBy: opts.orderBy,
@@ -561,8 +686,21 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	}
 
 	async function fetchBuffer(): Promise<WidgetEntry[]> {
+		if (opts.type === "authors") {
+			const authors = await blog.authors({
+				sampleSize: opts.maxVisibleItems * 4,
+			});
+			return await Promise.all(
+				authors.map((author, i) => normalize(author, i)),
+			);
+		} else if (opts.type === "labels") {
+			const labels = await blog.labels();
+			return await Promise.all(labels.map((label, i) => normalize(label, i)));
+		}
+
+		// Default: posts
 		let items: Post[];
-		if (opts.type === "random") {
+		if (opts.source === "random") {
 			items = await blog.random({
 				count: opts.maxVisibleItems * 4,
 				label: opts.labels.length ? opts.labels : undefined,
@@ -614,6 +752,11 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		sentinel?.remove();
 		scrollObserver?.disconnect();
 
+		// Authors and labels don't support pagination
+		if (opts.type === "authors" || opts.type === "labels") {
+			return;
+		}
+
 		const hasMore = usesBuffer
 			? visible.length < buffer.length
 			: pager?.hasNext !== false; // unknown (null pager) treated as "maybe more"
@@ -645,6 +788,9 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 
 	async function loadMore(): Promise<void> {
 		if (loading || destroyed) return;
+		// Authors and labels don't support pagination
+		if (opts.type === "authors" || opts.type === "labels") return;
+
 		loading = true;
 		try {
 			if (usesBuffer) {
@@ -669,7 +815,14 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	async function load(): Promise<void> {
 		if (loading || destroyed) return;
 		loading = true;
-		target.innerHTML = opts.loading("Loading posts...");
+
+		const statusText =
+			opts.type === "authors"
+				? "Loading authors..."
+				: opts.type === "labels"
+					? "Loading labels..."
+					: "Loading posts...";
+		target.innerHTML = opts.loading(statusText);
 
 		try {
 			await opts.beforeFetch?.();
@@ -679,7 +832,8 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 				currentPostLabels = current?.labels ?? [];
 			}
 
-			if (opts.cache) {
+			// Don't use cache for authors or labels
+			if (opts.cache && opts.type === "posts") {
 				const cached = readLocalCache(cacheKey, opts.cacheTTL);
 				if (cached) {
 					if (usesBuffer) buffer = cached;
@@ -700,13 +854,15 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 					? buffer.filter((e) => matchesQuery(e, currentQuery))
 					: buffer;
 				await opts.afterFetch?.(filtered);
-				if (opts.cache) writeLocalCache(cacheKey, filtered);
+				if (opts.cache && opts.type === "posts")
+					writeLocalCache(cacheKey, filtered);
 				renderEntries(filtered.slice(0, opts.maxVisibleItems), false);
 			} else {
 				const { entries, nextPager } = await fetchNetworkBatch(null);
 				pager = nextPager;
 				await opts.afterFetch?.(entries);
-				if (opts.cache) writeLocalCache(cacheKey, entries);
+				if (opts.cache && opts.type === "posts")
+					writeLocalCache(cacheKey, entries);
 				renderEntries(entries, false);
 			}
 		} catch (err) {
@@ -746,6 +902,11 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		},
 		async setQuery(query: string) {
 			currentQuery = query;
+			if (opts.type === "authors" || opts.type === "labels") {
+				// Authors and labels don't support query, just reload
+				await load();
+				return;
+			}
 			if (opts.deepSearch) {
 				pager = null;
 				visible = [];

@@ -14,7 +14,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 	<script>
 		(async () => {
-			const files = ["style.css", "widget-1.css"];
+			const files = ["style.css", "widget-1.css", "labels.css"];
 			const parts = await Promise.all(
 				files.map((f) => fetch(f).then((r) => r.text())),
 			);
@@ -616,6 +616,27 @@ createWidget({
 				<h4>Related posts</h4>
 				<div id="relatedPosts"></div>
 			</div>
+
+			<div class="widget" id="widget-2">
+				<h4>Featured Post</h4>
+				<div id="featuredPosts"></div>
+			</div>
+
+			<div class="widget" id="widget-3">
+				<h4>Authors</h4>
+				<div id="blogAuthors"></div>
+			</div>
+
+			<div class="widget" id="widget-4">
+				<h4>Labels</h4>
+				<div id="categoryCloud" class="labels-container s-1"></div>
+			</div>
+
+			<div class="widget" id="widget-5">
+				<h4>Recent Comments</h4>
+				<div id="recentComments"></div>
+			</div>
+
 		</aside>
 	</section>
 

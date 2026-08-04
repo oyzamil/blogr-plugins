@@ -253,6 +253,8 @@ declare function resizeImageInDom(input: ElementInput, options?: ResizeImageOpti
 //#region src/plugins/createWidget.d.ts
 /** Which Blogger feed a widget lists. */
 type WidgetFeed = "posts" | "comments" | "pages";
+/** New: What type of data the widget displays. */
+type WidgetType = "posts" | "authors" | "labels";
 /** How the initial batch of entries is sourced. */
 type WidgetSourceType = "recent" | "random";
 /** Feed field a widget's entries are ordered by. */
@@ -288,7 +290,7 @@ interface WidgetEntry {
   /** Plain-text summary, truncated to `summaryLength` characters. */
   content: string;
   /** The original, un-normalized SDK object, for anything not exposed above. */
-  raw: Post | Comment;
+  raw: Post | Comment | Author | string;
 }
 /**
  * Transforms one normalized entry, e.g. to inject a computed field, rewrite
@@ -302,10 +304,18 @@ interface CreateWidgetOptions {
   /** Enable JSONP transport (browser-only). @default false */
   jsonp?: boolean;
   /**
+   * What type of data to display.
+   * - "posts": Blog posts (default)
+   * - "authors": Blog authors
+   * - "labels": Blog labels/categories
+   * @default "posts"
+   */
+  type?: WidgetType;
+  /**
    * How the initial batch is sourced: `"recent"` lists newest-first,
    * `"random"` samples random entries. Default `"recent"`.
    */
-  type?: WidgetSourceType;
+  source?: WidgetSourceType;
   /** Where the widget mounts and renders. **Required.** */
   containerSelector: ElementInput;
   /** URL (or numeric id) of the Blogger blog to read from. **Required.** */
@@ -342,7 +352,7 @@ interface CreateWidgetOptions {
    * identified by `currentPostId`. Requires `currentPostId`. Default `false`.
    */
   related?: boolean;
-  /** Shuffle the final rendered order (independent of `type`). Default `false`. */
+  /** Shuffle the final rendered order (independent of `source`). Default `false`. */
   random?: boolean;
   /** Drop `currentPostId` from the results. Default `false`. */
   excludeCurrent?: boolean;
@@ -444,6 +454,7 @@ interface WidgetInstance extends PluginInstance {
  * const widget = createWidget({
  * 	containerSelector: "#relatedPosts",
  * 	blogUrl: "https://example.blogspot.com",
+ * 	type: "posts", // or "authors" or "labels"
  * 	related: true,
  * 	excludeCurrent: true,
  * 	currentPostId: "1234567890123456789",

@@ -1963,7 +1963,8 @@ function resizeImageInDom(input, options = {}) {
 //#region src/plugins/createWidget.ts
 const defaults$6 = {
 	jsonp: true,
-	type: "recent",
+	type: "posts",
+	source: "recent",
 	feed: "posts",
 	labels: [],
 	orderBy: "published",
@@ -2048,9 +2049,6 @@ function shuffle(items) {
 	}
 	return out;
 }
-function isPost(entry) {
-	return "labels" in entry;
-}
 function readLocalCache(key, ttlSeconds) {
 	try {
 		const raw = localStorage.getItem(`blogr-widget:${key}`);
@@ -2100,6 +2098,7 @@ function detectCurrentPostId() {
 * const widget = createWidget({
 * 	containerSelector: "#relatedPosts",
 * 	blogUrl: "https://example.blogspot.com",
+* 	type: "posts", // or "authors" or "labels"
 * 	related: true,
 * 	excludeCurrent: true,
 * 	currentPostId: "1234567890123456789",
@@ -2120,6 +2119,26 @@ function detectCurrentPostId() {
 * ```
 */
 function createWidget(options) {
+	if (typeof Blogr === "undefined") {
+		console.warn("[blogr-widget] Blogr SDK not found. Please add it via CDN: <script src=\"https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js\"><\/script> or install via npm: npm install blogr");
+		const container = resolveElements(options.containerSelector)?.[0];
+		if (container) container.innerHTML = `
+				<div class="blogr-widget-error" style="padding: 1rem; background: #fee; border: 1px solid #fcc; color: #c00; border-radius: 4px;">
+					<p><strong>Blogr SDK not loaded.</strong></p>
+					<p>Please include the Blogr library:</p>
+					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
+					</code>
+				</div>
+			`;
+		return {
+			refresh: async () => {},
+			setQuery: async () => {},
+			destroy: () => {
+				if (container) container.innerHTML = "";
+			}
+		};
+	}
 	const opts = {
 		...defaults$6,
 		...options
@@ -2145,31 +2164,74 @@ function createWidget(options) {
 	let scrollObserver = null;
 	let sentinel = null;
 	let loadMoreBtn = null;
-	const usesBuffer = opts.type === "random" || !opts.deepSearch && !!opts.query;
+	const usesBuffer = opts.source === "random" || !opts.deepSearch && !!opts.query;
+	function isPostEntry(raw) {
+		return typeof raw === "object" && raw !== null && "labels" in raw && "content" in raw;
+	}
+	function isAuthorEntry(raw) {
+		return typeof raw === "object" && raw !== null && "name" in raw && !("id" in raw);
+	}
 	async function normalize(raw, index) {
-		const post = isPost(raw) ? raw : null;
-		let thumb = "";
-		if (opts.thumbnail !== false) {
-			thumb = post?.thumbnailAlt || post?.thumbnail || blog.thumbnail(post ?? raw.content) || "";
-			if (thumb) {
-				const resizeOpts = opts.thumbnail === "default" ? {} : opts.thumbnail;
-				thumb = resizeImage(thumb, resizeOpts);
-			} else thumb = opts.fallbackImage;
+		let entry;
+		if (opts.type === "authors") {
+			if (!isAuthorEntry(raw)) throw new Error("Expected Author");
+			const author = raw;
+			entry = {
+				id: author.url || `author-${index}`,
+				title: author.name || "Unknown Author",
+				url: author.url || "#",
+				author: author.name || "",
+				published: "",
+				updated: "",
+				labels: [],
+				thumbnail: author.image || opts.fallbackImage,
+				content: "",
+				raw: author
+			};
+		} else if (opts.type === "labels") {
+			if (typeof raw !== "string") throw new Error("Expected label string");
+			const label = raw;
+			entry = {
+				id: `label-${label}`,
+				title: label,
+				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
+				author: "",
+				published: "",
+				updated: "",
+				labels: [label],
+				thumbnail: opts.fallbackImage,
+				content: "",
+				raw: label
+			};
+		} else {
+			if (typeof raw === "string" || isAuthorEntry(raw)) throw new Error("Expected Post or Comment");
+			const post = isPostEntry(raw) ? raw : null;
+			let thumb = "";
+			if (opts.thumbnail !== false) {
+				const contentForThumb = post ? post.content : raw.content;
+				thumb = post?.thumbnailAlt || post?.thumbnail || blog.thumbnail(contentForThumb) || "";
+				if (thumb) {
+					const resizeOpts = opts.thumbnail === "default" ? {} : opts.thumbnail;
+					thumb = resizeImage(thumb, resizeOpts);
+				} else thumb = opts.fallbackImage;
+			}
+			const contentSource = post ? post.content : raw.content;
+			const summarySource = post ? post.summary : raw.summary;
+			let content = blog.htmlToText(contentSource ?? summarySource ?? "");
+			if (opts.summaryLength > 0 && content.length > opts.summaryLength) content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
+			entry = {
+				id: raw.id,
+				title: post?.title ?? "",
+				url: raw.url,
+				author: raw.author?.name ?? "",
+				published: formatDate(raw.published, opts.dateFormat),
+				updated: formatDate(raw.updated, opts.dateFormat),
+				labels: post?.labels ?? [],
+				thumbnail: thumb,
+				content,
+				raw
+			};
 		}
-		let content = blog.htmlToText(raw.content ?? raw.summary ?? "");
-		if (opts.summaryLength > 0 && content.length > opts.summaryLength) content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
-		let entry = {
-			id: raw.id,
-			title: post?.title ?? "",
-			url: raw.url,
-			author: raw.author?.name ?? "",
-			published: formatDate(raw.published, opts.dateFormat),
-			updated: formatDate(raw.updated, opts.dateFormat),
-			labels: post?.labels ?? [],
-			thumbnail: thumb,
-			content,
-			raw
-		};
 		for (const transform of opts.transformers) entry = await transform(entry, index);
 		return entry;
 	}
@@ -2196,6 +2258,19 @@ function createWidget(options) {
 			return {
 				entries: applyFilters(await Promise.all(next.items.map((raw, i) => normalize(raw, i)))),
 				nextPager: next
+			};
+		}
+		if (opts.type === "authors") {
+			const authors = await blog.authors({ sampleSize: opts.maxVisibleItems * 4 });
+			return {
+				entries: applyFilters(await Promise.all(authors.map((author, i) => normalize(author, i)))),
+				nextPager: null
+			};
+		} else if (opts.type === "labels") {
+			const labels = await blog.labels();
+			return {
+				entries: applyFilters(await Promise.all(labels.map((label, i) => normalize(label, i)))),
+				nextPager: null
 			};
 		}
 		const baseOptions = {
@@ -2231,8 +2306,15 @@ function createWidget(options) {
 		};
 	}
 	async function fetchBuffer() {
+		if (opts.type === "authors") {
+			const authors = await blog.authors({ sampleSize: opts.maxVisibleItems * 4 });
+			return await Promise.all(authors.map((author, i) => normalize(author, i)));
+		} else if (opts.type === "labels") {
+			const labels = await blog.labels();
+			return await Promise.all(labels.map((label, i) => normalize(label, i)));
+		}
 		let items;
-		if (opts.type === "random") items = await blog.random({
+		if (opts.source === "random") items = await blog.random({
 			count: opts.maxVisibleItems * 4,
 			label: opts.labels.length ? opts.labels : void 0,
 			query: currentQuery || void 0
@@ -2270,6 +2352,7 @@ function createWidget(options) {
 		loadMoreBtn?.remove();
 		sentinel?.remove();
 		scrollObserver?.disconnect();
+		if (opts.type === "authors" || opts.type === "labels") return;
 		if (!(usesBuffer ? visible.length < buffer.length : pager?.hasNext !== false) || visible.length === 0) return;
 		if (opts.loadMore) {
 			loadMoreBtn = document.createElement("button");
@@ -2291,6 +2374,7 @@ function createWidget(options) {
 	}
 	async function loadMore() {
 		if (loading || destroyed) return;
+		if (opts.type === "authors" || opts.type === "labels") return;
 		loading = true;
 		try {
 			if (usesBuffer) {
@@ -2311,11 +2395,12 @@ function createWidget(options) {
 	async function load() {
 		if (loading || destroyed) return;
 		loading = true;
-		target.innerHTML = opts.loading("Loading posts...");
+		const statusText = opts.type === "authors" ? "Loading authors..." : opts.type === "labels" ? "Loading labels..." : "Loading posts...";
+		target.innerHTML = opts.loading(statusText);
 		try {
 			await opts.beforeFetch?.();
 			if (opts.related && currentPostId && currentPostLabels.length === 0) currentPostLabels = (await blog.post(currentPostId))?.labels ?? [];
-			if (opts.cache) {
+			if (opts.cache && opts.type === "posts") {
 				const cached = readLocalCache(cacheKey, opts.cacheTTL);
 				if (cached) {
 					if (usesBuffer) buffer = cached;
@@ -2331,13 +2416,13 @@ function createWidget(options) {
 				buffer = buffer.length ? buffer : await fetchBuffer();
 				const filtered = currentQuery ? buffer.filter((e) => matchesQuery(e, currentQuery)) : buffer;
 				await opts.afterFetch?.(filtered);
-				if (opts.cache) writeLocalCache(cacheKey, filtered);
+				if (opts.cache && opts.type === "posts") writeLocalCache(cacheKey, filtered);
 				renderEntries(filtered.slice(0, opts.maxVisibleItems), false);
 			} else {
 				const { entries, nextPager } = await fetchNetworkBatch(null);
 				pager = nextPager;
 				await opts.afterFetch?.(entries);
-				if (opts.cache) writeLocalCache(cacheKey, entries);
+				if (opts.cache && opts.type === "posts") writeLocalCache(cacheKey, entries);
 				renderEntries(entries, false);
 			}
 		} catch (err) {
@@ -2369,6 +2454,10 @@ function createWidget(options) {
 		},
 		async setQuery(query) {
 			currentQuery = query;
+			if (opts.type === "authors" || opts.type === "labels") {
+				await load();
+				return;
+			}
 			if (opts.deepSearch) {
 				pager = null;
 				visible = [];

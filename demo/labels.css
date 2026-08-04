@@ -1,0 +1,7 @@
+.labels-container.s-1 {
+	@apply flex flex-wrap justify-start gap-2;
+
+	.label {
+		@apply inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 inset-ring inset-ring-gray-500/10;
+	}
+}

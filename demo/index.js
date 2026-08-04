@@ -244,10 +244,12 @@ pageLog(
 	`cookify.get("resize-image-tab") = ${BlogrPlugins.cookify.get("resize-image-tab")}`,
 );
 
+const blogUrl = "https://softwebtuts.blogspot.com";
+
 /* ---- createWidget: related posts, deferred fetch until sidebar nears view ---- */
 BlogrPlugins.createWidget({
 	containerSelector: "#relatedPosts",
-	blogUrl: "https://softwebtuts.blogspot.com",
+	blogUrl,
 	type: "recent",
 	labels: ["tool"],
 	maxVisibleItems: 6,
@@ -280,4 +282,94 @@ BlogrPlugins.createWidget({
 			</div>
 	</div>
 </a>`,
+});
+
+const featuredPostTemplate = (entry) => `
+  <article class="featured-post">
+    <img src="${entry.thumbnail}" alt="${entry.title}" loading="lazy">
+    <h2><a href="${entry.url}">${entry.title}</a></h2>
+    <p>${entry.content}</p>
+    <div class="post-meta">
+      <span>${entry.author}</span>
+      <time>${entry.published}</time>
+    </div>
+  </article>
+`;
+
+const authorBioTemplate = (entry) => `
+  <div class="author-bio">
+    <img src="${entry.thumbnail}" alt="${entry.title}" width="80" height="80" class="avatar">
+    <h3>${entry.title}</h3>
+    <p>${entry.content || "Author on this blog"}</p>
+    <a href="${entry.url}" target="_blank">View posts</a>
+  </div>
+`;
+
+const categoryCloudTemplate = (entry) => `
+  <a href="${entry.url}" class="label">${entry.title}</a>
+`;
+
+const commentTemplate = (entry) => `
+  <div class="recent-comment">
+    <strong>${entry.author}</strong>
+    <time>${entry.published}</time>
+    <p>${entry.content}</p>
+    <a href="${entry.url}">View on post</a>
+  </div>
+`;
+
+const categoryTransform = (entry) => {
+	// Replace hyphens with spaces
+	const cleaned = entry.title.replace(/-/g, " ");
+	// Capitalize each word
+	const capitalized = cleaned
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+		.join(" ");
+
+	return {
+		...entry,
+		title: capitalized,
+		// Also update URL to use original label
+		url: `${entry.url.split("/search/label/")[0]}/search/label/${encodeURIComponent(entry.raw)}`,
+	};
+};
+
+// 1. Featured posts
+const featuredWidget = BlogrPlugins.createWidget({
+	containerSelector: "#featuredPosts",
+	blogUrl,
+	type: "posts",
+	source: "recent",
+	maxVisibleItems: 3,
+	labels: ["Featured"],
+	template: featuredPostTemplate,
+});
+
+// 2. Author bios
+const authorWidget = BlogrPlugins.createWidget({
+	containerSelector: "#blogAuthors",
+	blogUrl,
+	type: "authors",
+	maxVisibleItems: 5,
+	template: authorBioTemplate,
+});
+
+// 3. Category cloud
+const categoryWidget = BlogrPlugins.createWidget({
+	containerSelector: "#categoryCloud",
+	blogUrl,
+	type: "labels",
+	transformers: [categoryTransform],
+	template: categoryCloudTemplate,
+});
+
+// 4. Recent comments
+const commentWidget = BlogrPlugins.createWidget({
+	containerSelector: "#recentComments",
+	blogUrl,
+	type: "posts",
+	feed: "comments",
+	maxVisibleItems: 10,
+	template: commentTemplate,
 });
