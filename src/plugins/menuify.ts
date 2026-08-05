@@ -10,40 +10,17 @@ export interface MenuifyOptions {
 	submenuClass?: string;
 	/** Class applied to `<li>` items that received a submenu. Default `"has-sub"`. */
 	hasSubClass?: string;
+	/** Chevron element text. Default `"<"`. */
+	chevronText?: string;
 }
 
 const defaults: Required<MenuifyOptions> = {
 	nestingPrefix: "_",
 	submenuClass: "sub-menu",
 	hasSubClass: "has-sub",
+	chevronText: "<",
 };
 
-/**
- * Converts a flat `<ul><li><a>` link list into a nested dropdown menu.
- * Any link whose text starts with the nesting prefix (default `_`) is moved
- * into a submenu under the previous non-prefixed link, and the prefix is
- * stripped from its visible text.
- *
- * @param input - Selector, element(s), or jQuery collection for the menu list(s).
- * @param options Configuration object.
- * See {@link MenuifyOptions}.
- * @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
- *
- * @example
- * ```html
- * <ul class="menu">
- *   <li><a>Home</a></li>
- *   <li><a>Blog</a></li>
- *   <li><a>_Web Design</a></li>
- *   <li><a>_SEO</a></li>
- * </ul>
- * ```
- * ```ts
- * import { menuify } from "blogr-plugins";
- * menuify(".menu");
- * // "Web Design" and "SEO" become a submenu nested under "Blog"
- * ```
- */
 export function menuify(
 	input: ElementInput,
 	options: MenuifyOptions = {},
@@ -57,51 +34,75 @@ export function menuify(
 			(el): el is HTMLLIElement => el.tagName === "LI",
 		);
 
-		let currentParent: HTMLLIElement | null = null;
-		let currentSubmenu: HTMLUListElement | null = null;
+		const levelParents: HTMLLIElement[] = [];
+		const levelSubmenus: HTMLUListElement[] = [];
 		const moves: Array<{ li: HTMLLIElement; nextSibling: Node | null }> = [];
 		const textEdits: Array<{ el: HTMLElement; original: string }> = [];
 		const addedSubmenus: HTMLUListElement[] = [];
 		const addedClasses: HTMLElement[] = [];
+		const addedChevrons: HTMLElement[] = [];
+
+		const prefixChar = opts.nestingPrefix.charAt(0);
 
 		for (const li of items) {
 			const link = li.querySelector("a");
 			if (!link) continue;
 
 			const text = link.textContent ?? "";
+			let depth = 0;
+			while (depth < text.length && text[depth] === prefixChar) {
+				depth++;
+			}
 
-			if (text.startsWith(opts.nestingPrefix)) {
-				if (!currentParent) continue; // no parent to nest under, leave as-is
+			if (depth > 0) {
+				if (depth - 1 >= levelParents.length) continue;
 
-				if (!currentSubmenu) {
-					currentSubmenu = document.createElement("ul");
-					currentSubmenu.className = opts.submenuClass;
-					currentParent.appendChild(currentSubmenu);
-					currentParent.classList.add(opts.hasSubClass);
-					addedSubmenus.push(currentSubmenu);
-					addedClasses.push(currentParent);
+				const parentLi = levelParents[depth - 1];
+				let submenu = levelSubmenus[depth - 1];
+
+				if (!submenu) {
+					submenu = document.createElement("ul");
+					submenu.className = opts.submenuClass;
+					parentLi.appendChild(submenu);
+					parentLi.classList.add(opts.hasSubClass);
+
+					// Add chevron to parent link
+					const parentLink = parentLi.querySelector("a");
+					if (parentLink) {
+						const chevron = document.createElement("span");
+						chevron.className = "chevron";
+						chevron.textContent = opts.chevronText;
+						parentLink.appendChild(chevron);
+						addedChevrons.push(chevron);
+					}
+
+					addedSubmenus.push(submenu);
+					addedClasses.push(parentLi);
+					levelSubmenus[depth - 1] = submenu;
 				}
 
 				textEdits.push({ el: link, original: text });
-				link.textContent = text.slice(opts.nestingPrefix.length);
-
-				// remember where the <li> lived so destroy() can put it back
+				link.textContent = text.slice(depth);
 				moves.push({ li, nextSibling: li.nextSibling });
-				currentSubmenu.appendChild(li);
+				submenu.appendChild(li);
+
+				levelParents[depth] = li;
+				if (levelSubmenus.length < depth) levelSubmenus.length = depth;
 			} else {
-				currentParent = li;
-				currentSubmenu = null;
+				levelParents.length = 1;
+				levelSubmenus.length = 0;
+				levelParents[0] = li;
 			}
 		}
 
 		undoFns.push(() => {
 			for (const { el, original } of textEdits) el.textContent = original;
-			// restore moved items to the flat list before removing submenus
 			for (const { li, nextSibling } of moves.reverse()) {
 				list.insertBefore(li, nextSibling);
 			}
 			for (const submenu of addedSubmenus) submenu.remove();
 			for (const el of addedClasses) el.classList.remove(opts.hasSubClass);
+			for (const chevron of addedChevrons) chevron.remove();
 		});
 	}
 

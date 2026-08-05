@@ -1,5 +1,4 @@
 import {
-	installResizeImagePrototypes,
 	isSupportedImage,
 	type ResizeImageOptions,
 	resizeImage,
@@ -11,10 +10,9 @@ import {
 	{
 		resizeImage,
 		isSupportedImage,
-		installResizeImagePrototypes,
 	},
 );
 
 export type { ResizeImageOptions, YouTubeThumbnailQuality };
 
-export { installResizeImagePrototypes, isSupportedImage, resizeImage };
+export { isSupportedImage, resizeImage };

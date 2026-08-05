@@ -1964,7 +1964,6 @@ const defaults$6 = {
 	jsonp: true,
 	type: "posts",
 	source: "recent",
-	feed: "posts",
 	labels: [],
 	orderBy: "published",
 	sort: "desc",
@@ -1985,10 +1984,10 @@ const defaults$6 = {
 	cache: false,
 	cacheTTL: 3600,
 	transformers: [],
-	loading: (status) => `<div class="blogr-widget-loading" style="text-align:center"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
+	loading: (status) => `<div class="blogr-widget-loading" style="text-align:center;width:100%"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
 	error: (errorMsg) => `<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () => `<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-	template: (entry) => `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
+	template: (entry) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
 	entryClass: () => ""
 };
 const MONTHS_LONG = [
@@ -2097,7 +2096,7 @@ function detectCurrentPostId() {
 * const widget = createWidget({
 * 	containerSelector: "#relatedPosts",
 * 	blogUrl: "https://example.blogspot.com",
-* 	type: "posts", // or "authors" or "labels"
+* 	type: "posts", // or "pages" | "comments" | "authors" | "labels"
 * 	related: true,
 * 	excludeCurrent: true,
 * 	currentPostId: "1234567890123456789",
@@ -2106,8 +2105,8 @@ function detectCurrentPostId() {
 * 	loadMore: true,
 * 	template: (entry) => `
 * 		<article class="related-post">
-* 			<img src="${entry.thumbnail}" alt="${entry.title}" />
-* 			<h3>${entry.title}</h3>
+* 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
+* 			<h3>${entry.raw.title}</h3>
 * 			<p>${entry.content}</p>
 * 		</article>
 * 	`,
@@ -2164,80 +2163,92 @@ function createWidget(options) {
 	let sentinel = null;
 	let loadMoreBtn = null;
 	const usesBuffer = opts.source === "random" || !opts.deepSearch && !!opts.query;
-	function isPostEntry(raw) {
-		return typeof raw === "object" && raw !== null && "labels" in raw && "content" in raw;
+	function normalizeAuthor(author, index) {
+		return {
+			kind: "authors",
+			id: author.url || `author-${index}`,
+			name: author.name || "Unknown Author",
+			url: author.url || "#",
+			image: author.image || opts.fallbackImage,
+			raw: author
+		};
 	}
-	function isAuthorEntry(raw) {
-		return typeof raw === "object" && raw !== null && "name" in raw && !("id" in raw);
+	function normalizeLabel(label) {
+		return {
+			kind: "labels",
+			id: `label-${label}`,
+			name: label,
+			url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
+			raw: label
+		};
+	}
+	function truncate(text) {
+		if (opts.summaryLength > 0 && text.length > opts.summaryLength) return `${text.slice(0, opts.summaryLength).trimEnd()}\u2026`;
+		return text;
+	}
+	function normalizePost(raw) {
+		let thumb = "";
+		if (opts.thumbnail !== false) {
+			thumb = raw.thumbnailAlt || raw.thumbnail || blog.thumbnail(raw.content) || "";
+			if (thumb) {
+				const resizeOpts = opts.thumbnail === "default" ? {} : opts.thumbnail;
+				thumb = resizeImage(thumb, resizeOpts);
+			} else thumb = opts.fallbackImage;
+		}
+		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+		return {
+			kind: opts.type,
+			id: raw.id,
+			title: raw?.title ?? "",
+			url: raw.url,
+			author: raw.author,
+			published: formatDate(raw.published, opts.dateFormat),
+			updated: formatDate(raw.updated, opts.dateFormat),
+			labels: raw?.labels ?? [],
+			thumbnail: thumb,
+			content,
+			raw
+		};
+	}
+	function normalizeComment(raw) {
+		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+		return {
+			...raw,
+			kind: "comments",
+			content,
+			published: formatDate(raw.published, opts.dateFormat),
+			updated: formatDate(raw.updated, opts.dateFormat)
+		};
 	}
 	async function normalize(raw, index) {
-		let entry;
-		if (opts.type === "authors") {
-			if (!isAuthorEntry(raw)) throw new Error("Expected Author");
-			const author = raw;
-			entry = {
-				id: author.url || `author-${index}`,
-				title: author.name || "Unknown Author",
-				url: author.url || "#",
-				author: author.name || "",
-				published: "",
-				updated: "",
-				labels: [],
-				thumbnail: author.image || opts.fallbackImage,
-				content: "",
-				raw: author
-			};
-		} else if (opts.type === "labels") {
-			if (typeof raw !== "string") throw new Error("Expected label string");
-			const label = raw;
-			entry = {
-				id: `label-${label}`,
-				title: label,
-				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
-				author: "",
-				published: "",
-				updated: "",
-				labels: [label],
-				thumbnail: opts.fallbackImage,
-				content: "",
-				raw: label
-			};
-		} else {
-			if (typeof raw === "string" || isAuthorEntry(raw)) throw new Error("Expected Post or Comment");
-			const post = isPostEntry(raw) ? raw : null;
-			let thumb = "";
-			if (opts.thumbnail !== false) {
-				const contentForThumb = post ? post.content : raw.content;
-				thumb = post?.thumbnailAlt || post?.thumbnail || blog.thumbnail(contentForThumb) || "";
-				if (thumb) {
-					const resizeOpts = opts.thumbnail === "default" ? {} : opts.thumbnail;
-					thumb = resizeImage(thumb, resizeOpts);
-				} else thumb = opts.fallbackImage;
-			}
-			const contentSource = post ? post.content : raw.content;
-			const summarySource = post ? post.summary : raw.summary;
-			let content = blog.htmlToText(contentSource ?? summarySource ?? "");
-			if (opts.summaryLength > 0 && content.length > opts.summaryLength) content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
-			entry = {
-				id: raw.id,
-				title: post?.title ?? "",
-				url: raw.url,
-				author: raw.author?.name ?? "",
-				published: formatDate(raw.published, opts.dateFormat),
-				updated: formatDate(raw.updated, opts.dateFormat),
-				labels: post?.labels ?? [],
-				thumbnail: thumb,
-				content,
-				raw
-			};
+		let entry = opts.type === "authors" ? normalizeAuthor(raw, index) : opts.type === "labels" ? normalizeLabel(raw) : opts.type === "comments" ? normalizeComment(raw) : normalizePost(raw);
+		for (const transform of opts.transformers) {
+			if (entry === null) break;
+			entry = await transform(entry, index);
 		}
-		for (const transform of opts.transformers) entry = await transform(entry, index);
 		return entry;
 	}
-	function applyFilters(entries) {
+	async function normalizeAll(items) {
+		return (await Promise.all(items.map((raw, i) => normalize(raw, i)))).filter((e) => e !== null);
+	}
+	/** Typed for the posts/pages branch — normalize() always returns a PostEntry there. */
+	async function normalizePostEntries(items) {
+		return await normalizeAll(items);
+	}
+	/** Typed for the comments branch — normalize() always returns a CommentEntry there. */
+	async function normalizeCommentEntries(items) {
+		return await normalizeAll(items);
+	}
+	function applyPostFilters(entries) {
 		let out = entries;
-		if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.id !== currentPostId);
+		if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.raw.id !== currentPostId);
 		if (opts.related && currentPostLabels.length) out = out.filter((e) => e.labels.some((l) => currentPostLabels.includes(l)));
+		if (opts.sort === "asc") out = [...out].reverse();
+		if (opts.random) out = shuffle(out);
+		return out;
+	}
+	function applyCommentFilters(entries) {
+		let out = entries;
 		if (opts.sort === "asc") out = [...out].reverse();
 		if (opts.random) out = shuffle(out);
 		return out;
@@ -2245,9 +2256,20 @@ function createWidget(options) {
 	function matchesQuery(entry, query) {
 		if (!query) return true;
 		const needle = query.toLowerCase();
-		return entry.title.toLowerCase().includes(needle) || entry.content.toLowerCase().includes(needle);
+		if (entry.kind === "authors" || entry.kind === "labels") return entry.name.toLowerCase().includes(needle);
+		if (entry.kind === "comments") return entry.content.toLowerCase().includes(needle) || (entry.title ?? "").toLowerCase().includes(needle);
+		return entry.raw.title.toLowerCase().includes(needle) || entry.content.toLowerCase().includes(needle);
 	}
-	async function fetchNetworkBatch(page) {
+	/** `type: "authors"` — no pagination, no query, no labels (blog.authors() has none of these). */
+	async function fetchAuthorsBatch() {
+		return normalizeAll(await blog.authors({ sampleSize: opts.maxVisibleItems * 4 }));
+	}
+	/** `type: "labels"` — blog.categories() is the SDK's own alias for blog.labels(). */
+	async function fetchLabelsBatch() {
+		return normalizeAll(await blog.categories());
+	}
+	/** `type: "posts"`, one network page. Uses blog.search() when a query is active, blog.posts() otherwise. */
+	async function fetchPostsPage(page) {
 		if (page) {
 			const next = await page.next();
 			if (!next) return {
@@ -2255,75 +2277,115 @@ function createWidget(options) {
 				nextPager: null
 			};
 			return {
-				entries: applyFilters(await Promise.all(next.items.map((raw, i) => normalize(raw, i)))),
+				entries: applyPostFilters(await normalizePostEntries(next.items)),
 				nextPager: next
 			};
 		}
-		if (opts.type === "authors") {
-			const authors = await blog.authors({ sampleSize: opts.maxVisibleItems * 4 });
-			return {
-				entries: applyFilters(await Promise.all(authors.map((author, i) => normalize(author, i)))),
-				nextPager: null
-			};
-		} else if (opts.type === "labels") {
-			const labels = await blog.labels();
-			return {
-				entries: applyFilters(await Promise.all(labels.map((label, i) => normalize(label, i)))),
-				nextPager: null
-			};
-		}
-		const baseOptions = {
+		const listOptions = {
 			limit: opts.maxVisibleItems,
 			orderBy: opts.orderBy,
-			label: opts.feed === "posts" && opts.labels.length ? opts.labels : void 0,
-			query: opts.feed === "posts" && currentQuery ? currentQuery : void 0
+			label: opts.labels.length ? opts.labels : void 0
 		};
-		let items;
-		let newPager = null;
-		if (opts.feed === "comments") {
-			const p = await blog.comments({
-				limit: opts.maxVisibleItems,
-				orderBy: opts.orderBy
-			});
-			items = p.items;
-			newPager = p;
-		} else if (opts.feed === "pages") {
-			const p = await blog.pages({
-				limit: opts.maxVisibleItems,
-				orderBy: opts.orderBy
-			});
-			items = p.items;
-			newPager = p;
-		} else {
-			const p = await blog.posts(baseOptions);
-			items = p.items;
-			newPager = p;
-		}
+		const p = currentQuery ? await blog.search({
+			query: currentQuery,
+			...listOptions
+		}) : await blog.posts(listOptions);
 		return {
-			entries: applyFilters(await Promise.all(items.map((raw, i) => normalize(raw, i)))),
-			nextPager: newPager
+			entries: applyPostFilters(await normalizePostEntries(p.items)),
+			nextPager: p
 		};
 	}
-	async function fetchBuffer() {
-		if (opts.type === "authors") {
-			const authors = await blog.authors({ sampleSize: opts.maxVisibleItems * 4 });
-			return await Promise.all(authors.map((author, i) => normalize(author, i)));
-		} else if (opts.type === "labels") {
-			const labels = await blog.labels();
-			return await Promise.all(labels.map((label, i) => normalize(label, i)));
+	/** `type: "comments"`, one network page. blog.comments() ignores labels/query, per the feed API. */
+	async function fetchCommentsPage(page) {
+		if (page) {
+			const next = await page.next();
+			if (!next) return {
+				entries: [],
+				nextPager: null
+			};
+			return {
+				entries: applyCommentFilters(await normalizeCommentEntries(next.items)),
+				nextPager: next
+			};
 		}
-		let items;
-		if (opts.source === "random") items = await blog.random({
+		const p = await blog.comments({
+			limit: opts.maxVisibleItems,
+			orderBy: opts.orderBy
+		});
+		return {
+			entries: applyCommentFilters(await normalizeCommentEntries(p.items)),
+			nextPager: p
+		};
+	}
+	/** `type: "pages"`, one network page. blog.pages() ignores labels/query too. */
+	async function fetchPagesPage(page) {
+		if (page) {
+			const next = await page.next();
+			if (!next) return {
+				entries: [],
+				nextPager: null
+			};
+			return {
+				entries: applyPostFilters(await normalizePostEntries(next.items)),
+				nextPager: next
+			};
+		}
+		const p = await blog.pages({
+			limit: opts.maxVisibleItems,
+			orderBy: opts.orderBy
+		});
+		return {
+			entries: applyPostFilters(await normalizePostEntries(p.items)),
+			nextPager: p
+		};
+	}
+	/** Dispatches one network page to the right fetcher for the current type/feed. */
+	async function fetchNetworkBatch(page) {
+		if (opts.type === "authors") return {
+			entries: await fetchAuthorsBatch(),
+			nextPager: null
+		};
+		if (opts.type === "labels") return {
+			entries: await fetchLabelsBatch(),
+			nextPager: null
+		};
+		if (opts.type === "comments") return fetchCommentsPage(page);
+		if (opts.type === "pages") return fetchPagesPage(page);
+		return fetchPostsPage(page);
+	}
+	/** Buffered posts — blog.random() for `source: "random"`, blog.posts() for `"recent"`. */
+	async function fetchPostsBuffer() {
+		return applyPostFilters(await normalizePostEntries(opts.source === "random" ? await blog.random({
 			count: opts.maxVisibleItems * 4,
 			label: opts.labels.length ? opts.labels : void 0,
 			query: currentQuery || void 0
-		});
-		else items = (await blog.posts({
+		}) : (await blog.posts({
 			limit: opts.maxVisibleItems * 4,
 			orderBy: opts.orderBy,
 			label: opts.labels.length ? opts.labels : void 0
-		})).items;
-		return applyFilters(await Promise.all(items.map((raw, i) => normalize(raw, i))));
+		})).items));
+	}
+	/** Buffered comments — blog.comments() over a wider limit, filtered client-side. */
+	async function fetchCommentsBuffer() {
+		return applyCommentFilters(await normalizeCommentEntries((await blog.comments({
+			limit: opts.maxVisibleItems * 4,
+			orderBy: opts.orderBy
+		})).items));
+	}
+	/** Buffered pages — blog.pages() over a wider limit, filtered client-side. */
+	async function fetchPagesBuffer() {
+		return applyPostFilters(await normalizePostEntries((await blog.pages({
+			limit: opts.maxVisibleItems * 4,
+			orderBy: opts.orderBy
+		})).items));
+	}
+	/** Dispatches the initial buffer fetch (used for `source: "random"` and non-deep query search). */
+	async function fetchBuffer() {
+		if (opts.type === "authors") return fetchAuthorsBatch();
+		if (opts.type === "labels") return fetchLabelsBatch();
+		if (opts.type === "comments") return fetchCommentsBuffer();
+		if (opts.type === "pages") return fetchPagesBuffer();
+		return fetchPostsBuffer();
 	}
 	function renderEntries(entries, append) {
 		if (entries.length === 0 && !append) {
@@ -2644,34 +2706,9 @@ function lazify(input, options = {}) {
 const defaults$4 = {
 	nestingPrefix: "_",
 	submenuClass: "sub-menu",
-	hasSubClass: "has-sub"
+	hasSubClass: "has-sub",
+	chevronText: "<"
 };
-/**
-* Converts a flat `<ul><li><a>` link list into a nested dropdown menu.
-* Any link whose text starts with the nesting prefix (default `_`) is moved
-* into a submenu under the previous non-prefixed link, and the prefix is
-* stripped from its visible text.
-*
-* @param input - Selector, element(s), or jQuery collection for the menu list(s).
-* @param options Configuration object.
-* See {@link MenuifyOptions}.
-* @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
-*
-* @example
-* ```html
-* <ul class="menu">
-*   <li><a>Home</a></li>
-*   <li><a>Blog</a></li>
-*   <li><a>_Web Design</a></li>
-*   <li><a>_SEO</a></li>
-* </ul>
-* ```
-* ```ts
-* import { menuify } from "blogr-plugins";
-* menuify(".menu");
-* // "Web Design" and "SEO" become a submenu nested under "Blog"
-* ```
-*/
 function menuify(input, options = {}) {
 	const opts = {
 		...defaults$4,
@@ -2681,39 +2718,57 @@ function menuify(input, options = {}) {
 	const undoFns = [];
 	for (const list of lists) {
 		const items = Array.from(list.children).filter((el) => el.tagName === "LI");
-		let currentParent = null;
-		let currentSubmenu = null;
+		const levelParents = [];
+		const levelSubmenus = [];
 		const moves = [];
 		const textEdits = [];
 		const addedSubmenus = [];
 		const addedClasses = [];
+		const addedChevrons = [];
+		const prefixChar = opts.nestingPrefix.charAt(0);
 		for (const li of items) {
 			const link = li.querySelector("a");
 			if (!link) continue;
 			const text = link.textContent ?? "";
-			if (text.startsWith(opts.nestingPrefix)) {
-				if (!currentParent) continue;
-				if (!currentSubmenu) {
-					currentSubmenu = document.createElement("ul");
-					currentSubmenu.className = opts.submenuClass;
-					currentParent.appendChild(currentSubmenu);
-					currentParent.classList.add(opts.hasSubClass);
-					addedSubmenus.push(currentSubmenu);
-					addedClasses.push(currentParent);
+			let depth = 0;
+			while (depth < text.length && text[depth] === prefixChar) depth++;
+			if (depth > 0) {
+				if (depth - 1 >= levelParents.length) continue;
+				const parentLi = levelParents[depth - 1];
+				let submenu = levelSubmenus[depth - 1];
+				if (!submenu) {
+					submenu = document.createElement("ul");
+					submenu.className = opts.submenuClass;
+					parentLi.appendChild(submenu);
+					parentLi.classList.add(opts.hasSubClass);
+					const parentLink = parentLi.querySelector("a");
+					if (parentLink) {
+						const chevron = document.createElement("span");
+						chevron.className = "chevron";
+						chevron.textContent = opts.chevronText;
+						parentLink.appendChild(chevron);
+						addedChevrons.push(chevron);
+					}
+					addedSubmenus.push(submenu);
+					addedClasses.push(parentLi);
+					levelSubmenus[depth - 1] = submenu;
 				}
 				textEdits.push({
 					el: link,
 					original: text
 				});
-				link.textContent = text.slice(opts.nestingPrefix.length);
+				link.textContent = text.slice(depth);
 				moves.push({
 					li,
 					nextSibling: li.nextSibling
 				});
-				currentSubmenu.appendChild(li);
+				submenu.appendChild(li);
+				levelParents[depth] = li;
+				if (levelSubmenus.length < depth) levelSubmenus.length = depth;
 			} else {
-				currentParent = li;
-				currentSubmenu = null;
+				levelParents.length = 1;
+				levelSubmenus.length = 0;
+				levelParents[0] = li;
 			}
 		}
 		undoFns.push(() => {
@@ -2721,6 +2776,7 @@ function menuify(input, options = {}) {
 			for (const { li, nextSibling } of moves.reverse()) list.insertBefore(li, nextSibling);
 			for (const submenu of addedSubmenus) submenu.remove();
 			for (const el of addedClasses) el.classList.remove(opts.hasSubClass);
+			for (const chevron of addedChevrons) chevron.remove();
 		});
 	}
 	return { destroy() {

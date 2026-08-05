@@ -1,0 +1,52 @@
+header {
+	#menuify {
+		@apply flex flex-wrap items-center gap-2 list-none p-0 m-0 text-sm;
+	}
+	#menuify li {
+		@apply relative;
+	}
+
+	#menuify a {
+		@apply block px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-all duration-200 font-medium no-underline;
+	}
+	#menuify .chevron {
+		@apply rotate-270 inline-block ml-2 mt-1 transition-transform text-base;
+	}
+	#menuify li.has-sub:hover .chevron {
+		@apply rotate-90;
+	}
+	#menuify .sub-menu {
+		@apply hidden absolute min-w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-50;
+	}
+
+	/* Level 1 submenu: below parent */
+	#menuify > li > .sub-menu {
+		@apply left-0 top-full mt-0;
+	}
+
+	/* Level 2+ submenu: to the right */
+	#menuify .sub-menu li .sub-menu {
+		@apply left-full top-2 mr-1;
+	}
+
+	#menuify .sub-menu li.has-sub .chevron {
+		@apply absolute right-4 rotate-270 mt-0;
+	}
+
+	#menuify li.has-sub:hover > .sub-menu {
+		@apply block;
+	}
+
+	#menuify .sub-menu li.has-sub:hover .chevron {
+		@apply rotate-90;
+	}
+
+	/* Mobile */
+	#menuify {
+		@apply max-md:flex-col max-md:items-stretch;
+	}
+
+	#menuify .sub-menu {
+		@apply max-md:static max-md:shadow-none max-md:border-0 max-md:border-l-2 max-md:border-gray-200 max-md:ml-4;
+	}
+}

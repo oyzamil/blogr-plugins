@@ -22,34 +22,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	const defaults = {
 		nestingPrefix: "_",
 		submenuClass: "sub-menu",
-		hasSubClass: "has-sub"
+		hasSubClass: "has-sub",
+		chevronText: "<"
 	};
-	/**
-	* Converts a flat `<ul><li><a>` link list into a nested dropdown menu.
-	* Any link whose text starts with the nesting prefix (default `_`) is moved
-	* into a submenu under the previous non-prefixed link, and the prefix is
-	* stripped from its visible text.
-	*
-	* @param input - Selector, element(s), or jQuery collection for the menu list(s).
-	* @param options Configuration object.
-	* See {@link MenuifyOptions}.
-	* @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
-	*
-	* @example
-	* ```html
-	* <ul class="menu">
-	*   <li><a>Home</a></li>
-	*   <li><a>Blog</a></li>
-	*   <li><a>_Web Design</a></li>
-	*   <li><a>_SEO</a></li>
-	* </ul>
-	* ```
-	* ```ts
-	* import { menuify } from "blogr-plugins";
-	* menuify(".menu");
-	* // "Web Design" and "SEO" become a submenu nested under "Blog"
-	* ```
-	*/
 	function menuify(input, options = {}) {
 		const opts = {
 			...defaults,
@@ -59,39 +34,57 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		const undoFns = [];
 		for (const list of lists) {
 			const items = Array.from(list.children).filter((el) => el.tagName === "LI");
-			let currentParent = null;
-			let currentSubmenu = null;
+			const levelParents = [];
+			const levelSubmenus = [];
 			const moves = [];
 			const textEdits = [];
 			const addedSubmenus = [];
 			const addedClasses = [];
+			const addedChevrons = [];
+			const prefixChar = opts.nestingPrefix.charAt(0);
 			for (const li of items) {
 				const link = li.querySelector("a");
 				if (!link) continue;
 				const text = link.textContent ?? "";
-				if (text.startsWith(opts.nestingPrefix)) {
-					if (!currentParent) continue;
-					if (!currentSubmenu) {
-						currentSubmenu = document.createElement("ul");
-						currentSubmenu.className = opts.submenuClass;
-						currentParent.appendChild(currentSubmenu);
-						currentParent.classList.add(opts.hasSubClass);
-						addedSubmenus.push(currentSubmenu);
-						addedClasses.push(currentParent);
+				let depth = 0;
+				while (depth < text.length && text[depth] === prefixChar) depth++;
+				if (depth > 0) {
+					if (depth - 1 >= levelParents.length) continue;
+					const parentLi = levelParents[depth - 1];
+					let submenu = levelSubmenus[depth - 1];
+					if (!submenu) {
+						submenu = document.createElement("ul");
+						submenu.className = opts.submenuClass;
+						parentLi.appendChild(submenu);
+						parentLi.classList.add(opts.hasSubClass);
+						const parentLink = parentLi.querySelector("a");
+						if (parentLink) {
+							const chevron = document.createElement("span");
+							chevron.className = "chevron";
+							chevron.textContent = opts.chevronText;
+							parentLink.appendChild(chevron);
+							addedChevrons.push(chevron);
+						}
+						addedSubmenus.push(submenu);
+						addedClasses.push(parentLi);
+						levelSubmenus[depth - 1] = submenu;
 					}
 					textEdits.push({
 						el: link,
 						original: text
 					});
-					link.textContent = text.slice(opts.nestingPrefix.length);
+					link.textContent = text.slice(depth);
 					moves.push({
 						li,
 						nextSibling: li.nextSibling
 					});
-					currentSubmenu.appendChild(li);
+					submenu.appendChild(li);
+					levelParents[depth] = li;
+					if (levelSubmenus.length < depth) levelSubmenus.length = depth;
 				} else {
-					currentParent = li;
-					currentSubmenu = null;
+					levelParents.length = 1;
+					levelSubmenus.length = 0;
+					levelParents[0] = li;
 				}
 			}
 			undoFns.push(() => {
@@ -99,6 +92,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 				for (const { li, nextSibling } of moves.reverse()) list.insertBefore(li, nextSibling);
 				for (const submenu of addedSubmenus) submenu.remove();
 				for (const el of addedClasses) el.classList.remove(opts.hasSubClass);
+				for (const chevron of addedChevrons) chevron.remove();
 			});
 		}
 		return { destroy() {

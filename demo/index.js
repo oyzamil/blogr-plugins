@@ -189,8 +189,7 @@ BlogrPlugins.stickify("#sidebar", {
 });
 // menuify adds keyboard/touch behavior on top of the CSS hover
 // dropdown already wired into #menu-nav below.
-BlogrPlugins.menuify("#menu");
-BlogrPlugins.menuify("#menuify-demo"); // plain, unstyled — the header above is the styled version
+BlogrPlugins.menuify("header #menuify");
 
 // Belt-and-braces click toggle, in case a touch device has no
 // hover state — works alongside whatever menuify itself does.
@@ -212,9 +211,9 @@ BlogrPlugins.tocify("#toc", { content: "main", headings: "h2, h3" });
 
 /* ---- lazify: gallery images ---- */
 BlogrPlugins.lazify("img[data-src], iframe[data-src], video, [data-bg-image]", {
-	onLoad: (el) => log("lazify", `loaded ${el.tagName.toLowerCase()}`),
+	onLoad: (el) => pageLog("lazify", `loaded ${el.tagName.toLowerCase()}`),
 	onError: (el, event) =>
-		log("lazify", `error on ${el.tagName.toLowerCase()}`, event),
+		pageLog("lazify", `error on ${el.tagName.toLowerCase()}`, event),
 });
 
 /* ---- replacify: trademark the plugin name in the hero copy ---- */
@@ -243,8 +242,9 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 pageLog(
 	`cookify.get("resize-image-tab") = ${BlogrPlugins.cookify.get("resize-image-tab")}`,
 );
-
+const capitalizeFirstChar = (text) => text[0].toUpperCase() + text.slice(1);
 const blogUrl = "https://softwebtuts.blogspot.com";
+const LOADER = `<div class="loader-wrap"><div class="loader"/></div>`;
 
 /* ---- createWidget: related posts, deferred fetch until sidebar nears view ---- */
 BlogrPlugins.createWidget({
@@ -259,68 +259,68 @@ BlogrPlugins.createWidget({
 		pageLog(`createWidget: fetched ${entries.length} entries`),
 	onError: (err) => pageLog(`createWidget: error - ${err}`),
 	onEmpty: () => pageLog("createWidget: no entries found"),
-	loading: () => `<div class="loader-wrap"><div class="loader"/></div>`,
-	template: (entry) => `
+	loading: () => LOADER,
+	template: (entry) => {
+		return `
 <a href="${entry.url}" class="entry group/card">
 		<div data-slot="card-content" class="entry-content">
 			<div class="entry-layout">
 				<div class="entry-thumbnail">
-					<img
-						alt="${entry.title}"
-						class="entry-image"
-						src="${entry.thumbnail}"
-					/>
+					<img alt="${entry.title}" class="entry-image" src="${entry.thumbnail}" />
 				</div>
 
 				<div class="entry-body">
 					<h3 class="entry-title">${entry.title}</h3>
-
-					<p class="entry-description">
-						${entry.content}
-					</p>
+					<p class="entry-description">${entry.content}</p>
 				</div>
 			</div>
 	</div>
-</a>`,
+</a>`;
+	},
 });
 
-const featuredPostTemplate = (entry) => `
-  <article class="featured-post">
-    <img src="${entry.thumbnail}" alt="${entry.title}" loading="lazy">
-    <h2><a href="${entry.url}">${entry.title}</a></h2>
-    <p>${entry.content}</p>
-    <div class="post-meta">
-      <span>${entry.author}</span>
-      <time>${entry.published}</time>
+const featuredPostTemplate = (entry) => {
+	return `
+  <div class="max-w-md bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md">
+  
+  <!-- Post Header (Author Info) -->
+  <div class="flex items-center justify-between p-4">
+    <div class="flex items-center space-x-3">
+      <img 
+        class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-50" 
+        src="${entry.author.image}" 
+        alt="${entry.author.name}"
+      />
+      <div>
+        <h4 class="text-sm font-semibold text-gray-900 mb-0!">${entry.author.name}</h4>
+        <p class="text-xs text-gray-500">${entry.published}</p>
+      </div>
     </div>
-  </article>
-`;
-
-const authorBioTemplate = (entry) => `
-  <div class="author-bio">
-    <img src="${entry.thumbnail}" alt="${entry.title}" width="80" height="80" class="avatar">
-    <h3>${entry.title}</h3>
-    <p>${entry.content || "Author on this blog"}</p>
-    <a href="${entry.url}" target="_blank">View posts</a>
   </div>
-`;
 
-const categoryCloudTemplate = (entry) => `
-  <a href="${entry.url}" class="label">${entry.title}</a>
-`;
-
-const commentTemplate = (entry) => `
-  <div class="recent-comment">
-    <strong>${entry.author}</strong>
-    <time>${entry.published}</time>
-    <p>${entry.content}</p>
-    <a href="${entry.url}">View on post</a>
+  <!-- Post Main Image -->
+  <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
+    <img 
+      class="w-full h-full object-cover" 
+      src="${entry.thumbnail}" 
+      alt="${entry.title}"
+    />
   </div>
-`;
 
-const categoryTransform = (entry) => {
+  <!-- Post Interaction Bar -->
+  <div class="flex flex-col justify-between p-4 gap-3">
+    <div class="labels-container s-1">${entry.labels.map((label) => `<a href="/search/label/${label}" class="label">#${label}</a>`).join("")}</div>
+	<p class="text-sm text-gray-800 leading-relaxed">
+      ${entry.content}
+    </p>
+  </div>
+
+</div>`;
+};
+
+const labelsTransform = (entry) => {
 	// Replace hyphens with spaces
-	const cleaned = entry.title.replace(/-/g, " ");
+	const cleaned = entry.name.replace(/-/g, " ");
 	// Capitalize each word
 	const capitalized = cleaned
 		.split(" ")
@@ -329,47 +329,87 @@ const categoryTransform = (entry) => {
 
 	return {
 		...entry,
-		title: capitalized,
-		// Also update URL to use original label
-		url: `${entry.url.split("/search/label/")[0]}/search/label/${encodeURIComponent(entry.raw)}`,
+		name: capitalized,
 	};
 };
 
-// 1. Featured posts
+// // 1. Featured posts — fine as-is
 const featuredWidget = BlogrPlugins.createWidget({
 	containerSelector: "#featuredPosts",
 	blogUrl,
 	type: "posts",
 	source: "recent",
-	maxVisibleItems: 3,
-	labels: ["Featured"],
+	maxVisibleItems: 1,
+	labels: ["earning"],
+	loading: () => LOADER,
 	template: featuredPostTemplate,
 });
 
-// 2. Author bios
+const dropUnknownAuthors = (author) => {
+	const name = author.name?.trim();
+	if (!name || name.toLowerCase() === "unknown") return null;
+	return author;
+};
+
+// 2. Author bios — fine as-is
 const authorWidget = BlogrPlugins.createWidget({
 	containerSelector: "#blogAuthors",
 	blogUrl,
 	type: "authors",
-	maxVisibleItems: 5,
-	template: authorBioTemplate,
+	maxVisibleItems: 1,
+	transformers: [dropUnknownAuthors],
+	loading: () => LOADER,
+	template: (
+		author,
+	) => `<div class="flex items-center gap-2.5 px-3 py-2 bg-white rounded-xl shadow w-full border">
+		<img alt="${author.name}" src="${author.image}" class="w-10 h-10 rounded-full shrink-0 bg-neutral-800" viewBox="0 0 40 40"/>
+
+		<div class="flex flex-col gap-0.5">
+			<span class="text-sm font-bold text-slate-900 leading-tight">${author.name}</span>
+			<div class="flex items-center gap-1.5 text-[12.5px] leading-tight">
+				<span class="relative flex size-1.5">
+  					<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+  					<span class="relative inline-flex size-1.5 rounded-full bg-green-500"></span>
+				</span>
+				<span class="text-green-600 font-base text-xs">Online</span>
+			</div>
+		</div>
+	</div>`,
 });
 
-// 3. Category cloud
+// 3. Category cloud — fine as-is
 const categoryWidget = BlogrPlugins.createWidget({
 	containerSelector: "#categoryCloud",
 	blogUrl,
 	type: "labels",
-	transformers: [categoryTransform],
-	template: categoryCloudTemplate,
+	transformers: [labelsTransform],
+	loading: () => LOADER,
+	template: (entry) => `<a href="${entry.url}" class="label">${entry.name}</a>`,
 });
 
-// 4. Recent comments
+// 4. Recent comments — was type:"posts" + feed:"comments", just type:"comments" now
 const commentWidget = BlogrPlugins.createWidget({
 	containerSelector: "#recentComments",
 	blogUrl,
-	type: "posts",
-	feed: "comments",
-	maxVisibleItems: 10,
-	template: commentTemplate,
+	type: "comments",
+	maxVisibleItems: 3,
+	loading: () => LOADER,
+	template: (comment) => `<div class="w-full max-w-sm">
+		<div class="rounded-xl border border-gray-200 bg-white shadow-sm">
+			<div class="flex items-center gap-3 border-b p-3">
+				<img src="${comment.author.image}" alt="${comment.author.name}" class="h-10 w-10 shrink-0 rounded-full bg-gray-100" />
+				<div class="min-w-0">
+					<p class="text-sm font-semibold text-gray-900">${comment.author.name}</p>
+					<p class="truncate text-sm text-gray-500">
+						${comment.published}
+					</p>
+				</div>
+			</div>
+
+			<div class="content p-3 pt-1">
+				<span class="text-2xl text-yellow-400">★★★★★</span>
+				<p class="mt-1 text-[15px] leading-relaxed text-gray-500">${capitalizeFirstChar(comment.content)}</p>
+			</div>
+		</div>
+	</div>`,
 });

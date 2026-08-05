@@ -251,85 +251,106 @@ declare function resizeImage(url: string | URL, options?: ResizeImageOptions): s
 declare function resizeImageInDom(input: ElementInput, options?: ResizeImageOptions): void;
 //#endregion
 //#region src/plugins/createWidget.d.ts
-/** Which Blogger feed a widget lists. */
-type WidgetFeed = "posts" | "comments" | "pages";
-/** New: What type of data the widget displays. */
-type WidgetType = "posts" | "authors" | "labels";
+/** What data the widget lists — one flag covers both feed and shape. */
+type WidgetType = "posts" | "pages" | "comments" | "authors" | "labels";
 /** How the initial batch of entries is sourced. */
 type WidgetSourceType = "recent" | "random";
 /** Feed field a widget's entries are ordered by. */
 type WidgetOrderBy = "published" | "updated";
 /** Direction entries are shown in, applied after fetching. */
 type WidgetSort = "asc" | "desc";
-/**
- * A single normalized entry handed to `template`, `entryClass`, and every
- * lifecycle hook — same shape regardless of whether it came from the posts,
- * pages, or comments feed.
- */
-interface WidgetEntry {
-  /** Entry id (numeric string), as reported by Blogger. */
+/** A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead. */
+interface PostEntry {
+  kind: "posts" | "pages";
+  /** Numeric id, as reported by Blogger. */
   id: string;
-  /** Entry title (empty string for comments, which have none). */
+  /** Title. `""` for comments (which have none). */
   title: string;
-  /** Canonical URL of the entry. */
+  /** Canonical URL. */
   url: string;
-  /** Author display name, or `""` if unavailable. */
-  author: string;
+  /** Author Details. */
+  author: Author;
   /** Publish date, formatted per `dateFormat`. */
   published: string;
   /** Last-updated date, formatted per `dateFormat`. */
   updated: string;
-  /** Labels on the entry. Always `[]` for comments (which carry none). */
+  /** Labels. Always `[]` for pages/comments (which carry none). */
   labels: string[];
-  /**
-   * Resolved thumbnail URL — already run through `resizeImage` (unless
-   * `thumbnail: false`), falling back to `fallbackImage` when the entry
-   * has no image of its own. `""` when `thumbnail: false`.
-   */
+  /** Resized thumbnail (via {@link resizeImage}), falling back to `fallbackImage`. `""` when `thumbnail: false`. */
   thumbnail: string;
   /** Plain-text summary, truncated to `summaryLength` characters. */
   content: string;
-  /** The original, un-normalized SDK object, for anything not exposed above. */
-  raw: Post | Comment | Author | string;
+  /** The original, un-normalized SDK object. */
+  raw: Post;
 }
+/**
+ * A normalized comment — every field from the raw comment feed entry (id,
+ * url, author, post, inReplyTo, extended, etc.) is spread directly onto
+ * this object rather than nested under `raw`. `content`/`published`/
+ * `updated` are overridden with truncated/formatted values; everything
+ * else is exactly what the feed returned.
+ */
+interface CommentEntry extends Omit<Comment, "published" | "updated" | "content"> {
+  kind: "comments";
+  content: string;
+  published: string;
+  updated: string;
+}
+/** A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`, `image`), nothing invented. */
+interface AuthorEntry {
+  kind: "authors";
+  id: string;
+  name: string;
+  url: string;
+  image: string;
+  raw: Author;
+}
+/** A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link. */
+interface LabelEntry {
+  kind: "labels";
+  id: string;
+  name: string;
+  url: string;
+  raw: string;
+}
+type WidgetEntry = PostEntry | CommentEntry | AuthorEntry | LabelEntry;
 /**
  * Transforms one normalized entry, e.g. to inject a computed field, rewrite
  * a value from a transformer chain, or pull in data from elsewhere. Applied
  * in array order — each transformer receives the previous one's output.
- * May be async.
+ * May be async. Return `null` to drop the entry from the batch entirely.
  */
-type WidgetTransformer = (entry: WidgetEntry, index: number) => WidgetEntry | Promise<WidgetEntry>;
+type WidgetTransformer = (entry: WidgetEntry, index: number) => WidgetEntry | null | Promise<WidgetEntry | null>;
 /** Configuration for {@link createWidget}. */
 interface CreateWidgetOptions {
   /** Enable JSONP transport (browser-only). @default false */
   jsonp?: boolean;
   /**
-   * What type of data to display.
+   * What the widget lists.
    * - "posts": Blog posts (default)
-   * - "authors": Blog authors
-   * - "labels": Blog labels/categories
+   * - "pages": Static pages
+   * - "comments": Comments
+   * - "authors": Distinct post authors
+   * - "labels": Labels/categories
+   * `"pages"`/`"comments"`/`"authors"`/`"labels"` ignore `labels`/`query`/
+   * `related` (Blogger's feed API doesn't support filtering those feeds
+   * that way, and authors/labels aren't filterable at all).
    * @default "posts"
    */
   type?: WidgetType;
   /**
    * How the initial batch is sourced: `"recent"` lists newest-first,
-   * `"random"` samples random entries. Default `"recent"`.
+   * `"random"` samples random entries. Only applies to `type: "posts"`.
+   * Default `"recent"`.
    */
   source?: WidgetSourceType;
   /** Where the widget mounts and renders. **Required.** */
   containerSelector: ElementInput;
   /** URL (or numeric id) of the Blogger blog to read from. **Required.** */
   blogUrl: string;
-  /**
-   * Which feed to list. `"comments"`/`"pages"` ignore `labels`/`query`/
-   * `related` (Blogger's feed API doesn't support filtering those feeds
-   * that way) and their entries have no `labels`/`thumbnail`. Default
-   * `"posts"`.
-   */
-  feed?: WidgetFeed;
-  /** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. */
-  labels?: string[];
-  /** Feed field to sort by. Default `"published"`. */
+  /** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`.
+    labels?: string[];
+    /** Feed field to sort by. Default `"published"`. */
   orderBy?: WidgetOrderBy;
   /** Direction to show entries in. Default `"desc"`. */
   sort?: WidgetSort;
@@ -454,7 +475,7 @@ interface WidgetInstance extends PluginInstance {
  * const widget = createWidget({
  * 	containerSelector: "#relatedPosts",
  * 	blogUrl: "https://example.blogspot.com",
- * 	type: "posts", // or "authors" or "labels"
+ * 	type: "posts", // or "pages" | "comments" | "authors" | "labels"
  * 	related: true,
  * 	excludeCurrent: true,
  * 	currentPostId: "1234567890123456789",
@@ -463,8 +484,8 @@ interface WidgetInstance extends PluginInstance {
  * 	loadMore: true,
  * 	template: (entry) => `
  * 		<article class="related-post">
- * 			<img src="${entry.thumbnail}" alt="${entry.title}" />
- * 			<h3>${entry.title}</h3>
+ * 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
+ * 			<h3>${entry.raw.title}</h3>
  * 			<p>${entry.content}</p>
  * 		</article>
  * 	`,
@@ -549,33 +570,9 @@ interface MenuifyOptions {
   submenuClass?: string;
   /** Class applied to `<li>` items that received a submenu. Default `"has-sub"`. */
   hasSubClass?: string;
+  /** Chevron element text. Default `"<"`. */
+  chevronText?: string;
 }
-/**
- * Converts a flat `<ul><li><a>` link list into a nested dropdown menu.
- * Any link whose text starts with the nesting prefix (default `_`) is moved
- * into a submenu under the previous non-prefixed link, and the prefix is
- * stripped from its visible text.
- *
- * @param input - Selector, element(s), or jQuery collection for the menu list(s).
- * @param options Configuration object.
- * See {@link MenuifyOptions}.
- * @returns A {@link PluginInstance} with `destroy()` to revert the DOM changes.
- *
- * @example
- * ```html
- * <ul class="menu">
- *   <li><a>Home</a></li>
- *   <li><a>Blog</a></li>
- *   <li><a>_Web Design</a></li>
- *   <li><a>_SEO</a></li>
- * </ul>
- * ```
- * ```ts
- * import { menuify } from "blogr-plugins";
- * menuify(".menu");
- * // "Web Design" and "SEO" become a submenu nested under "Blog"
- * ```
- */
 declare function menuify(input: ElementInput, options?: MenuifyOptions): PluginInstance;
 //#endregion
 //#region src/plugins/replacify.d.ts
@@ -833,4 +830,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LazifyOptions, type MenuifyOptions, type PluginInstance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetFeed, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stickify, tocify };
+export { type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LazifyOptions, type MenuifyOptions, type PluginInstance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stickify, tocify };

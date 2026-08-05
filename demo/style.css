@@ -122,6 +122,11 @@ h4 {
 	font-size: 18px;
 }
 
+main h3,
+main h4 {
+	margin-top: 2rem;
+}
+
 .section-desc {
 	color: var(--ink-soft);
 	font-size: 15px;
@@ -401,34 +406,24 @@ select:focus {
 
 /* ---------- reference table ---------- */
 table.ref {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 13.5px;
-	border: 1px solid var(--border);
-}
-
-table.ref th {
+	table-layout: auto;
 	text-align: left;
-	font-family: "JetBrains Mono", monospace;
-	font-size: 11px;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--ink-faint);
-	border-bottom: 1px solid var(--border);
-	padding: 10px;
+	width: 100%;
+	border: 1px solid var(--border);
+	border-collapse: collapse;
+	border-color: inherit;
+	text-indent: 0;
 }
 
-table.ref td {
-	padding: 10px;
-	border-bottom: 1px solid var(--border);
-	vertical-align: top;
+table.ref :is(th, td) {
+	border-width: 1px;
+	padding: 0.5rem 1rem;
 }
 
 table.ref td.fn {
 	font-family: "JetBrains Mono", monospace;
 	font-size: 13px;
 	color: var(--indigo);
-	white-space: nowrap;
 }
 
 table.ref td.desc {
@@ -447,7 +442,9 @@ table.ref td.desc {
 }
 
 /* ---------- fixed header ---------- */
-
+header {
+	@apply bg-(--bg)/50 backdrop-blur-3xl;
+}
 .logo {
 	font-family: "JetBrains Mono", monospace;
 	font-weight: 700;
@@ -462,81 +459,12 @@ table.ref td.desc {
 	color: var(--theme-dark);
 }
 
-#menu-nav {
-	@apply h-full text-sm;
-}
-
-ul.menu-bar {
-	@apply flex items-center gap-0.5 m-0 p-0 h-full list-none;
-}
-
-ul.menu-bar > li {
-	@apply relative h-full flex items-center;
-}
-
-ul.menu-bar > li > a {
-	@apply flex items-center gap-1 h-full px-3 font-['JetBrains_Mono',monospace] text-(--ink-soft) no-underline;
-}
-
-ul.menu-bar > li > a:hover {
-	@apply text-(--ink);
-}
-
-.chev {
-	@apply text-(--ink-faint);
-}
-
-ul.dropdown,
-ul.flyout {
-	@apply list-none absolute min-w-55 bg-(--bg-raised) border border-(--border) rounded p-2 opacity-0 invisible shadow-lg;
-	transition:
-		opacity 0.12s ease,
-		transform 0.12s ease;
-}
-
-ul.dropdown {
-	@apply top-full left-0;
-	transform: translateY(-40px);
-}
-
-ul.flyout {
-	@apply top-0 left-full ml-1.5;
-	transform: translateX(-4px);
-}
-
-li.has-dropdown:hover > ul.dropdown,
-li.has-dropdown.open > ul.dropdown {
-	@apply opacity-100 visible;
-	transform: translateY(0);
-}
-
-li.has-sub:hover > ul.flyout,
-li.has-sub.open > ul.flyout {
-	@apply opacity-100 visible;
-	transform: translateX(0);
-}
-
-ul.dropdown li,
-ul.flyout li {
-	@apply relative;
-}
-
-ul.dropdown li > a,
-ul.flyout li > a {
-	@apply flex items-center justify-between gap-2 py-2.25 px-2.5 rounded text-(--ink-soft) no-underline;
-}
-
-ul.dropdown li > a:hover,
-ul.flyout li > a:hover {
-	@apply bg-(--bg) text-(--ink);
-}
-
 /* ---------- sidebar (toc) ---------- */
 .theiaStickySidebar {
-	@apply flex flex-col gap-5;
+	@apply flex flex-col gap-2;
 }
 .widget {
-	@apply p-4;
+	@apply px-4 py-2;
 }
 #toc {
 	@apply text-sm text-(--ink-soft);
@@ -592,54 +520,6 @@ ul.flyout li > a:hover {
 
 img[data-src] {
 	@apply bg-(--border-soft) min-h-30;
-}
-
-/* ---------- shortcode / cookify demo ---------- */
-.demo-card {
-	background: var(--bg-raised);
-	border: 1px solid var(--border);
-	border-radius: 12px;
-	padding: 18px 20px;
-	font-size: 14.5px;
-	line-height: 1.7;
-	margin-bottom: 16px;
-}
-
-.demo-card b {
-	color: var(--indigo);
-}
-
-.demo-card a {
-	color: var(--indigo);
-}
-
-#menuify-demo-nav ul {
-	list-style: none;
-	padding-left: 0;
-	margin: 0;
-}
-
-#menuify-demo-nav ul ul {
-	padding-left: 16px;
-	display: none;
-}
-
-#menuify-demo-nav li.has-sub > ul {
-	display: block;
-}
-
-#menuify-demo-nav a {
-	display: block;
-	padding: 7px 8px;
-	border-radius: 6px;
-	color: var(--ink-soft);
-	text-decoration: none;
-	font-size: 13.5px;
-}
-
-#menuify-demo-nav a:hover {
-	background: var(--bg);
-	color: var(--ink);
 }
 
 #page-log {
@@ -700,21 +580,6 @@ img[data-src] {
 		padding: 0 16px;
 		gap: 12px;
 	}
-
-	ul.menu-bar {
-		gap: 0;
-		overflow-x: auto;
-	}
-
-	ul.menu-bar > li > a {
-		padding: 0 8px;
-		font-size: 12px;
-		white-space: nowrap;
-	}
-
-	ul.dropdown {
-		min-width: 190px;
-	}
 }
 
 @media (max-width: 600px) {
@@ -772,5 +637,5 @@ img[data-src] {
 	border-radius: var(--radius, 0.5rem);
 }
 .lazy-ify-error {
-	outline: 2px solid theme-color(destructive, #dc2626);
+	@apply border;
 }

@@ -14,7 +14,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 	<script>
 		(async () => {
-			const files = ["style.css", "widget-1.css", "labels.css"];
+			const files = ["style.css", "widget-1.css", "labels.css", "menuify.css"];
 			const parts = await Promise.all(
 				files.map((f) => fetch(f).then((r) => r.text())),
 			);
@@ -35,38 +35,25 @@
 
 <body>
 
-	<header class="sticky top-0 z-50 h-16 w-full border-b px-4 transition-all duration-300 sm:px-6 lg:px-8"
-		style="position: static; transition: none;">
+	<header class="fixed top-0 z-50 h-16 w-full border-b px-4 transition-all duration-300 sm:px-6 lg:px-8">
 		<div class="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 border-x px-4 sm:px-6 lg:px-8">
 			<a class="logo" href="#">BLOGR<span>-PLUGINS™</span></a>
 			<nav id="menu-nav" aria-label="Primary">
-				<ul id="menu" class="menu-bar">
+				<ul id="menuify">
 					<li><a href="#playground">Playground</a></li>
-					<li class="has-dropdown">
-						<a href="#" class="menu-toggle">UI plugins <span class="chev">▾</span></a>
-						<ul class="dropdown">
-							<li><a href="#stickify">stickify</a></li>
-							<li><a href="#menuify">menuify</a></li>
-							<li><a href="#gallery">lazify</a></li>
-							<li><a href="#tocify-plugin">tocify</a></li>
-						</ul>
-					</li>
-					<li class="has-dropdown">
-						<a href="#" class="menu-toggle">Content plugins <span class="chev">▾</span></a>
-						<ul class="dropdown">
-							<li><a href="#replacify">replacify</a></li>
-							<li><a href="#shortcodes">shortcodify</a></li>
-							<li class="has-sub">
-								<a href="#" class="menu-toggle">resizeImage <span class="chev">›</span></a>
-								<ul class="flyout">
-									<li><a href="#playground">Blogger URLs</a></li>
-									<li><a href="#playground">YouTube thumbnails</a></li>
-								</ul>
-							</li>
-							<li><a href="#cookies">cookify</a></li>
-							<li><a href="#create-widget">createWidget</a></li>
-						</ul>
-					</li>
+					<li><a href="#">UI plugins</a></li>
+					<li><a href="#stickify">_Stickify</a></li>
+					<li><a href="#menuify">_Menuify</a></li>
+					<li><a href="#gallery">_Lazify</a></li>
+					<li><a href="#tocify-plugin">_Tocify</a></li>
+					<li><a href="#">Content plugins</a></li>
+					<li><a href="#cookies">_Cookify</a></li>
+					<li><a href="#replacify">_Replacify</a></li>
+					<li><a href="#shortcodes">_Shortcodify</a></li>
+					<li><a href="#">_ResizeImage</a></li>
+					<li><a href="#playground">__Blogger URLs</a></li>
+					<li><a href="#playground">__YouTube thumbnails</a></li>
+					<li><a href="#create-widget">_CreateWidget</a></li>
 					<li><a href="#reference">Reference</a></li>
 				</ul>
 			</nav>
@@ -327,23 +314,9 @@ stickify("#sidebar-inner", { containerSelector: "body", additionalMarginTop: 84,
 					&lt;/ul&gt;
 
 					/*
-						menuify("#menuify-demo");
+						menuify("#menuify");
 					*/
 				</textarea>
-
-				<h3>Menuify Demo</h3>
-
-				<div class="demo-card">
-					<nav id="menuify-demo-nav">
-						<ul id="menuify-demo">
-							<li><a href="#">Home</a></li>
-							<li><a href="#">Blog</a></li>
-							<li><a href="#">_Web Design</a></li>
-							<li><a href="#">_SEO</a></li>
-							<li><a href="#">Contact</a></li>
-						</ul>
-					</nav>
-				</div>
 			</section>
 
 			<section id="gallery">
@@ -388,13 +361,13 @@ lazify(
 				<h4>&lt;iframe data-src&gt;</h4>
 				<div class="gallery-grid">
 					<iframe data-src="https://en.wikipedia.org/wiki/Blogger_(service)" title="Blogger on Wikipedia"
-						loading="lazy" class="lazy-iframe"></iframe>
+						loading="lazy" class="lazy-iframe border"></iframe>
 				</div>
 
 				<h4>&lt;video&gt; — poster + multi-format &lt;source&gt;</h4>
 				<div class="gallery-grid">
 					<video controls muted playsinline data-poster="https://picsum.photos/seed/14/600/380"
-						class="lazy-video">
+						class="lazy-video border">
 						<source data-src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"
 							type="video/webm">
 						<source data-src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
@@ -404,8 +377,8 @@ lazify(
 
 				<h4>data-bg-image — works on any element</h4>
 				<div class="gallery-grid">
-					<div class="bg-demo" data-bg-image="https://picsum.photos/seed/15/600/380"></div>
-					<div class="bg-demo" data-bg-image="https://picsum.photos/seed/16/600/380"></div>
+					<div class="bg-demo border" data-bg-image="https://picsum.photos/seed/15/600/380"></div>
+					<div class="bg-demo border" data-bg-image="https://picsum.photos/seed/16/600/380"></div>
 				</div>
 
 				<h4>onError — deliberately broken URL</h4>
@@ -617,15 +590,16 @@ createWidget({
 				<div id="relatedPosts"></div>
 			</div>
 
+			<div class="widget" id="widget-3">
+				<h4>Authors</h4>
+				<div id="blogAuthors" class="grid grid-cols-2 gap-2"></div>
+			</div>
+
 			<div class="widget" id="widget-2">
 				<h4>Featured Post</h4>
 				<div id="featuredPosts"></div>
 			</div>
 
-			<div class="widget" id="widget-3">
-				<h4>Authors</h4>
-				<div id="blogAuthors"></div>
-			</div>
 
 			<div class="widget" id="widget-4">
 				<h4>Labels</h4>
@@ -634,7 +608,7 @@ createWidget({
 
 			<div class="widget" id="widget-5">
 				<h4>Recent Comments</h4>
-				<div id="recentComments"></div>
+				<div id="recentComments" class="flex flex-col gap-4"></div>
 			</div>
 
 		</aside>

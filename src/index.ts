@@ -2,7 +2,6 @@ export type { Cookify, CookifySetOptions } from "./plugins/cookify.js";
 export type {
 	CreateWidgetOptions,
 	WidgetEntry,
-	WidgetFeed,
 	WidgetInstance,
 	WidgetOrderBy,
 	WidgetSort,

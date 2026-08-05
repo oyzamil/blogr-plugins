@@ -1,19 +1,18 @@
 import type { Author, Comment, Pager, Post } from "blogr";
 import { Blogr } from "blogr";
 
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
-import { type ResizeImageOptions, resizeImage } from "./resizeImage.js";
+import { resolveElements } from "../utils/dom";
+import { type ResizeImageOptions, resizeImage } from "./resizeImage";
 
-/** Which Blogger feed a widget lists. */
-export type WidgetFeed = "posts" | "comments" | "pages";
-
-/** New: What type of data the widget displays. */
+/** What data the widget lists — one flag covers both feed and shape. */
 export type WidgetType =
-	| "posts" // Display blog posts (default)
-	| "authors" // Display blog authors
-	| "labels"; // Display blog labels/categories
+	| "posts" // Blog posts (default)
+	| "pages" // Static pages
+	| "comments" // Comments
+	| "authors" // Distinct post authors
+	| "labels"; // Labels/categories
 
 /** How the initial batch of entries is sourced. */
 export type WidgetSourceType = "recent" | "random";
@@ -24,78 +23,108 @@ export type WidgetOrderBy = "published" | "updated";
 /** Direction entries are shown in, applied after fetching. */
 export type WidgetSort = "asc" | "desc";
 
-/**
- * A single normalized entry handed to `template`, `entryClass`, and every
- * lifecycle hook — same shape regardless of whether it came from the posts,
- * pages, or comments feed.
- */
-export interface WidgetEntry {
-	/** Entry id (numeric string), as reported by Blogger. */
+/** A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead. */
+export interface PostEntry {
+	kind: "posts" | "pages";
+	/** Numeric id, as reported by Blogger. */
 	id: string;
-	/** Entry title (empty string for comments, which have none). */
+	/** Title. `""` for comments (which have none). */
 	title: string;
-	/** Canonical URL of the entry. */
+	/** Canonical URL. */
 	url: string;
-	/** Author display name, or `""` if unavailable. */
-	author: string;
+	/** Author Details. */
+	author: Author;
 	/** Publish date, formatted per `dateFormat`. */
 	published: string;
 	/** Last-updated date, formatted per `dateFormat`. */
 	updated: string;
-	/** Labels on the entry. Always `[]` for comments (which carry none). */
+	/** Labels. Always `[]` for pages/comments (which carry none). */
 	labels: string[];
-	/**
-	 * Resolved thumbnail URL — already run through `resizeImage` (unless
-	 * `thumbnail: false`), falling back to `fallbackImage` when the entry
-	 * has no image of its own. `""` when `thumbnail: false`.
-	 */
+	/** Resized thumbnail (via {@link resizeImage}), falling back to `fallbackImage`. `""` when `thumbnail: false`. */
 	thumbnail: string;
 	/** Plain-text summary, truncated to `summaryLength` characters. */
 	content: string;
-	/** The original, un-normalized SDK object, for anything not exposed above. */
-	raw: Post | Comment | Author | string; // Extended for new types
+	/** The original, un-normalized SDK object. */
+	raw: Post;
 }
+
+/**
+ * A normalized comment — every field from the raw comment feed entry (id,
+ * url, author, post, inReplyTo, extended, etc.) is spread directly onto
+ * this object rather than nested under `raw`. `content`/`published`/
+ * `updated` are overridden with truncated/formatted values; everything
+ * else is exactly what the feed returned.
+ */
+export interface CommentEntry extends Omit<
+	Comment,
+	"published" | "updated" | "content"
+> {
+	kind: "comments";
+	content: string;
+	published: string;
+	updated: string;
+}
+
+/** A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`, `image`), nothing invented. */
+export interface AuthorEntry {
+	kind: "authors";
+	id: string;
+	name: string;
+	url: string;
+	image: string;
+	raw: Author;
+}
+
+/** A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link. */
+export interface LabelEntry {
+	kind: "labels";
+	id: string;
+	name: string;
+	url: string;
+	raw: string;
+}
+
+export type WidgetEntry = PostEntry | CommentEntry | AuthorEntry | LabelEntry;
 
 /**
  * Transforms one normalized entry, e.g. to inject a computed field, rewrite
  * a value from a transformer chain, or pull in data from elsewhere. Applied
  * in array order — each transformer receives the previous one's output.
- * May be async.
+ * May be async. Return `null` to drop the entry from the batch entirely.
  */
 export type WidgetTransformer = (
 	entry: WidgetEntry,
 	index: number,
-) => WidgetEntry | Promise<WidgetEntry>;
+) => WidgetEntry | null | Promise<WidgetEntry | null>;
 
 /** Configuration for {@link createWidget}. */
 export interface CreateWidgetOptions {
 	/** Enable JSONP transport (browser-only). @default false */
 	jsonp?: boolean;
 	/**
-	 * What type of data to display.
+	 * What the widget lists.
 	 * - "posts": Blog posts (default)
-	 * - "authors": Blog authors
-	 * - "labels": Blog labels/categories
+	 * - "pages": Static pages
+	 * - "comments": Comments
+	 * - "authors": Distinct post authors
+	 * - "labels": Labels/categories
+	 * `"pages"`/`"comments"`/`"authors"`/`"labels"` ignore `labels`/`query`/
+	 * `related` (Blogger's feed API doesn't support filtering those feeds
+	 * that way, and authors/labels aren't filterable at all).
 	 * @default "posts"
 	 */
 	type?: WidgetType;
 	/**
 	 * How the initial batch is sourced: `"recent"` lists newest-first,
-	 * `"random"` samples random entries. Default `"recent"`.
+	 * `"random"` samples random entries. Only applies to `type: "posts"`.
+	 * Default `"recent"`.
 	 */
 	source?: WidgetSourceType;
 	/** Where the widget mounts and renders. **Required.** */
 	containerSelector: ElementInput;
 	/** URL (or numeric id) of the Blogger blog to read from. **Required.** */
 	blogUrl: string;
-	/**
-	 * Which feed to list. `"comments"`/`"pages"` ignore `labels`/`query`/
-	 * `related` (Blogger's feed API doesn't support filtering those feeds
-	 * that way) and their entries have no `labels`/`thumbnail`. Default
-	 * `"posts"`.
-	 */
-	feed?: WidgetFeed;
-	/** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. */
+	/** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`.
 	labels?: string[];
 	/** Feed field to sort by. Default `"published"`. */
 	orderBy?: WidgetOrderBy;
@@ -229,7 +258,6 @@ const defaults = {
 	jsonp: true,
 	type: "posts" as WidgetType,
 	source: "recent" as WidgetSourceType,
-	feed: "posts" as WidgetFeed,
 	labels: [] as string[],
 	orderBy: "published" as WidgetOrderBy,
 	sort: "desc" as WidgetSort,
@@ -251,13 +279,17 @@ const defaults = {
 	cacheTTL: 3600,
 	transformers: [] as WidgetTransformer[],
 	loading: (status: string) =>
-		`<div class="blogr-widget-loading" style="text-align:center"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
+		`<div class="blogr-widget-loading" style="text-align:center;width:100%"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
 	error: (errorMsg: string) =>
 		`<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () =>
 		`<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
 	template: (entry: WidgetEntry) =>
-		`<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
+		entry.kind === "authors" || entry.kind === "labels"
+			? `<div><h2>${entry.name}</h2></div>`
+			: entry.kind === "comments"
+				? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>`
+				: `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
 	entryClass: () => "",
 };
 
@@ -326,10 +358,6 @@ function shuffle<T>(items: T[]): T[] {
 	return out;
 }
 
-function isPost(entry: Post | Comment): entry is Post {
-	return "labels" in entry;
-}
-
 function readLocalCache(key: string, ttlSeconds: number): WidgetEntry[] | null {
 	try {
 		const raw = localStorage.getItem(`blogr-widget:${key}`);
@@ -388,7 +416,7 @@ function detectCurrentPostId(): string | undefined {
  * const widget = createWidget({
  * 	containerSelector: "#relatedPosts",
  * 	blogUrl: "https://example.blogspot.com",
- * 	type: "posts", // or "authors" or "labels"
+ * 	type: "posts", // or "pages" | "comments" | "authors" | "labels"
  * 	related: true,
  * 	excludeCurrent: true,
  * 	currentPostId: "1234567890123456789",
@@ -397,8 +425,8 @@ function detectCurrentPostId(): string | undefined {
  * 	loadMore: true,
  * 	template: (entry) => `
  * 		<article class="related-post">
- * 			<img src="${entry.thumbnail}" alt="${entry.title}" />
- * 			<h3>${entry.title}</h3>
+ * 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
+ * 			<h3>${entry.raw.title}</h3>
  * 			<p>${entry.content}</p>
  * 		</article>
  * 	`,
@@ -456,6 +484,7 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 			: "widget");
 
 	const blog = new Blogr(opts.blogUrl, { jsonp: opts.jsonp });
+
 	if (opts.cache) blog.cache.enable({ ttlMs: opts.cacheTTL * 1000 });
 
 	const currentPostId = opts.currentPostId ?? detectCurrentPostId();
@@ -481,120 +510,123 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	const usesBuffer =
 		opts.source === "random" || (!opts.deepSearch && !!opts.query);
 
-	function isPostEntry(raw: Post | Comment | Author | string): raw is Post {
-		return (
-			typeof raw === "object" &&
-			raw !== null &&
-			"labels" in raw &&
-			"content" in raw
-		);
+	function normalizeAuthor(author: Author, index: number): AuthorEntry {
+		return {
+			kind: "authors",
+			id: author.url || `author-${index}`,
+			name: author.name || "Unknown Author",
+			url: author.url || "#",
+			image: author.image || opts.fallbackImage,
+			raw: author,
+		};
 	}
 
-	function isCommentEntry(
-		raw: Post | Comment | Author | string,
-	): raw is Comment {
-		return typeof raw === "object" && raw !== null && "post" in raw;
+	function normalizeLabel(label: string): LabelEntry {
+		return {
+			kind: "labels",
+			id: `label-${label}`,
+			name: label,
+			url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
+			raw: label,
+		};
 	}
 
-	function isAuthorEntry(raw: Post | Comment | Author | string): raw is Author {
-		return (
-			typeof raw === "object" && raw !== null && "name" in raw && !("id" in raw)
-		);
+	function truncate(text: string): string {
+		if (opts.summaryLength > 0 && text.length > opts.summaryLength) {
+			return `${text.slice(0, opts.summaryLength).trimEnd()}\u2026`;
+		}
+		return text;
+	}
+
+	function normalizePost(raw: Post): PostEntry {
+		let thumb = "";
+
+		if (opts.thumbnail !== false) {
+			thumb =
+				raw.thumbnailAlt || raw.thumbnail || blog.thumbnail(raw.content) || "";
+			if (thumb) {
+				const resizeOpts: ResizeImageOptions =
+					opts.thumbnail === "default"
+						? {}
+						: (opts.thumbnail as ResizeImageOptions);
+				thumb = resizeImage(thumb, resizeOpts);
+			} else {
+				thumb = opts.fallbackImage;
+			}
+		}
+
+		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+
+		return {
+			kind: opts.type as "posts" | "pages",
+			id: raw.id,
+			title: raw?.title ?? "",
+			url: raw.url,
+			author: raw.author,
+			published: formatDate(raw.published, opts.dateFormat),
+			updated: formatDate(raw.updated, opts.dateFormat),
+			labels: raw?.labels ?? [],
+			thumbnail: thumb,
+			content,
+			raw,
+		};
+	}
+
+	function normalizeComment(raw: Comment): CommentEntry {
+		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+
+		return {
+			...raw,
+			kind: "comments",
+			content,
+			published: formatDate(raw.published, opts.dateFormat),
+			updated: formatDate(raw.updated, opts.dateFormat),
+		};
 	}
 
 	async function normalize(
 		raw: Post | Comment | Author | string,
 		index: number,
-	): Promise<WidgetEntry> {
-		let entry: WidgetEntry;
-
-		if (opts.type === "authors") {
-			if (!isAuthorEntry(raw)) throw new Error("Expected Author");
-			const author = raw;
-			entry = {
-				id: author.url || `author-${index}`,
-				title: author.name || "Unknown Author",
-				url: author.url || "#",
-				author: author.name || "",
-				published: "",
-				updated: "",
-				labels: [],
-				thumbnail: author.image || opts.fallbackImage,
-				content: "",
-				raw: author,
-			};
-		} else if (opts.type === "labels") {
-			if (typeof raw !== "string") throw new Error("Expected label string");
-			const label = raw;
-			entry = {
-				id: `label-${label}`,
-				title: label,
-				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
-				author: "",
-				published: "",
-				updated: "",
-				labels: [label],
-				thumbnail: opts.fallbackImage,
-				content: "",
-				raw: label,
-			};
-		} else {
-			if (typeof raw === "string" || isAuthorEntry(raw)) {
-				throw new Error("Expected Post or Comment");
-			}
-
-			const post = isPostEntry(raw) ? raw : null;
-			let thumb = "";
-
-			if (opts.thumbnail !== false) {
-				const contentForThumb = post ? post.content : raw.content;
-				thumb =
-					post?.thumbnailAlt ||
-					post?.thumbnail ||
-					blog.thumbnail(contentForThumb) ||
-					"";
-				if (thumb) {
-					const resizeOpts: ResizeImageOptions =
-						opts.thumbnail === "default"
-							? {}
-							: (opts.thumbnail as ResizeImageOptions);
-					thumb = resizeImage(thumb, resizeOpts);
-				} else {
-					thumb = opts.fallbackImage;
-				}
-			}
-
-			const contentSource = post ? post.content : raw.content;
-			const summarySource = post ? post.summary : raw.summary;
-			let content = blog.htmlToText(contentSource ?? summarySource ?? "");
-			if (opts.summaryLength > 0 && content.length > opts.summaryLength) {
-				content = `${content.slice(0, opts.summaryLength).trimEnd()}\u2026`;
-			}
-
-			entry = {
-				id: raw.id,
-				title: post?.title ?? "",
-				url: raw.url,
-				author: raw.author?.name ?? "",
-				published: formatDate(raw.published, opts.dateFormat),
-				updated: formatDate(raw.updated, opts.dateFormat),
-				labels: post?.labels ?? [],
-				thumbnail: thumb,
-				content,
-				raw,
-			};
-		}
+	): Promise<WidgetEntry | null> {
+		let entry: WidgetEntry | null =
+			opts.type === "authors"
+				? normalizeAuthor(raw as Author, index)
+				: opts.type === "labels"
+					? normalizeLabel(raw as string)
+					: opts.type === "comments"
+						? normalizeComment(raw as Comment)
+						: normalizePost(raw as Post);
 
 		for (const transform of opts.transformers) {
+			if (entry === null) break;
 			entry = await transform(entry, index);
 		}
 		return entry;
 	}
 
-	function applyFilters(entries: WidgetEntry[]): WidgetEntry[] {
+	async function normalizeAll(
+		items: (Post | Comment | Author | string)[],
+	): Promise<WidgetEntry[]> {
+		const results = await Promise.all(items.map((raw, i) => normalize(raw, i)));
+		return results.filter((e): e is WidgetEntry => e !== null);
+	}
+
+	/** Typed for the posts/pages branch — normalize() always returns a PostEntry there. */
+	async function normalizePostEntries(items: Post[]): Promise<PostEntry[]> {
+		return (await normalizeAll(items)) as PostEntry[];
+	}
+
+	/** Typed for the comments branch — normalize() always returns a CommentEntry there. */
+	async function normalizeCommentEntries(
+		items: Comment[],
+	): Promise<CommentEntry[]> {
+		return (await normalizeAll(items)) as CommentEntry[];
+	}
+
+	function applyPostFilters(entries: PostEntry[]): PostEntry[] {
 		let out = entries;
 		if (opts.excludeCurrent && currentPostId) {
-			out = out.filter((e) => e.id !== currentPostId);
+			out = out.filter((e) => e.raw.id !== currentPostId);
 		}
 		if (opts.related && currentPostLabels.length) {
 			out = out.filter((e) =>
@@ -606,118 +638,182 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		return out;
 	}
 
+	function applyCommentFilters(entries: CommentEntry[]): CommentEntry[] {
+		let out = entries;
+		if (opts.sort === "asc") out = [...out].reverse();
+		if (opts.random) out = shuffle(out);
+		return out;
+	}
+
 	function matchesQuery(entry: WidgetEntry, query: string): boolean {
 		if (!query) return true;
 		const needle = query.toLowerCase();
+		if (entry.kind === "authors" || entry.kind === "labels") {
+			return entry.name.toLowerCase().includes(needle);
+		}
+		if (entry.kind === "comments") {
+			return (
+				entry.content.toLowerCase().includes(needle) ||
+				(entry.title ?? "").toLowerCase().includes(needle)
+			);
+		}
 		return (
-			entry.title.toLowerCase().includes(needle) ||
+			entry.raw.title.toLowerCase().includes(needle) ||
 			entry.content.toLowerCase().includes(needle)
 		);
 	}
 
+	// ---------------------------------------------------------------------
+	// Per-feed/type fetchers. Each one calls the single blogr SDK method
+	// that owns that data, instead of one big branchy fetch function.
+	// ---------------------------------------------------------------------
+
+	/** `type: "authors"` — no pagination, no query, no labels (blog.authors() has none of these). */
+	async function fetchAuthorsBatch(): Promise<WidgetEntry[]> {
+		const authors = await blog.authors({
+			sampleSize: opts.maxVisibleItems * 4,
+		});
+		return normalizeAll(authors);
+	}
+
+	/** `type: "labels"` — blog.categories() is the SDK's own alias for blog.labels(). */
+	async function fetchLabelsBatch(): Promise<WidgetEntry[]> {
+		const labels = await blog.categories();
+		return normalizeAll(labels);
+	}
+
+	/** `type: "posts"`, one network page. Uses blog.search() when a query is active, blog.posts() otherwise. */
+	async function fetchPostsPage(
+		page: Pager<Post> | null,
+	): Promise<{ entries: PostEntry[]; nextPager: Pager<Post> | null }> {
+		if (page) {
+			const next = await page.next();
+			if (!next) return { entries: [], nextPager: null };
+			return {
+				entries: applyPostFilters(await normalizePostEntries(next.items)),
+				nextPager: next,
+			};
+		}
+		const listOptions = {
+			limit: opts.maxVisibleItems,
+			orderBy: opts.orderBy,
+			label: opts.labels.length ? opts.labels : undefined,
+		};
+		const p = currentQuery
+			? await blog.search({ query: currentQuery, ...listOptions })
+			: await blog.posts(listOptions);
+		return {
+			entries: applyPostFilters(await normalizePostEntries(p.items)),
+			nextPager: p,
+		};
+	}
+
+	/** `type: "comments"`, one network page. blog.comments() ignores labels/query, per the feed API. */
+	async function fetchCommentsPage(
+		page: Pager<Comment> | null,
+	): Promise<{ entries: CommentEntry[]; nextPager: Pager<Comment> | null }> {
+		if (page) {
+			const next = await page.next();
+			if (!next) return { entries: [], nextPager: null };
+			return {
+				entries: applyCommentFilters(await normalizeCommentEntries(next.items)),
+				nextPager: next,
+			};
+		}
+		const p = await blog.comments({
+			limit: opts.maxVisibleItems,
+			orderBy: opts.orderBy,
+		});
+		return {
+			entries: applyCommentFilters(await normalizeCommentEntries(p.items)),
+			nextPager: p,
+		};
+	}
+
+	/** `type: "pages"`, one network page. blog.pages() ignores labels/query too. */
+	async function fetchPagesPage(
+		page: Pager<Post> | null,
+	): Promise<{ entries: PostEntry[]; nextPager: Pager<Post> | null }> {
+		if (page) {
+			const next = await page.next();
+			if (!next) return { entries: [], nextPager: null };
+			return {
+				entries: applyPostFilters(await normalizePostEntries(next.items)),
+				nextPager: next,
+			};
+		}
+		const p = await blog.pages({
+			limit: opts.maxVisibleItems,
+			orderBy: opts.orderBy,
+		});
+		return {
+			entries: applyPostFilters(await normalizePostEntries(p.items)),
+			nextPager: p,
+		};
+	}
+
+	/** Dispatches one network page to the right fetcher for the current type/feed. */
 	async function fetchNetworkBatch(
 		page: Pager<Post> | Pager<Comment> | null,
 	): Promise<{
 		entries: WidgetEntry[];
 		nextPager: Pager<Post> | Pager<Comment> | null;
 	}> {
-		if (page) {
-			const next = await page.next();
-			if (!next) return { entries: [], nextPager: null };
-			const normalized = await Promise.all(
-				next.items.map((raw, i) => normalize(raw, i)),
-			);
-			return { entries: applyFilters(normalized), nextPager: next };
-		}
-
-		// Handle different widget types
-		if (opts.type === "authors") {
-			const authors = await blog.authors({
-				sampleSize: opts.maxVisibleItems * 4,
-			});
-			const normalized = await Promise.all(
-				authors.map((author, i) => normalize(author, i)),
-			);
-			return { entries: applyFilters(normalized), nextPager: null };
-		} else if (opts.type === "labels") {
-			const labels = await blog.labels();
-			const normalized = await Promise.all(
-				labels.map((label, i) => normalize(label, i)),
-			);
-			return { entries: applyFilters(normalized), nextPager: null };
-		}
-
-		// Default: posts, comments, pages
-		const baseOptions = {
-			limit: opts.maxVisibleItems,
-			orderBy: opts.orderBy,
-			label:
-				opts.feed === "posts" && opts.labels.length ? opts.labels : undefined,
-			query: opts.feed === "posts" && currentQuery ? currentQuery : undefined,
-		};
-
-		let items: (Post | Comment)[];
-		let newPager: Pager<Post> | Pager<Comment> | null = null;
-
-		if (opts.feed === "comments") {
-			const p = await blog.comments({
-				limit: opts.maxVisibleItems,
-				orderBy: opts.orderBy,
-			});
-			items = p.items;
-			newPager = p;
-		} else if (opts.feed === "pages") {
-			const p = await blog.pages({
-				limit: opts.maxVisibleItems,
-				orderBy: opts.orderBy,
-			});
-			items = p.items;
-			newPager = p;
-		} else {
-			const p = await blog.posts(baseOptions);
-			items = p.items;
-			newPager = p;
-		}
-
-		const normalized = await Promise.all(
-			items.map((raw, i) => normalize(raw, i)),
-		);
-		return { entries: applyFilters(normalized), nextPager: newPager };
+		if (opts.type === "authors")
+			return { entries: await fetchAuthorsBatch(), nextPager: null };
+		if (opts.type === "labels")
+			return { entries: await fetchLabelsBatch(), nextPager: null };
+		if (opts.type === "comments")
+			return fetchCommentsPage(page as Pager<Comment> | null);
+		if (opts.type === "pages")
+			return fetchPagesPage(page as Pager<Post> | null);
+		return fetchPostsPage(page as Pager<Post> | null);
 	}
 
-	async function fetchBuffer(): Promise<WidgetEntry[]> {
-		if (opts.type === "authors") {
-			const authors = await blog.authors({
-				sampleSize: opts.maxVisibleItems * 4,
-			});
-			return await Promise.all(
-				authors.map((author, i) => normalize(author, i)),
-			);
-		} else if (opts.type === "labels") {
-			const labels = await blog.labels();
-			return await Promise.all(labels.map((label, i) => normalize(label, i)));
-		}
+	/** Buffered posts — blog.random() for `source: "random"`, blog.posts() for `"recent"`. */
+	async function fetchPostsBuffer(): Promise<PostEntry[]> {
+		const items =
+			opts.source === "random"
+				? await blog.random({
+						count: opts.maxVisibleItems * 4,
+						label: opts.labels.length ? opts.labels : undefined,
+						query: currentQuery || undefined,
+					})
+				: (
+						await blog.posts({
+							limit: opts.maxVisibleItems * 4,
+							orderBy: opts.orderBy,
+							label: opts.labels.length ? opts.labels : undefined,
+						})
+					).items;
+		return applyPostFilters(await normalizePostEntries(items));
+	}
 
-		// Default: posts
-		let items: Post[];
-		if (opts.source === "random") {
-			items = await blog.random({
-				count: opts.maxVisibleItems * 4,
-				label: opts.labels.length ? opts.labels : undefined,
-				query: currentQuery || undefined,
-			});
-		} else {
-			const p = await blog.posts({
-				limit: opts.maxVisibleItems * 4,
-				orderBy: opts.orderBy,
-				label: opts.labels.length ? opts.labels : undefined,
-			});
-			items = p.items;
-		}
-		const normalized = await Promise.all(
-			items.map((raw, i) => normalize(raw, i)),
-		);
-		return applyFilters(normalized);
+	/** Buffered comments — blog.comments() over a wider limit, filtered client-side. */
+	async function fetchCommentsBuffer(): Promise<CommentEntry[]> {
+		const p = await blog.comments({
+			limit: opts.maxVisibleItems * 4,
+			orderBy: opts.orderBy,
+		});
+		return applyCommentFilters(await normalizeCommentEntries(p.items));
+	}
+
+	/** Buffered pages — blog.pages() over a wider limit, filtered client-side. */
+	async function fetchPagesBuffer(): Promise<PostEntry[]> {
+		const p = await blog.pages({
+			limit: opts.maxVisibleItems * 4,
+			orderBy: opts.orderBy,
+		});
+		return applyPostFilters(await normalizePostEntries(p.items));
+	}
+
+	/** Dispatches the initial buffer fetch (used for `source: "random"` and non-deep query search). */
+	async function fetchBuffer(): Promise<WidgetEntry[]> {
+		if (opts.type === "authors") return fetchAuthorsBatch();
+		if (opts.type === "labels") return fetchLabelsBatch();
+		if (opts.type === "comments") return fetchCommentsBuffer();
+		if (opts.type === "pages") return fetchPagesBuffer();
+		return fetchPostsBuffer();
 	}
 
 	function renderEntries(entries: WidgetEntry[], append: boolean): void {

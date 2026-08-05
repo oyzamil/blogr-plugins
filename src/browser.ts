@@ -12,7 +12,6 @@ import { type LazifyOptions, lazify } from "./plugins/lazify.js";
 import { type MenuifyOptions, menuify } from "./plugins/menuify.js";
 import { type ReplacifyOptions, replacify } from "./plugins/replacify.js";
 import {
-	installResizeImagePrototypes,
 	isSupportedImage,
 	type ResizeImageOptions,
 	resizeImage,
@@ -87,7 +86,6 @@ export {
 	createShortcodeRegistry,
 	createWidget,
 	defaultShortcodeTags,
-	installResizeImagePrototypes,
 	isSupportedImage,
 	lazify,
 	menuify,

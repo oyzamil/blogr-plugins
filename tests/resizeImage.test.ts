@@ -1,10 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {
-	installResizeImagePrototypes,
-	isSupportedImage,
-	resizeImage,
-} from "../src/plugins/resizeImage.js";
+import { isSupportedImage, resizeImage } from "../src/plugins/resizeImage.js";
 
 const oldShapeUrl = "https://1.bp.blogspot.com/-abc/s1600/placeholder.jpg";
 const newShapeUrl =
@@ -159,71 +155,5 @@ describe("resizeImage — YouTube thumbnails", () => {
 		expect(url).toBe(
 			"https://i.ytimg.com/vi_webp/dQw4w9WgXcQ/maxresdefault.webp",
 		);
-	});
-});
-
-describe("installResizeImagePrototypes", () => {
-	beforeEach(() => {
-		installResizeImagePrototypes();
-	});
-
-	it("adds a non-enumerable String.prototype.resizeImage", () => {
-		expect(oldShapeUrl.resizeImage({ width: 100, height: 100 })).toContain(
-			"w100",
-		);
-		expect(
-			Object.getOwnPropertyDescriptor(String.prototype, "resizeImage")
-				?.enumerable,
-		).toBe(false);
-	});
-
-	it("is safe to call more than once", () => {
-		expect(() => installResizeImagePrototypes()).not.toThrow();
-	});
-
-	it("resizes every string in an array via Array.prototype.resizeImage", () => {
-		const result = [oldShapeUrl, unsupportedUrl].resizeImage({
-			width: 50,
-			height: 50,
-		});
-		expect(result[0]).toContain("w50");
-		expect(result[1]).toBe(unsupportedUrl);
-	});
-
-	it("resizes an <img>'s src and srcset via Element.prototype.resizeImage", () => {
-		document.body.innerHTML = `
-			<img id="pic" src="${oldShapeUrl}"
-				srcset="${oldShapeUrl} 1x, ${newShapeUrl} 2x" />
-		`;
-		const img = document.getElementById("pic") as HTMLImageElement;
-		img.resizeImage({ width: 320, height: 240 });
-
-		expect(img.src).toContain("w320");
-		const [first, second] = img.srcset.split(", ");
-		expect(first).toContain("w320");
-		expect(first.trim().endsWith("1x")).toBe(true);
-		expect(second).toContain("w320");
-		expect(second.trim().endsWith("2x")).toBe(true);
-	});
-
-	it("rewrites a background-image url() via Element.prototype.resizeImage", () => {
-		document.body.innerHTML = `<div id="box" style="background-image: url('${oldShapeUrl}')"></div>`;
-		const box = document.getElementById("box") as HTMLElement;
-		box.resizeImage({ width: 150, height: 150 });
-
-		expect(box.style.backgroundImage).toContain("w150");
-	});
-
-	it("resizes every element in a NodeList via NodeList.prototype.resizeImage", () => {
-		document.body.innerHTML = `
-			<img class="pic" src="${oldShapeUrl}" />
-			<img class="pic" src="${oldShapeUrl}" />
-		`;
-		const list = document.querySelectorAll(
-			".pic",
-		) as NodeListOf<HTMLImageElement>;
-		list.resizeImage({ width: 64, height: 64 });
-
-		list.forEach((img) => expect(img.src).toContain("w64"));
 	});
 });

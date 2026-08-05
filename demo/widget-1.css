@@ -14,7 +14,7 @@
 }
 
 .entry-thumbnail {
-	@apply aspect-square size-20 shrink-0 overflow-hidden rounded-lg;
+	@apply aspect-square size-20 shrink-0 overflow-hidden rounded-lg border;
 }
 
 .entry-image {
@@ -30,7 +30,7 @@
 }
 
 .entry-title {
-	@apply line-clamp-2 font-medium text-sm mb-0;
+	@apply line-clamp-2 font-bold text-sm mb-0;
 }
 
 .entry-description {
