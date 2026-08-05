@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { lazify } from "../src/plugins/lazify.js";
+import { lazify } from "../src/plugins/lazify";
 
 class MockIntersectionObserver {
 	static instances: MockIntersectionObserver[] = [];
@@ -42,18 +42,34 @@ describe("lazify", () => {
 		const observer = MockIntersectionObserver.instances[0];
 		const img = document.getElementById("pic") as HTMLImageElement;
 		observer.trigger(img);
+		img.dispatchEvent(new Event("load"));
 
 		expect(img.src).toContain("/photo.jpg");
 		expect(img.classList.contains("lazy-ify")).toBe(true);
 	});
 
-	it("sets background-image on non-img elements", () => {
+	it("sets background-image on non-img elements", async () => {
 		document.body.innerHTML = `<div id="box" data-src="/bg.jpg"></div>`;
 		lazify("#box");
 
 		const observer = MockIntersectionObserver.instances[0];
 		const box = document.getElementById("box") as HTMLElement;
+
+		const OriginalImage = globalThis.Image;
+		// @ts-expect-error - test stub
+		globalThis.Image = class MockImage {
+			src = "";
+			addEventListener = vi.fn((event: string, callback: EventListener) => {
+				if (event === "load") {
+					Promise.resolve().then(() => callback(new Event("load")));
+				}
+			});
+		};
+
 		observer.trigger(box);
+		await new Promise((r) => setTimeout(r, 0));
+
+		globalThis.Image = OriginalImage;
 
 		expect(box.style.backgroundImage).toContain("/bg.jpg");
 	});
@@ -65,6 +81,7 @@ describe("lazify", () => {
 		const observer = MockIntersectionObserver.instances[0];
 		const iframe = document.getElementById("embed") as HTMLIFrameElement;
 		observer.trigger(iframe);
+		iframe.dispatchEvent(new Event("load"));
 
 		expect(iframe.src).toBe("https://example.com/embed");
 		expect(iframe.classList.contains("lazy-ify")).toBe(true);
@@ -77,6 +94,7 @@ describe("lazify", () => {
 		const observer = MockIntersectionObserver.instances[0];
 		const video = document.getElementById("clip") as HTMLVideoElement;
 		observer.trigger(video);
+		video.dispatchEvent(new Event("loadeddata"));
 
 		expect(video.src).toContain("/clip.mp4");
 		expect(video.classList.contains("lazy-ify")).toBe(true);
@@ -94,6 +112,7 @@ describe("lazify", () => {
 		const observer = MockIntersectionObserver.instances[0];
 		const video = document.getElementById("clip") as HTMLVideoElement;
 		observer.trigger(video);
+		video.dispatchEvent(new Event("loadeddata"));
 
 		const sources = video.querySelectorAll("source");
 		expect(sources[0].src).toContain("/clip.webm");
@@ -108,6 +127,7 @@ describe("lazify", () => {
 		const observer = MockIntersectionObserver.instances[0];
 		const video = document.getElementById("clip") as HTMLVideoElement;
 		observer.trigger(video);
+		video.dispatchEvent(new Event("loadeddata"));
 
 		expect(video.poster).toContain("/poster.jpg");
 	});
@@ -121,7 +141,7 @@ describe("lazify", () => {
 		observer.trigger(video);
 
 		expect(video.classList.contains("lazy-ify")).toBe(false);
-		expect(observer.observed).toContain(video);
+		expect(observer.observed).not.toContain(video); // unobserved since nothing to load
 	});
 
 	it("calls onLoad callback", () => {
@@ -130,7 +150,9 @@ describe("lazify", () => {
 		lazify("#pic", { onLoad });
 
 		const observer = MockIntersectionObserver.instances[0];
-		observer.trigger(document.getElementById("pic")!);
+		const img = document.getElementById("pic")!;
+		observer.trigger(img);
+		img.dispatchEvent(new Event("load"));
 
 		expect(onLoad).toHaveBeenCalledTimes(1);
 	});

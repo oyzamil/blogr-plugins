@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+
 import {
 	createShortcodeRegistry,
 	renderShortcodes,
 	shortcodify,
-} from "../src/plugins/shortcodify.js";
+} from "../src/plugins/shortcodify";
 
 describe("renderShortcodes", () => {
 	it("renders a simple tag with content", () => {
@@ -52,13 +53,22 @@ describe("renderShortcodes", () => {
 
 	it("applies the unknownTag policy for unregistered tags", () => {
 		expect(
-			renderShortcodes("[mystery]x[/mystery]", { tags: {}, unknownTag: "keep" }),
+			renderShortcodes("[mystery]x[/mystery]", {
+				tags: {},
+				unknownTag: "keep",
+			}),
 		).toBe("[mystery]x[/mystery]");
 		expect(
-			renderShortcodes("[mystery]x[/mystery]", { tags: {}, unknownTag: "strip" }),
+			renderShortcodes("[mystery]x[/mystery]", {
+				tags: {},
+				unknownTag: "strip",
+			}),
 		).toBe("x");
 		expect(
-			renderShortcodes("[mystery]x[/mystery]", { tags: {}, unknownTag: "remove" }),
+			renderShortcodes("[mystery]x[/mystery]", {
+				tags: {},
+				unknownTag: "remove",
+			}),
 		).toBe("");
 	});
 

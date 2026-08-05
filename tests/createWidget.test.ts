@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { PostEntry } from "../src/plugins/createWidget.js";
+
 class MockIntersectionObserver {
 	static instances: MockIntersectionObserver[] = [];
 	callback: IntersectionObserverCallback;
@@ -167,8 +169,9 @@ describe("createWidget", () => {
 		createWidget({
 			containerSelector: "#widget",
 			blogUrl: "https://x.blogspot.com",
-			template: (entry) => `<div>${entry.title}</div>`,
-			entryClass: (entry) => (entry.labels.includes("ai") ? "ai-post" : ""),
+			template: (entry) => `<div>${(entry as PostEntry).title}</div>`,
+			entryClass: (entry) =>
+				(entry as PostEntry).labels.includes("ai") ? "ai-post" : "",
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();
@@ -222,10 +225,16 @@ describe("createWidget", () => {
 			containerSelector: "#widget",
 			blogUrl: "https://x.blogspot.com",
 			transformers: [
-				(entry) => ({ ...entry, title: `${entry.title}!` }),
-				(entry) => ({ ...entry, title: entry.title.toUpperCase() }),
+				(entry) => ({
+					...entry,
+					title: `${(entry as PostEntry).title}!`,
+				}),
+				(entry) => ({
+					...entry,
+					title: (entry as PostEntry).title.toUpperCase(),
+				}),
 			],
-			template: (entry) => `<div>${entry.title}</div>`,
+			template: (entry) => `<div>${(entry as PostEntry).title}</div>`,
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();
@@ -241,7 +250,7 @@ describe("createWidget", () => {
 			containerSelector: "#widget",
 			blogUrl: "https://x.blogspot.com",
 			fallbackImage: "/fallback.png",
-			template: (entry) => `<img src="${entry.thumbnail}"/>`,
+			template: (entry) => `<img src="${(entry as PostEntry).thumbnail}"/>`,
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();
@@ -257,7 +266,8 @@ describe("createWidget", () => {
 			containerSelector: "#widget",
 			blogUrl: "https://x.blogspot.com",
 			thumbnail: false,
-			template: (entry) => `<div data-thumb="${entry.thumbnail}"></div>`,
+			template: (entry) =>
+				`<div data-thumb="${(entry as PostEntry).thumbnail}"></div>`,
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();
@@ -276,7 +286,7 @@ describe("createWidget", () => {
 			blogUrl: "https://x.blogspot.com",
 			maxVisibleItems: 2,
 			loadMore: true,
-			template: (entry) => `<div>${entry.title}</div>`,
+			template: (entry) => `<div>${(entry as PostEntry).title}</div>`,
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();
@@ -317,7 +327,7 @@ describe("createWidget", () => {
 			blogUrl: "https://x.blogspot.com",
 			query: "Apples",
 			deepSearch: false,
-			template: (entry) => `<div>${entry.title}</div>`,
+			template: (entry) => `<div>${(entry as PostEntry).title}</div>`,
 		});
 		mountObserver().trigger(document.getElementById("widget")!);
 		await flush();

@@ -1,12 +1,17 @@
 export type { Cookify, CookifySetOptions } from "./plugins/cookify.js";
 export type {
+	AuthorEntry,
+	CommentEntry,
 	CreateWidgetOptions,
+	LabelEntry,
+	PostEntry,
 	WidgetEntry,
 	WidgetInstance,
 	WidgetOrderBy,
 	WidgetSort,
 	WidgetSourceType,
 	WidgetTransformer,
+	WidgetType,
 } from "./plugins/createWidget.js";
 export type { LazifyOptions } from "./plugins/lazify.js";
 export type { MenuifyOptions } from "./plugins/menuify.js";

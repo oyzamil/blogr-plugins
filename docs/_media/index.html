@@ -1,0 +1,819 @@
+<!-- biome-ignore-all lint/a11y/useValidAnchor: Expected -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>blogr-plugins — eight plugins for Blogger templates</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+	<script>
+		(async () => {
+			const files = ["style.css", "widget-1.css", "labels.css", "menuify.css"];
+			const parts = await Promise.all(
+				files.map((f) => fetch(f).then((r) => r.text())),
+			);
+			const style = document.createElement("style");
+			style.type = "text/tailwindcss";
+			// strip `@import "tailwindcss";` — the Play CDN script already
+			// provides the base/preflight layers; importing it again here
+			// duplicates them.
+			style.textContent = parts
+				.join("\n")
+				.replace(/@import\s+["']tailwindcss["'];?/g, "");
+			document.head.appendChild(style);
+		})();
+	</script>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+
+<body>
+
+	<header class="fixed top-0 z-50 h-16 w-full border-b px-4 transition-all duration-300 sm:px-6 lg:px-8">
+		<div class="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 border-x px-4 sm:px-6 lg:px-8">
+			<a class="logo" href="#">BLOGR<span>-PLUGINS™</span></a>
+			<nav id="menu-nav" aria-label="Primary">
+				<ul id="menuify">
+					<li><a href="#playground">Playground</a></li>
+					<li><a href="#">UI plugins</a></li>
+					<li><a href="#stickify">_Stickify</a></li>
+					<li><a href="#menuify">_Menuify</a></li>
+					<li><a href="#gallery">_Lazify</a></li>
+					<li><a href="#tocify-plugin">_Tocify</a></li>
+					<li><a href="#">Content plugins</a></li>
+					<li><a href="#cookies">_Cookify</a></li>
+					<li><a href="#replacify">_Replacify</a></li>
+					<li><a href="#shortcodes">_Shortcodify</a></li>
+					<li><a href="#">_ResizeImage</a></li>
+					<li><a href="#playground">__Blogger URLs</a></li>
+					<li><a href="#playground">__YouTube thumbnails</a></li>
+					<li><a href="#create-widget">_CreateWidget</a></li>
+					<li><a href="#reference">Reference</a></li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<!-- Hero Start -->
+	<section id="home" class="relative -mt-15.75 flex flex-col overflow-hidden pt-15.75">
+		<div class="px-4 sm:px-6 lg:px-8">
+			<div class="mx-auto flex max-w-7xl flex-col gap-6 border-x px-4 py-8 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+				<div class="hero flex flex-col items-center gap-2 text-center">
+					<p class="eyebrow">blogr-plugins · Typed plugins for Blogger templates</p>
+					<h1>One kit.<br><em>Every plugin, live.</em></h1>
+					<p class="lede">
+						Sticky sidebar, dropdown menu, lazy-loading media, table of contents,
+						text replace, shortcodes, a cookie utility, and Blogger/YouTube
+						image-URL resizing — zero dependencies, tree-shakeable, ESM/CJS/IIFE.
+						Every plugin on this page is running live: the sidebar is
+						<code class="code-inline">stickify</code>, the header is
+						<code class="code-inline">menuify</code>, and the label above got its
+						trademark from <code class="code-inline">replacify</code>.
+					</p>
+					<div class="pill-row">
+						<span class="pill">stickify</span>
+						<span class="pill">menuify</span>
+						<span class="pill">lazify</span>
+						<span class="pill">tocify</span>
+						<span class="pill">replacify</span>
+						<span class="pill">shortcodify</span>
+						<span class="pill">cookify</span>
+						<span class="pill">resizeImage</span>
+						<span class="pill">createWidget</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div class="relative z-1 overflow-hidden py-8 text-center border-y">
+		<div class="space-y-4">
+			<h2 class="text-xl font-medium tracking-wider uppercase">Blogs</h2>
+			<p class="text-muted-foreground text-base">Boost your efficiency with an AI agent that eliminates manual
+				work and streamlines your operations.</p>
+		</div>
+	</div>
+	<!-- Hero End -->
+	<section class="mx-auto max-w-7xl border-x flex flex-col-reverse lg:grid lg:grid-cols-[1fr_var(--sidebar-width)]">
+		<main class="border-r space-y-4">
+			<section id="playground">
+				<p class="section-label">Playground</p>
+				<h2>Paste a URL, tune the options</h2>
+				<p class="section-desc">
+					Every field below feeds straight into <code class="code-inline">resizeImage()</code>.
+					The panel shows exactly which part of the URL got rewritten — struck-through
+					text was removed, highlighted text was inserted.
+				</p>
+
+				<div class="tabs">
+					<button class="tab-btn active" data-tab="blogger" type="button">Blogger
+						image</button>
+					<button class="tab-btn" data-tab="youtube" type="button">YouTube thumbnail</button>
+				</div>
+
+				<div class="tab-panel active" id="panel-blogger">
+					<div class="playground">
+						<div class="field-row">
+							<label for="bg-url">Source URL</label>
+							<input type="text" id="bg-url"
+								value="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjwgdO3nSQc125LGuKmSWgOkPS-L4WI2wFVPt9qfUtoikq-rWERgoM96tZUsVYtkaxwybdvm9n6Kkl1O-fJqnRt2676YcTnvkamE_M6aPZ6GJrPIHoktSY29GDXARecGvfdBn4Laa56zWViwlf2NzY67Lo4FastVEG5FCn5PN8bfqn9tP5EMFgMWkIub3Oi/w72-h72/xenify-blogger-template.png">
+						</div>
+						<div class="control-grid">
+							<div class="field-row">
+								<label for="bg-width">Width</label>
+								<input type="number" id="bg-width" value="400" min="1">
+							</div>
+							<div class="field-row">
+								<label for="bg-height">Height</label>
+								<input type="number" id="bg-height" value="400" min="1">
+							</div>
+							<div class="field-row">
+								<label for="bg-format">Format</label>
+								<select id="bg-format">
+									<option value="webp" selected>webp</option>
+									<option value="jpeg">jpeg</option>
+									<option value="png">png</option>
+								</select>
+							</div>
+							<div class="field-row">
+								<label for="bg-crop">Crop</label>
+								<select id="bg-crop">
+									<option value="" selected>unset</option>
+									<option value="circle">circle</option>
+									<option value="square">square</option>
+								</select>
+							</div>
+							<div class="field-row">
+								<label for="bg-flip">Flip</label>
+								<select id="bg-flip">
+									<option value="" selected>unset</option>
+									<option value="horizontally">horizontally</option>
+									<option value="vertically">vertically</option>
+								</select>
+							</div>
+							<div class="field-row">
+								<label for="bg-rotate">Rotate</label>
+								<select id="bg-rotate">
+									<option value="" selected>unset</option>
+									<option value="90">90</option>
+									<option value="180">180</option>
+									<option value="270">270</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="result-panel">
+							<p class="result-label">before</p>
+							<p class="diff-line" id="bg-diff-before"></p>
+							<p class="result-label">after</p>
+							<p class="diff-line" id="bg-diff-after"></p>
+							<div class="result-footer">
+								<span class="run-status mono" id="bg-status">isSupportedImage: —</span>
+								<button class="copy-btn" id="bg-copy" type="button">Copy result</button>
+							</div>
+						</div>
+
+						<div class="preview-row">
+							<div class="preview-box">
+								<p class="cap">Live preview — before</p>
+								<img id="bg-img-before" alt="Preview of the original URL" />
+								<div class="preview-fallback" id="bg-fallback-before">Preview
+									unavailable —
+									this example
+									URL
+									is illustrative. The transformed URL text above is still correct.
+								</div>
+							</div>
+							<div class="preview-box">
+								<p class="cap">Live preview — after</p>
+								<img id="bg-img-after" alt="Preview of the rewritten URL" />
+								<div class="preview-fallback" id="bg-fallback-after">Preview unavailable
+									—
+									this example
+									URL
+									is illustrative. The transformed URL text above is still correct.
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="tab-panel" id="panel-youtube">
+					<div class="playground">
+						<div class="field-row">
+							<label for="yt-url">Source thumbnail URL</label>
+							<input type="text" id="yt-url" value="https://i.ytimg.com/vi/dQw4w9WgXcQ/default.jpg">
+						</div>
+						<div class="control-grid">
+							<div class="field-row">
+								<label for="yt-quality">ytThumbnail quality</label>
+								<select id="yt-quality">
+									<option value="default">default</option>
+									<option value="mqdefault">mqdefault</option>
+									<option value="hqdefault">hqdefault</option>
+									<option value="sddefault">sddefault</option>
+									<option value="maxresdefault" selected>maxresdefault</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="result-panel">
+							<p class="result-label">before</p>
+							<p class="diff-line" id="yt-diff-before"></p>
+							<p class="result-label">after</p>
+							<p class="diff-line" id="yt-diff-after"></p>
+							<div class="result-footer">
+								<span class="run-status" id="yt-status">isSupportedImage: —</span>
+								<button class="copy-btn" id="yt-copy" type="button">Copy result</button>
+							</div>
+						</div>
+
+						<div class="preview-row">
+							<div class="preview-box">
+								<p class="cap">Live preview — before</p>
+								<img id="yt-img-before" alt="Original YouTube thumbnail">
+							</div>
+							<div class="preview-box">
+								<p class="cap">Live preview — after</p>
+								<img id="yt-img-after" alt="Rewritten YouTube thumbnail, always WebP">
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="dom-api">
+				<p class="section-label">DOM API</p>
+				<h2>Call it on what you already have</h2>
+				<p class="section-desc">
+					<code class="code-inline">resizeImageInDom(target, options)</code> applies
+					<code class="code-inline">resizeImage</code> straight onto a selector,
+					element, array of elements, or <code class="code-inline">NodeList</code> —
+					no setup call, no prototype patching. The four thumbnails below are real
+					<code class="code-inline">&lt;img&gt;</code> elements — press the button
+					to run the exact call underneath.
+				</p>
+
+				<textarea class="code-block">
+resizeImageInDom(".thumb", { ytThumbnail: "mqdefault" });
+	</textarea>
+
+				<h3>ResizeImage Demo</h3>
+
+				<div class="thumb-grid" id="thumb-grid"></div>
+
+				<div class="action-row">
+					<button class="run-btn" id="run-nodelist" type="button">Run resizeImageInDom(".thumb", {
+						ytThumbnail:
+						'mqdefault' })</button>
+					<button class="run-btn" id="run-reset" type="button">Reset</button>
+					<span class="run-status" id="dom-status"></span>
+				</div>
+			</section>
+
+			<section id="stickify">
+				<p class="section-label">stickify</p>
+				<h2>The sidebar on this page, running</h2>
+				<p class="section-desc">
+					Full option-parity port of Theia Sticky Sidebar — collapsible margins,
+					floated multi-column layouts, and responsive stacking, handled the same
+					way the original does. That sidebar to the left has been
+					<code class="code-inline">stickify</code>'d since you loaded this page; scroll
+					and watch it clamp to its container instead of overflowing the footer.
+				</p>
+				<textarea class="code-block">
+stickify("#sidebar-inner", { containerSelector: "body", additionalMarginTop: 84, sidebarBehavior: "modern", }); 
+// containerSelector points past the sidebar's own parent otherwise there's no extra room to stick into.
+				</textarea>
+			</section>
+
+			<section id="menuify">
+				<p class="section-label">menuify</p>
+				<h2>Flat list in, nested dropdown out</h2>
+				<p class="section-desc">
+					Turns a flat <code class="code-inline">&lt;ul&gt;&lt;li&gt;&lt;a&gt;</code> link
+					list into a nested dropdown — any link whose text starts with the
+					nesting prefix (<code class="code-inline">_</code> by default) gets nested
+					under the previous non-prefixed link, and the prefix is stripped. The
+					fixed header above runs <code class="code-inline">menuify("#menu")</code> too,
+					for its keyboard/touch handling, on top of hand-built markup; the box
+					below is the plain, un-styled result straight out of the plugin —
+					edit nothing, just call <code class="code-inline">menuify()</code>.
+				</p>
+				<textarea class="code-block" data-lang="html">
+&lt;ul id="menuify-demo"&gt;
+					&lt;li&gt;&lt;a&gt;Home&lt;/a&gt;&lt;/li&gt;
+					&lt;li&gt;&lt;a&gt;Blog&lt;/a&gt;&lt;/li&gt;
+					&lt;li&gt;&lt;a&gt;_Web Design&lt;/a&gt;&lt;/li&gt;
+					&lt;li&gt;&lt;a&gt;_SEO&lt;/a&gt;&lt;/li&gt;
+					&lt;li&gt;&lt;a&gt;Contact&lt;/a&gt;&lt;/li&gt;
+					&lt;/ul&gt;
+
+					/*
+						menuify("#menuify");
+					*/
+				</textarea>
+			</section>
+
+			<section id="gallery">
+				<p class="section-label">lazify</p>
+				<h2>Media loads only when near view</h2>
+				<p class="section-desc">
+					One <code class="code-inline">IntersectionObserver</code> call handles every
+					media type on the page: <code class="code-inline">&lt;img data-src&gt;</code>,
+					<code class="code-inline">&lt;iframe data-src&gt;</code>,
+					<code class="code-inline">&lt;video&gt;</code> (poster + multi-format
+					<code class="code-inline">&lt;source&gt;</code>), and any element with
+					<code class="code-inline">data-bg-image</code> for a CSS background. A blank
+					placeholder is applied up front so nothing shows a broken-image icon
+					pre-load, and <code class="code-inline">onLoad</code>/<code class="code-inline">onError</code> fire
+					per element — including a
+					deliberately-broken URL below, styled red via <code class="code-inline">errorClass</code>. Scroll
+					down to watch the log fill
+					in.
+				</p>
+				<textarea class="code-block">
+lazify(
+  "img[data-src], iframe[data-src], video, [data-bg-image]",
+  {
+    onLoad: (el) => console.log("loaded", el),
+    onError: (el, event) => {
+      console.warn("failed to load", el, event);
+      el.classList.add("broken");
+    },
+  },
+);
+	</textarea>
+
+				<h3>Lazify Demo</h3>
+
+				<h4>&lt;img data-src&gt;</h4>
+				<div class="gallery-grid">
+					<img data-src="https://picsum.photos/seed/11/600/380" alt="">
+					<img data-src="https://picsum.photos/seed/12/600/380" alt="">
+					<img data-src="https://picsum.photos/seed/13/600/380" alt="">
+				</div>
+
+				<h4>&lt;iframe data-src&gt;</h4>
+				<div class="gallery-grid">
+					<iframe data-src="https://en.wikipedia.org/wiki/Blogger_(service)" title="Blogger on Wikipedia"
+						loading="lazy" class="lazy-iframe border"></iframe>
+				</div>
+
+				<h4>&lt;video&gt; — poster + multi-format &lt;source&gt;</h4>
+				<div class="gallery-grid">
+					<video controls muted playsinline data-poster="https://picsum.photos/seed/14/600/380"
+						class="lazy-video border">
+						<source data-src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"
+							type="video/webm">
+						<source data-src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+							type="video/mp4">
+					</video>
+				</div>
+
+				<h4>data-bg-image — works on any element</h4>
+				<div class="gallery-grid">
+					<div class="bg-demo border" data-bg-image="https://picsum.photos/seed/15/600/380"></div>
+					<div class="bg-demo border" data-bg-image="https://picsum.photos/seed/16/600/380"></div>
+				</div>
+
+				<h4>onError — deliberately broken URL</h4>
+				<div class="gallery-grid">
+					<img data-src="https://picsum.photos/does-not-exist-404.jpg" alt="Deliberately broken"
+						class="lazy-broken-demo">
+				</div>
+			</section>
+
+			<section id="tocify-plugin">
+				<p class="section-label">tocify</p>
+				<h2>The sidebar's "On this page" list, running</h2>
+				<p class="section-desc">
+					Builds a nested table-of-contents from the headings inside a
+					container, assigning <code class="code-inline">id</code>s to any heading
+					that doesn't already have one. The <b>On this page</b> list in the
+					sidebar was generated this way — from every <code class="code-inline">h2</code>
+					on this exact page, including this one.
+				</p>
+				<textarea class="code-block">
+					tocify("#toc", { content: "main.wrap", headings: "h2", });
+				</textarea>
+			</section>
+
+			<section id="shortcodes">
+				<p class="section-label">shortcodify</p>
+				<h2>Bracket tags, rewritten to HTML</h2>
+				<p class="section-desc">
+					<code class="code-inline">shortcodify("#shortcode-demo", { tags: defaultShortcodeTags })</code>
+					turns <code class="code-inline">[b]…[/b]</code>-style markup into real elements.
+					Unregistered
+					tags — like <code class="code-inline">[mystery]</code> below — are left as-is by
+					default.
+				</p>
+				<div class="demo-card" id="shortcode-demo">
+					Say [b]hello[/b] to [color name="crimson"]resize-image[/color], now with a
+					[url href="https://github.com"]link[/url] and an unknown [mystery]tag[/mystery].
+				</div>
+			</section>
+
+			<section id="replacify">
+				<p class="section-label">replacify</p>
+				<h2>Find-and-replace, text nodes only</h2>
+				<p class="section-desc">
+					Walks text nodes and swaps matches in place — tags and attributes are
+					never touched, so it's safe to run on rendered markup. The eyebrow
+					label at the very top of this page (<b>blogr-plugins</b> →
+					<b>blogr-plugins™</b>) was rewritten this way when the page loaded.
+				</p>
+				<textarea class="code-block">
+				replacify(".eyebrow", /blogr-plugins/g, "blogr-plugins\u2122");
+				
+				// allowHtml lets the replacement itself contain markup
+				replacify(".post-body", "click here", '&lt;a href="/start"&gt;click here&lt;/a&gt;', { allowHtml: true});
+				</textarea>
+			</section>
+
+			<section id="cookies">
+				<p class="section-label">cookify</p>
+				<h2>Tiny cookie get/set helper</h2>
+				<p class="section-desc">
+					<code class="code-inline">cookify.set("theme", "dark", { expiresDays: 30 })</code>
+					and
+					<code class="code-inline">cookify.get("theme")</code> — plain reads and writes, no
+					parsing
+					boilerplate. Every call on this page, including the resize/lazy-load/shortcode demos
+					above, is logged live below.
+				</p>
+				<div id="page-log"></div>
+			</section>
+
+			<section id="create-widget">
+				<p class="section-label">createWidget</p>
+				<h2>Related posts, in the sidebar, running</h2>
+				<p class="section-desc">
+					A self-contained Blogger listing widget — related posts, recent posts,
+					random picks, comments, or pages — built on the
+					<code class="code-inline">blogr</code> SDK. It mounts into a container,
+					defers its own fetch until that container nears the viewport, resizes
+					thumbnails via <code class="code-inline">resizeImage</code>, and can page
+					results with infinite scroll and/or a load-more button. The
+					<b>Related posts</b> box in the sidebar is one of these, live.
+				</p>
+
+				<textarea class="code-block">
+createWidget({
+  containerSelector: "#relatedPosts",
+  blogUrl: "https://example.blogspot.com",
+  type: "recent",
+  maxVisibleItems: 3,
+  summaryLength: 70,
+  template: (entry) => `<article>...</article>`,
+});
+/*
+  destroy() unbinds;
+  refresh() re-fetches;
+  setQuery(str) re-searches
+*/
+				</textarea>
+			</section>
+
+			<section id="reference">
+				<p class="section-label">Reference</p>
+				<h2>Every plugin, at a glance</h2>
+				<p class="section-desc">
+					Full parameter-by-parameter documentation — every option, every
+					lifecycle hook, every internal helper — lives in
+					<code class="code-inline">README.md</code> (and
+					<code class="code-inline">createWidget.MD</code> for that one). This is the
+					quick-scan version.
+				</p>
+				<table class="ref">
+					<thead>
+						<tr>
+							<th>Function</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="fn">stickify(target, options?)</td>
+							<td class="desc">Sticks a sidebar to the viewport while scrolling, clamped
+								to
+								its
+								container. Full option-parity port of Theia Sticky Sidebar.</td>
+						</tr>
+						<tr>
+							<td class="fn">menuify(target, options?)</td>
+							<td class="desc">Turns a flat <code class="code-inline">&lt;ul&gt;&lt;li&gt;&lt;a&gt;</code>
+								list
+								into a nested dropdown via a <code class="code-inline">nestingPrefix</code>.
+							</td>
+						</tr>
+						<tr>
+							<td class="fn">lazify(target, options?)</td>
+							<td class="desc">Lazy-loads <code class="code-inline">&lt;img&gt;</code>,
+								<code class="code-inline">&lt;iframe&gt;</code>, <code
+									class="code-inline">&lt;video&gt;</code> and
+								background images via <code class="code-inline">IntersectionObserver</code>.
+							</td>
+						</tr>
+						<tr>
+							<td class="fn">tocify(target, options?)</td>
+							<td class="desc">Builds a nested table of contents from the headings inside
+								a
+								container.
+							</td>
+						</tr>
+						<tr>
+							<td class="fn">replacify(target, search, replacement, options?)</td>
+							<td class="desc">Find-and-replace inside text nodes only — never touches
+								tags or
+								attributes.</td>
+						</tr>
+						<tr>
+							<td class="fn">shortcodify(target, options) / renderShortcodes(text,
+								options)
+							</td>
+							<td class="desc">A full <code class="code-inline">[tag attr="value"]content[/tag]</code>
+								shortcode engine — nesting, self-closing tags, a reusable tag registry.
+							</td>
+						</tr>
+						<tr>
+							<td class="fn">cookify.set / get / getAll / remove</td>
+							<td class="desc">Dependency-free cookie utility. Values are JSON-encoded
+								automatically.
+							</td>
+						</tr>
+						<tr>
+							<td class="fn">resizeImage(url, options?)</td>
+							<td class="desc">Rewrites a Blogger image or YouTube thumbnail URL; returns
+								unsupported
+								URLs unchanged.</td>
+						</tr>
+						<tr>
+							<td class="fn">resizeImageInDom(target, options?)</td>
+							<td class="desc">Applies <code class="code-inline">resizeImage</code> to matched
+								&lt;img&gt; (src + srcset) or background-image elements, in place. Accepts a
+								selector, element, array, or NodeList.</td>
+						</tr>
+						<tr>
+							<td class="fn">isSupportedImage(url)</td>
+							<td class="desc">Checks whether a URL is a recognized Blogger image or
+								YouTube
+								thumbnail,
+								without rewriting it.</td>
+						</tr>
+						<tr>
+							<td class="fn">createWidget(options)</td>
+							<td class="desc">Self-contained related/recent/random-posts, comments, or
+								pages
+								widget
+								built on the <code class="code-inline">blogr</code> SDK. Returns <code
+									class="code-inline">{ destroy, refresh, setQuery }</code>.</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+
+
+		</main>
+		<aside id="sidebar">
+			<div class="widget">
+				<h4>On this page</h4>
+				<div id="toc"></div>
+			</div>
+			<div class="widget" id="widget-1">
+				<h4>Related posts</h4>
+				<div id="relatedPosts"></div>
+			</div>
+
+			<div class="widget" id="widget-3">
+				<h4>Authors</h4>
+				<div id="blogAuthors" class="grid grid-cols-2 gap-2"></div>
+			</div>
+
+			<div class="widget" id="widget-2">
+				<h4>Featured Post</h4>
+				<div id="featuredPosts"></div>
+			</div>
+
+
+			<div class="widget" id="widget-4">
+				<h4>Labels</h4>
+				<div id="categoryCloud" class="labels-container s-1"></div>
+			</div>
+
+			<div class="widget" id="widget-5">
+				<h4>Recent Comments</h4>
+				<div id="recentComments" class="flex flex-col gap-4"></div>
+			</div>
+
+		</aside>
+	</section>
+
+	<div class="relative z-1 overflow-hidden py-8 text-center border-y">
+		<div class="space-y-4">
+			<h2 class="text-xl font-medium tracking-wider uppercase">For More</h2>
+			<p class="text-muted-foreground text-base">
+				See <code class="code-inline">README.md</code> for the full reference, including
+				every
+				option table,
+				and <code class="code-inline">createWidget.MD</code> for <code class="code-inline">createWidget</code>'s
+				complete prop
+				list,
+				lifecycle hooks, and recipes.</p>
+		</div>
+	</div>
+
+	<footer class="relative flex flex-col overflow-hidden">
+		<div class="px-4 sm:px-6 lg:px-8">
+			<div class="mx-auto flex max-w-7xl flex-col gap-6 border-x">
+				<div class="footer-grid p-4">
+					<div>
+						<h5>Plugins</h5>
+						<ul>
+							<li><a href="#stickify">stickify</a></li>
+							<li><a href="#menuify">menuify</a></li>
+							<li><a href="#gallery">lazify</a></li>
+							<li><a href="#tocify-plugin">tocify</a></li>
+						</ul>
+					</div>
+					<div>
+						<h5>Content</h5>
+						<ul>
+							<li><a href="#replacify">replacify</a></li>
+							<li><a href="#shortcodes">shortcodify</a></li>
+							<li><a href="#cookies">cookify</a></li>
+							<li><a href="#create-widget">createWidget</a></li>
+						</ul>
+					</div>
+					<div>
+						<h5>resizeImage</h5>
+						<ul>
+							<li><a href="#playground">Blogger URLs</a></li>
+							<li><a href="#playground">YouTube thumbnails</a></li>
+							<li><a href="#dom-api">DOM API</a></li>
+						</ul>
+					</div>
+					<div>
+						<h5>Resources</h5>
+						<ul>
+							<li><a href="#reference">Reference</a></li>
+							<li><a href="#">README.md</a></li>
+							<li><a href="#">createWidget.MD</a></li>
+						</ul>
+					</div>
+					<div>
+						<h5>Project</h5>
+						<ul>
+							<li><a href="#">GitHub</a></li>
+							<li><a href="#">npm</a></li>
+							<li><a href="#">Changelog</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="footer-bottom p-4">
+					<a class="logo" href="#">BLOGR<span>-PLUGINS™</span></a>
+					<span>Typed plugins for Blogger templates, all running on this one page.</span>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- <script src="../dist/blogr-plugins.min.js"></script> -->
+	<script src="index.js" type="module"></script>
+	<script type="module">
+		import babel from "https://esm.sh/prettier/plugins/babel";
+		import estree from "https://esm.sh/prettier/plugins/estree";
+		import htmlPlugin from "https://esm.sh/prettier/plugins/html";
+		import typescript from "https://esm.sh/prettier/plugins/typescript";
+		import * as prettier from "https://esm.sh/prettier/standalone";
+		import { createHighlighter } from "https://esm.sh/shiki";
+
+		const theme = {
+			name: "blogr-style",
+			type: "dark",
+
+			colors: {
+				"editor.background": "#09090b",
+				"editor.foreground": "#d4d4d4",
+			},
+
+			settings: [
+				// Keywords (TS, JS)
+				{
+					scope: [
+						"keyword",
+						"storage",
+						"storage.type",
+						"storage.modifier",
+					],
+					settings: {
+						foreground: "#f2a93b",
+					},
+				},
+
+				// Strings (TS + HTML attributes)
+				{
+					scope: [
+						"string",
+						"string.quoted",
+						"string.template",
+					],
+					settings: {
+						foreground: "#9edca8",
+					},
+				},
+
+				// Functions (TS)
+				{
+					scope: [
+						"entity.name.function",
+						"support.function",
+						"meta.function-call",
+					],
+					settings: {
+						foreground: "#8fb8f6",
+					},
+				},
+
+				// HTML tags
+				{
+					scope: [
+						"entity.name.tag",
+						"punctuation.definition.tag",
+					],
+					settings: {
+						foreground: "#f2a93b",
+					},
+				},
+
+				// HTML attributes
+				{
+					scope: [
+						"entity.other.attribute-name",
+					],
+					settings: {
+						foreground: "#8fb8f6",
+					},
+				},
+
+				// Comments (all)
+				{
+					scope: [
+						"comment",
+						"punctuation.definition.comment",
+					],
+					settings: {
+						foreground: "#6b7185",
+						fontStyle: "italic",
+					},
+				},
+			],
+		};
+		const highlighter = await createHighlighter({
+			themes: [theme],
+			langs: ["ts", "html"],
+		});
+
+		const formatters = {
+			ts: {
+				parser: "typescript",
+				plugins: [typescript, estree],
+			},
+			html: {
+				parser: "html",
+				plugins: [htmlPlugin],
+			},
+			js: {
+				parser: "babel",
+				plugins: [babel, estree],
+			},
+		};
+
+		for (const textarea of document.querySelectorAll("textarea.code-block")) {
+			const lang = textarea.dataset.lang ?? "ts";
+
+			const formatter = formatters[lang];
+
+			const formatted = formatter
+				? await prettier.format(textarea.value, formatter)
+				: textarea.value;
+
+			const html = highlighter.codeToHtml(formatted, {
+				lang,
+				theme: "blogr-style",
+			});
+
+			const wrapper = document.createElement("div");
+			wrapper.innerHTML = html;
+
+			textarea.replaceWith(wrapper.firstElementChild);
+		}
+	</script>
+</body>
+
+</html>
