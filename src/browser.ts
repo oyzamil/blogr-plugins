@@ -1,31 +1,32 @@
-import type { PluginInstance } from "./types.js";
+import type { PluginInstance } from "./types";
 
-import { cookify } from "./plugins/cookify.js";
+import { cookify } from "./plugins/cookify";
 import {
 	type CreateWidgetOptions,
 	createWidget,
 	type WidgetEntry,
 	type WidgetInstance,
 	type WidgetTransformer,
-} from "./plugins/createWidget.js";
-import { type LazifyOptions, lazify } from "./plugins/lazify.js";
-import { type MenuifyOptions, menuify } from "./plugins/menuify.js";
-import { type ReplacifyOptions, replacify } from "./plugins/replacify.js";
+} from "./plugins/createWidget";
+import { type LazifyOptions, lazify } from "./plugins/lazify";
+import { type MenuifyOptions, menuify } from "./plugins/menuify";
+import { type ReplacifyOptions, replacify } from "./plugins/replacify";
 import {
 	isSupportedImage,
 	type ResizeImageOptions,
 	resizeImage,
-} from "./plugins/resizeImage.js";
+} from "./plugins/resizeImage";
 import {
 	createShortcodeRegistry,
 	defaultShortcodeTags,
 	renderShortcodes,
 	type ShortcodifyDomOptions,
 	shortcodify,
-} from "./plugins/shortcodify.js";
-import { type StickifyOptions, stickify } from "./plugins/stickify.js";
-import { type TocifyOptions, tocify } from "./plugins/tocify.js";
-import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge.js";
+} from "./plugins/shortcodify";
+import { type StackifyOptions, stackify } from "./plugins/stackify";
+import { type StickifyOptions, stickify } from "./plugins/stickify";
+import { type TocifyOptions, tocify } from "./plugins/tocify";
+import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge";
 
 /**
  * Registers `$.fn.stickify`, `$.fn.menuify`, `$.fn.lazify`, `$.fn.tocify`
@@ -60,6 +61,9 @@ export function registerJQueryPlugins(jq: any): void {
 	bindJQueryPlugin(jq, "shortcodify", (els, options: ShortcodifyDomOptions) =>
 		shortcodify(els, options),
 	);
+	bindJQueryPlugin(jq, "stackify", (els, options?: StackifyOptions) =>
+		stackify(els, options),
+	);
 }
 
 if (hasJQuery()) {
@@ -74,6 +78,7 @@ export type {
 	ReplacifyOptions,
 	ResizeImageOptions,
 	ShortcodifyDomOptions,
+	StackifyOptions,
 	StickifyOptions,
 	TocifyOptions,
 	WidgetEntry,
@@ -93,6 +98,7 @@ export {
 	replacify,
 	resizeImage,
 	shortcodify,
+	stackify,
 	stickify,
 	tocify,
 };

@@ -757,6 +757,206 @@ declare const defaultShortcodeTags: Record<string, ShortcodeHandler>;
  */
 declare function shortcodify(input: ElementInput, options: ShortcodifyDomOptions): PluginInstance;
 //#endregion
+//#region src/plugins/tocify.d.ts
+/** Configuration options for {@link tocify}. */
+interface TocifyOptions {
+  /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
+  headings?: string;
+  /** Root element to scan for headings. Defaults to the `input` element itself. */
+  content?: ElementInput;
+}
+/**
+ * Builds a nested table-of-contents `<ul>` from the headings found inside a
+ * container, assigning an `id` to each heading (if it doesn't already have
+ * one) so the TOC links can jump to them.
+ *
+ * @param input - Selector, element, or jQuery collection to render the TOC into.
+ * @param options Configuration object.
+ * See {@link TocifyOptions}.
+ * @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
+ *
+ * @example
+ * ```ts
+ * import { tocify } from "blogr-plugins";
+ * tocify("#toc", { content: "#article", headings: "h2,h3" });
+ * ```
+ */
+declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
+//#endregion
+//#region src/plugins/stackify.d.ts
+/** Which way the auto-cycle rotates the stack. */
+type StackDirection = "forward" | "backward";
+/** Which axis a layout peeks/scrolls along, and which axis dragging works on. */
+type StackOrientation = "vertical" | "horizontal";
+/** Container size override. Number -> px, string used as-is. */
+interface StackifySize {
+  height?: number | string;
+  width?: number | string;
+}
+/** Per-layout size override — only the block matching current `layout` applies. */
+interface StackifySizeByLayout {
+  stack?: StackifySize;
+  marquee?: StackifySize;
+}
+/** Detail object passed to `onBeforeChange`/`onAfterChange`. */
+interface StackifyChangeDetail {
+  /** Original index (in DOM order) of the card that was in front. */
+  fromIndex: number;
+  /** Original index (in DOM order) of the card that is now in front. */
+  toIndex: number;
+  /** The card element that was in front. */
+  fromCard: HTMLElement;
+  /** The card element that is now in front. */
+  toCard: HTMLElement;
+}
+/** Configuration options for {@link stackify}. */
+interface StackifyOptions {
+  /**
+   * Gap in px between cards. In `"stack"` layout this is how far a card
+   * peeks past the one in front of it. In `"marquee"` layout it's the
+   * gap between cards along the scroll axis — same option, both
+   * layouts read it. Default `20`.
+   */
+  offset?: number;
+  /**
+   * Shrinks each card behind the front one by this fraction (e.g. `0.05`
+   * = each card 5% smaller than the one in front of it) for a subtle
+   * depth/fan effect. `0` keeps every card full size, matching a flat
+   * peeking stack. Default `0`.
+   */
+  scaleStep?: number;
+  /**
+   * How many cards (counting the front one) stay visible at once; any
+   * further back are faded to `opacity: 0` (still present, just hidden)
+   * so a stack of 8 doesn't visually pile up. Default: every card.
+   */
+  visibleCards?: number;
+  /** Milliseconds between automatic cycles. `0` disables the timer (still cyclable via `next()`/`prev()`/`goTo()`). Default `3000`. */
+  interval?: number;
+  /** Whether the auto-cycle timer starts immediately. Default `true`. */
+  autoplay?: boolean;
+  /** Transition duration, in ms, for a card moving between stack positions. Default `500`. */
+  duration?: number;
+  /** CSS timing function for that transition. Default `"ease"`. */
+  easing?: string;
+  /** `"forward"` sends the front card to the back; `"backward"` brings the back card to the front. Applies to the auto-cycle timer. Default `"forward"`. */
+  direction?: StackDirection;
+  /**
+   * Which axis the layout runs on, and which axis dragging works on.
+   * `"vertical"` peeks/drags top-to-bottom, `"horizontal"`
+   * peeks/drags left-to-right. Default: `"vertical"` for
+   * `layout: "stack"`, `"horizontal"` for `layout: "marquee"`.
+   */
+  orientation?: StackOrientation;
+  /** Pause the auto-cycle timer while the pointer is over the stack, resuming on pointer-leave. Default `true`. */
+  pauseOnHover?: boolean;
+  /** Clicking a non-front card brings it to the front. Default `true`. */
+  clickToActivate?: boolean;
+  /**
+   * Lets the front card be dragged/swiped to advance/go back — along
+   * whichever axis {@link orientation} sets (top/bottom for vertical,
+   * left/right for horizontal). Default `false`.
+   */
+  draggable?: boolean;
+  /** Original index of the card that starts in front. Default `0`. */
+  startIndex?: number;
+  /** Class toggled on whichever card is currently in front. Default `"stackify-active"`. */
+  activeClass?: string;
+  /** Class added to every card. Default `"stackify-card"`. */
+  cardClass?: string;
+  /** Class added to the container. Default `"stackify-stack"`. */
+  stackClass?: string;
+  /**
+   * Stack layout: `"stack"` is the peeking-card-deck effect (default).
+   * `"marquee"` lays cards out in a row (or column, see
+   * {@link orientation}) that scrolls continuously (speed set by
+   * {@link marqueeSpeed}), like a ticker.
+   */
+  layout?: "stack" | "marquee";
+  /**
+   * `"stack"` layout only. Whether cards behind the front one grow
+   * (`"expand"`) or shrink (`"shrink"`) in cross-axis size relative to
+   * it, for a fanned-out peek effect. `"none"` keeps every card the
+   * same size. Default `"none"`.
+   */
+  peekWidth?: "expand" | "shrink" | "none";
+  /** Size change, as a fraction per card, applied when {@link peekWidth} is set. Default `0.05`. */
+  peekWidthStep?: number;
+  /** `"marquee"` layout only. Scroll speed in px/second. Default `60`. */
+  marqueeSpeed?: number;
+  /**
+   * Container height/width — purely opt-in. Plugin never measures
+   * cards or auto-calcs a size; whichever axis you don't give stays
+   * untouched (normal CSS/parent sizing applies). Number -> px,
+   * string used as-is (e.g. `"20rem"`, `"100%"`).
+   *
+   * Two shapes:
+   * - Flat, applies regardless of {@link layout}:
+   *   `size: { height: "400px" }`
+   * - Per-layout, only the block matching current `layout` applies:
+   *   `size: { stack: { height: "400px" }, marquee: { width: "50%" } }`
+   */
+  size?: StackifySize | StackifySizeByLayout;
+  /** Called right before a cycle starts (right as the transition begins). */
+  onBeforeChange?: (detail: StackifyChangeDetail) => void;
+  /** Called once a cycle's transition has finished. */
+  onAfterChange?: (detail: StackifyChangeDetail) => void;
+}
+/** Returned by {@link stackify}. */
+interface StackifyInstance extends PluginInstance {
+  /** Sends the current front card to the back; the next one becomes front. */
+  next(): void;
+  /** Brings the back-most card to the front. */
+  prev(): void;
+  /** Brings the card at `originalIndex` (its position in the initial DOM order) to the front. */
+  goTo(originalIndex: number): void;
+  /** Resumes the auto-cycle timer. */
+  play(): void;
+  /** Pauses the auto-cycle timer. */
+  pause(): void;
+  /** Original index of the card currently in front, per matched stack (usually one). */
+  getActiveIndex(): number[];
+}
+/**
+ * Turns a container's children into a peeking card stack — like a small
+ * deck of index cards — that auto-cycles the front card to the back on a
+ * timer, cycling through every card in turn.
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * *stack container* (its children become the cards).
+ * @param options - Optional {@link StackifyOptions}. If omitted, reads from
+ * container's `data-*` attributes.
+ * @returns A {@link StackifyInstance} — `destroy()` restores every card's
+ * original styles; `next()`/`prev()`/`goTo()`/`play()`/`pause()` drive the
+ * stack programmatically.
+ *
+ * @example
+ * ```html
+ * <div id="testimonials"
+ *   data-layout="stack"
+ *   data-offset="20"
+ *   data-interval="4000"
+ *   data-duration="500">
+ * 	<div class="card">...</div>
+ * 	<div class="card">...</div>
+ * 	<div class="card">...</div>
+ * </div>
+ * ```
+ * ```ts
+ * import { stackify } from "blogr-plugins";
+ *
+ * // Read all options from data-* attributes
+ * const stack = stackify("#testimonials");
+ *
+ * // Or override specific options
+ * const stack2 = stackify("#other", { interval: 2000 });
+ *
+ * stack.next(); // advance manually
+ * stack.destroy();
+ * ```
+ */
+declare function stackify(input: ElementInput, options?: StackifyOptions): StackifyInstance;
+//#endregion
 //#region src/plugins/stickify.d.ts
 /** Configuration options for {@link stickify}. */
 interface StickifyOptions {
@@ -804,30 +1004,4 @@ interface StickifyOptions {
  */
 declare function stickify(input: ElementInput, options?: StickifyOptions): PluginInstance;
 //#endregion
-//#region src/plugins/tocify.d.ts
-/** Configuration options for {@link tocify}. */
-interface TocifyOptions {
-  /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
-  headings?: string;
-  /** Root element to scan for headings. Defaults to the `input` element itself. */
-  content?: ElementInput;
-}
-/**
- * Builds a nested table-of-contents `<ul>` from the headings found inside a
- * container, assigning an `id` to each heading (if it doesn't already have
- * one) so the TOC links can jump to them.
- *
- * @param input - Selector, element, or jQuery collection to render the TOC into.
- * @param options Configuration object.
- * See {@link TocifyOptions}.
- * @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
- *
- * @example
- * ```ts
- * import { tocify } from "blogr-plugins";
- * tocify("#toc", { content: "#article", headings: "h2,h3" });
- * ```
- */
-declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
-//#endregion
-export { type AuthorEntry, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stickify, tocify };
+export { type AuthorEntry, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };

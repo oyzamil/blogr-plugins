@@ -1,4 +1,33 @@
-import * as BlogrPlugins from "./../dist/blogr-plugins.esm.js";
+import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
+
+const BLANK_GIF = /(?:https?:)?\/\/img1\.blogblog\.com\/img\/blank\.gif/i;
+
+function isBlank(image) {
+	if (typeof value !== "string" || value.trim() === "") return true;
+	return BLANK_GIF.test(value);
+}
+
+function randomEmojiImage(size = 45, emojis = ["🙍‍♂️", "🧑‍🚀", "🧑‍🔬", "🧑‍🎨"]) {
+	if (emojis.length === 0) {
+		throw new Error("Emoji array cannot be empty.");
+	}
+	const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+	const canvas = document.createElement("canvas");
+	canvas.width = size;
+	canvas.height = size;
+	const ctx = canvas.getContext("2d");
+	if (!ctx) {
+		throw new Error("Failed to get canvas context.");
+	}
+	ctx.font = `${size * 0.8}px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif`;
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.fillText(emoji, size / 2, size / 2);
+	return {
+		emoji,
+		base64: canvas.toDataURL("image/png"),
+	};
+}
 
 function diffHighlight(before, after) {
 	let start = 0;
@@ -394,10 +423,15 @@ const commentWidget = BlogrPlugins.createWidget({
 	type: "comments",
 	maxVisibleItems: 3,
 	loading: () => LOADER,
-	template: (comment) => `<div class="w-full max-w-sm">
+	template: (comment) => {
+		const emojiAvatar = randomEmojiImage(40);
+		const avatar = isBlank(comment.author.image)
+			? emojiAvatar.base64
+			: comment.author.image;
+		return `<div class="w-full max-w-sm">
 		<div class="rounded-xl border border-gray-200 bg-white shadow-sm">
 			<div class="flex items-center gap-3 border-b p-3">
-				<img src="${comment.author.image}" alt="${comment.author.name}" class="h-10 w-10 shrink-0 rounded-full bg-gray-100" />
+				<img src="${avatar}" alt="${comment.author.name}" class="h-10 w-10 p-2 shrink-0 rounded-full bg-gray-100" />
 				<div class="min-w-0">
 					<p class="text-sm font-semibold text-gray-900">${comment.author.name}</p>
 					<p class="truncate text-sm text-gray-500">
@@ -407,9 +441,10 @@ const commentWidget = BlogrPlugins.createWidget({
 			</div>
 
 			<div class="content p-3 pt-1">
-				<span class="text-2xl text-yellow-400">★★★★★</span>
+				<span class="text-sm text-yellow-400">★★★★★</span>
 				<p class="mt-1 text-[15px] leading-relaxed text-gray-500">${capitalizeFirstChar(comment.content)}</p>
 			</div>
 		</div>
-	</div>`,
+	</div>`;
+	},
 });

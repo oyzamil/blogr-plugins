@@ -17,6 +17,7 @@
 		"./iife": "./dist/blogr-plugins.js",
 		"./iife.min": "./dist/blogr-plugins.min.js",
 		"./stickify": "./dist/stickify.js",
+		"./stackify": "./dist/stackify.js",
 		"./menuify": "./dist/menuify.js",
 		"./lazify": "./dist/lazify.js",
 		"./tocify": "./dist/tocify.js",

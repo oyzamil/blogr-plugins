@@ -319,7 +319,7 @@ stickify("#sidebar-inner", { containerSelector: "body", additionalMarginTop: 84,
 				</textarea>
 			</section>
 
-			<section id="gallery">
+			<section id="lazify">
 				<p class="section-label">lazify</p>
 				<h2>Media loads only when near view</h2>
 				<p class="section-desc">
@@ -388,7 +388,7 @@ lazify(
 				</div>
 			</section>
 
-			<section id="tocify-plugin">
+			<section id="tocify">
 				<p class="section-label">tocify</p>
 				<h2>The sidebar's "On this page" list, running</h2>
 				<p class="section-desc">
@@ -403,7 +403,156 @@ lazify(
 				</textarea>
 			</section>
 
-			<section id="shortcodes">
+			<section id="stackify">
+				<p class="section-label">stackify</p>
+				<h2>A peeking card stack that cycles itself</h2>
+				<p class="section-desc">
+					Turns a container's children into a card stack that auto-cycles the
+					front card to the back — click a peeking card, drag the front one, or
+					drive it with <code class="code-inline">next()</code>/<code class="code-inline">prev()</code>/<code
+						class="code-inline">goTo()</code>.
+					<code class="code-inline">layout: "marquee"</code> swaps the peek for a
+					continuously-scrolling row instead. Every control below updates the demo
+					live — no rebuild step.
+				</p>
+
+				<textarea class="code-block">
+stackify("#stackify-demo", {
+  offset: 20,
+  interval: 3000,
+  layout: "stack", // or "marquee"
+  onBeforeChange: (d) => console.log(`#${d.fromIndex} -> #${d.toIndex}`),
+});
+				</textarea>
+
+				<h3>Stackify Demo</h3>
+
+				<div class="flex flex-col justify-center items-center gap-4">
+					<div id="stackify-demo" class="relative w-full max-w-7xl flex justify-center items-center h-50">
+						<div
+							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							<div class="flex items-center gap-3">
+								<div
+									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
+									🧑‍🚀</div>
+								<div>
+									<div class="text-sm font-semibold">Carol Danvers</div>
+									<div class="text-xs text-neutral-500">VP Engineering, Marvel Labs</div>
+								</div>
+							</div>
+							<hr class="my-3.5 border-neutral-200 dark:border-neutral-800">
+							<div class="mb-2.5 tracking-widest text-amber-500">★★★★★</div>
+							<p class="m-0 text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+								Rock-solid API and great docs — shipped in an afternoon.</p>
+						</div>
+						<div
+							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							<div class="flex items-center gap-3">
+								<div
+									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
+									🧑‍🔬</div>
+								<div>
+									<div class="text-sm font-semibold">Bruce Banner</div>
+									<div class="text-xs text-neutral-500">Head of Research, Gamma Corp</div>
+								</div>
+							</div>
+							<hr class="my-3.5 border-neutral-200 dark:border-neutral-800">
+							<div class="mb-2.5 tracking-widest text-amber-500">★★★★☆</div>
+							<p class="m-0 text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+								Does exactly what it says, support was quick to respond.</p>
+						</div>
+						<div
+							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							<div class="flex items-center gap-3">
+								<div
+									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
+									🧑‍🎨</div>
+								<div>
+									<div class="text-sm font-semibold">Wanda Maximoff</div>
+									<div class="text-xs text-neutral-500">Design Lead, Sokovia Studio</div>
+								</div>
+							</div>
+							<hr class="my-3.5 border-neutral-200 dark:border-neutral-800">
+							<div class="mb-2.5 tracking-widest text-amber-500">★★★★★</div>
+							<p class="m-0 text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+								Clean, predictable, and easy to theme.</p>
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-4 w-full">
+						<div class="flex flex-wrap gap-2 justify-center items-center">
+							<button id="sk-prev" type="button"
+								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">◀
+								Prev</button>
+							<button id="sk-next" type="button"
+								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">Next
+								▶</button>
+							<button id="sk-play" type="button"
+								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">▶
+								Play</button>
+							<button id="sk-pause" type="button"
+								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">⏸
+								Pause</button>
+						</div>
+
+						<div id="sk-options"
+							class="grid grid-cols-2 gap-x-5 gap-y-3 rounded-lg bg-neutral-50 p-4 text-[13px] dark:bg-neutral-900/60">
+							<label class="flex flex-col gap-1">Layout
+								<select id="sk-layout"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900">
+									<option value="stack">stack</option>
+									<option value="marquee">marquee</option>
+								</select>
+							</label>
+							<label class="flex flex-col gap-1">Orientation
+								<select id="sk-orientation"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900">
+									<option value="vertical">vertical</option>
+									<option value="horizontal">horizontal</option>
+								</select>
+							</label>
+							<label class="flex flex-col gap-1">Offset / gap (px)
+								<input type="number" id="sk-offset" value="15"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900" />
+							</label>
+							<label class="flex flex-col gap-1">Scale step (0–0.2)
+								<input type="number" id="sk-scaleStep" value="0" step="0.01" min="0" max="0.2"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900" />
+							</label>
+							<label class="flex flex-col gap-1">Peek width
+								<select id="sk-peekWidth"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900">
+									<option value="none">none</option>
+									<option value="expand">expand</option>
+									<option value="shrink" selected>shrink</option>
+								</select>
+							</label>
+							<label class="flex flex-col gap-1">Interval (ms)
+								<input type="number" id="sk-interval" value="3000" step="500"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900" />
+							</label>
+							<label class="flex flex-col gap-1">Direction
+								<select id="sk-direction"
+									class="rounded border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900">
+									<option value="forward">forward</option>
+									<option value="backward">backward</option>
+								</select>
+							</label>
+							<label class="flex items-center gap-2"><input type="checkbox" id="sk-pauseOnHover"
+									checked /> Pause on hover</label>
+							<label class="flex items-center gap-2"><input type="checkbox" id="sk-draggable" />
+								Draggable</label>
+						</div>
+
+						<div id="sk-log"
+							class="max-h-40 overflow-y-auto rounded-md bg-neutral-950 p-3 font-mono text-xs leading-relaxed text-emerald-400 whitespace-pre-wrap">
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+			<section id="shortcodify">
 				<p class="section-label">shortcodify</p>
 				<h2>Bracket tags, rewritten to HTML</h2>
 				<p class="section-desc">
@@ -436,7 +585,7 @@ lazify(
 				</textarea>
 			</section>
 
-			<section id="cookies">
+			<section id="cookify">
 				<p class="section-label">cookify</p>
 				<h2>Tiny cookie get/set helper</h2>
 				<p class="section-desc">
@@ -684,7 +833,8 @@ createWidget({
 	</footer>
 
 	<!-- <script src="../dist/blogr-plugins.min.js"></script> -->
-	<script src="index.js" type="module"></script>
+	<script src="js/index.js" type="module"></script>
+	<script src="js/stackify.js" type="module"></script>
 	<script type="module">
 		import babel from "https://esm.sh/prettier/plugins/babel";
 		import estree from "https://esm.sh/prettier/plugins/estree";

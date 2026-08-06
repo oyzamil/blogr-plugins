@@ -16,6 +16,7 @@ const PLUGINS = [
 	"resizeImage",
 	"shortcodify",
 	"createWidget",
+	"stackify",
 ] as const;
 
 const BANNER = (format: string) =>

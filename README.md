@@ -439,6 +439,73 @@ isSupportedImage(url); // true
 | `rotate`    | `number` (`90 \| 180 \| 270`)     | `0`       | Rotation in degrees                  |
 | `grayscale` | `boolean`                         | `false`   | Convert to grayscale                 |
 
+### `stackify(target, options?)` — peeking card stack
+
+Turns a container's children into a peeking card stack — like a small deck
+of index cards — that auto-cycles the front card to the back on a timer.
+
+```html
+<div id="testimonials">
+	<div class="card">...</div>
+	<div class="card">...</div>
+	<div class="card">...</div>
+</div>
+```
+
+```ts
+import { stackify } from "blogr-plugins";
+
+const stack = stackify("#testimonials", {
+	offset: 20,
+	interval: 4000,
+	pauseOnHover: true,
+});
+
+stack.next();     // advance manually
+stack.prev();     // or go back
+stack.goTo(2);    // bring the 3rd original card to the front
+stack.pause();    // stop the auto-cycle timer
+stack.play();     // resume it
+stack.getActiveIndex(); // -> [<original index currently in front>]
+
+stack.destroy(); // restores every card's original styles
+```
+
+| Option            | Type                              | Default              | Description |
+| ------------------ | ---------------------------------- | --------------------- | ------------ |
+| `offset`            | `number`                           | `20`                  | Px peek between a card and the one behind it — implemented with absolute positioning (not a literal CSS margin) so it stays correct regardless of card height |
+| `scaleStep`         | `number`                           | `0`                    | Shrinks each card behind the front one by this fraction, for a subtle fan/depth effect |
+| `visibleCards`      | `number`                           | every card             | How many cards (counting the front) stay visible; further-back ones fade to `opacity: 0` |
+| `interval`          | `number`                           | `3000`                 | Ms between automatic cycles. `0` disables the timer |
+| `autoplay`          | `boolean`                          | `true`                 | Whether the timer starts immediately |
+| `duration`          | `number`                           | `500`                  | Transition duration (ms) for a card moving between stack positions |
+| `easing`            | `string`                           | `"ease"`               | CSS timing function for that transition |
+| `direction`         | `"forward" \| "backward"`          | `"forward"`            | `"forward"` sends the front card to the back each tick; `"backward"` brings the back card to the front |
+| `pauseOnHover`      | `boolean`                          | `true`                 | Pause the timer while the pointer is over the stack |
+| `clickToActivate`   | `boolean`                          | `true`                 | Clicking a non-front card brings it to the front |
+| `draggable`         | `boolean`                          | `false`                | Lets the front card be dragged/swiped left or right to advance/go back |
+| `startIndex`        | `number`                           | `0`                    | Original index of the card that starts in front |
+| `activeClass`       | `string`                           | `"stackify-active"`    | Class toggled on whichever card is currently in front |
+| `cardClass`         | `string`                           | `"stackify-card"`      | Class added to every card |
+| `stackClass`        | `string`                           | `"stackify-stack"`     | Class added to the container |
+| `onBeforeChange`    | `(detail) => void`                 | —                      | Called right as a cycle's transition begins |
+| `onAfterChange`     | `(detail) => void`                 | —                      | Called once a cycle's transition has finished |
+
+`onBeforeChange`/`onAfterChange` receive
+`{ fromIndex, toIndex, fromCard, toCard }`, where `fromIndex`/`toIndex` are
+the cards' original (DOM order) indices — stable regardless of how many
+times the stack has cycled.
+
+If `target` matches more than one container, `next()`/`prev()`/`goTo()`/
+`play()`/`pause()` control every matched stack together, and
+`getActiveIndex()` returns one entry per stack, in match order.
+
+> `stackify` doesn't inject any visual styling (shadows, borders, radius) —
+> only the structural positioning it needs to work. Style `.stackify-card`
+> and `.stackify-active` yourself, or see
+> [`demo/stackify.html`](./demo/stackify.html) for a full example matching
+> a typical testimonial-card look.
+
 ### `createWidget` — Blogger listing widget
 
 A self-contained related-posts/recent-posts/random-posts/comments/pages

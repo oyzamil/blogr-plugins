@@ -1,4 +1,4 @@
-export type { Cookify, CookifySetOptions } from "./plugins/cookify.js";
+export type { Cookify, CookifySetOptions } from "./plugins/cookify";
 export type {
 	AuthorEntry,
 	CommentEntry,
@@ -12,14 +12,14 @@ export type {
 	WidgetSourceType,
 	WidgetTransformer,
 	WidgetType,
-} from "./plugins/createWidget.js";
-export type { LazifyOptions } from "./plugins/lazify.js";
-export type { MenuifyOptions } from "./plugins/menuify.js";
-export type { ReplacifyOptions } from "./plugins/replacify.js";
+} from "./plugins/createWidget";
+export type { LazifyOptions } from "./plugins/lazify";
+export type { MenuifyOptions } from "./plugins/menuify";
+export type { ReplacifyOptions } from "./plugins/replacify";
 export type {
 	ResizeImageOptions,
 	YouTubeThumbnailQuality,
-} from "./plugins/resizeImage.js";
+} from "./plugins/resizeImage";
 export type {
 	ShortcodeAttributes,
 	ShortcodeAttributeValue,
@@ -27,26 +27,26 @@ export type {
 	ShortcodifyDomOptions,
 	ShortcodifyOptions,
 	UnknownTagPolicy,
-} from "./plugins/shortcodify.js";
-export type { StickifyOptions } from "./plugins/stickify.js";
-export type { TocifyOptions } from "./plugins/tocify.js";
-export type { ElementInput, PluginInstance } from "./types.js";
+} from "./plugins/shortcodify";
+export type { TocifyOptions } from "./plugins/tocify";
+export type { ElementInput, PluginInstance } from "./types";
 
-export { cookify } from "./plugins/cookify.js";
-export { createWidget } from "./plugins/createWidget.js";
-export { lazify } from "./plugins/lazify.js";
-export { menuify } from "./plugins/menuify.js";
-export { replacify } from "./plugins/replacify.js";
+export { cookify } from "./plugins/cookify";
+export { createWidget } from "./plugins/createWidget";
+export { lazify } from "./plugins/lazify";
+export { menuify } from "./plugins/menuify";
+export { replacify } from "./plugins/replacify";
 export {
 	isSupportedImage,
 	resizeImage,
 	resizeImageInDom,
-} from "./plugins/resizeImage.js";
+} from "./plugins/resizeImage";
 export {
 	createShortcodeRegistry,
 	defaultShortcodeTags,
 	renderShortcodes,
 	shortcodify,
-} from "./plugins/shortcodify.js";
-export { stickify } from "./plugins/stickify.js";
-export { tocify } from "./plugins/tocify.js";
+} from "./plugins/shortcodify";
+export { stackify } from "./plugins/stackify";
+export { stickify } from "./plugins/stickify";
+export { tocify } from "./plugins/tocify";
