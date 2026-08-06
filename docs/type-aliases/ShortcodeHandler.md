@@ -8,7 +8,7 @@
 
 > **ShortcodeHandler** = (`attrs`, `content`, `tag`) => `string`
 
-Defined in: [src/plugins/shortcodify.ts:20](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/shortcodify.ts#L20)
+Defined in: src/plugins/shortcodify.ts:20
 
 Renders one shortcode tag to its final string.
 

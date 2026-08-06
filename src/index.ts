@@ -28,6 +28,16 @@ export type {
 	ShortcodifyOptions,
 	UnknownTagPolicy,
 } from "./plugins/shortcodify";
+export type {
+	StackDirection,
+	StackifyChangeDetail,
+	StackifyInstance,
+	StackifyOptions,
+	StackifySize,
+	StackifySizeByLayout,
+	StackOrientation,
+} from "./plugins/stackify";
+export type { StickifyOptions } from "./plugins/stickify";
 export type { TocifyOptions } from "./plugins/tocify";
 export type { ElementInput, PluginInstance } from "./types";
 

@@ -6,7 +6,7 @@
 
 # Interface: ResizeImageOptions
 
-Defined in: [src/plugins/resizeImage.ts:103](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L103)
+Defined in: src/plugins/resizeImage.ts:103
 
 Configuration options for [resizeImage](../functions/resizeImage.md).
 
@@ -16,7 +16,7 @@ Configuration options for [resizeImage](../functions/resizeImage.md).
 
 > `optional` **crop?**: `"circle"` \| `"square"`
 
-Defined in: [src/plugins/resizeImage.ts:109](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L109)
+Defined in: src/plugins/resizeImage.ts:109
 
 Crop shape. Default: leave any existing crop untouched.
 
@@ -26,7 +26,7 @@ Crop shape. Default: leave any existing crop untouched.
 
 > `optional` **flip?**: `"horizontally"` \| `"vertically"`
 
-Defined in: [src/plugins/resizeImage.ts:113](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L113)
+Defined in: src/plugins/resizeImage.ts:113
 
 Flip direction. Default: leave any existing flip untouched.
 
@@ -36,7 +36,7 @@ Flip direction. Default: leave any existing flip untouched.
 
 > `optional` **format?**: `"jpeg"` \| `"png"` \| `"webp"`
 
-Defined in: [src/plugins/resizeImage.ts:111](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L111)
+Defined in: src/plugins/resizeImage.ts:111
 
 Output image format. Default `"webp"`.
 
@@ -46,7 +46,7 @@ Output image format. Default `"webp"`.
 
 > `optional` **height?**: `number`
 
-Defined in: [src/plugins/resizeImage.ts:105](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L105)
+Defined in: src/plugins/resizeImage.ts:105
 
 Output height in px. Default `360`.
 
@@ -56,7 +56,7 @@ Output height in px. Default `360`.
 
 > `optional` **rotate?**: `number`
 
-Defined in: [src/plugins/resizeImage.ts:115](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L115)
+Defined in: src/plugins/resizeImage.ts:115
 
 Rotation in degrees — `90`, `180`, or `270`. Default: leave any existing rotation untouched.
 
@@ -66,7 +66,7 @@ Rotation in degrees — `90`, `180`, or `270`. Default: leave any existing rotat
 
 > `optional` **width?**: `number`
 
-Defined in: [src/plugins/resizeImage.ts:107](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L107)
+Defined in: src/plugins/resizeImage.ts:107
 
 Output width in px. Default `640`.
 
@@ -76,7 +76,7 @@ Output width in px. Default `640`.
 
 > `optional` **ytThumbnail?**: [`YouTubeThumbnailQuality`](../type-aliases/YouTubeThumbnailQuality.md)
 
-Defined in: [src/plugins/resizeImage.ts:121](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/resizeImage.ts#L121)
+Defined in: src/plugins/resizeImage.ts:121
 
 Quality preset for YouTube thumbnail URLs. Ignored for Blogger images.
 Default `"maxresdefault"`. YouTube thumbnails are always served as

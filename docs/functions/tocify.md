@@ -8,7 +8,7 @@
 
 > **tocify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/tocify.ts:44](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/tocify.ts#L44)
+Defined in: src/plugins/tocify.ts:44
 
 Builds a nested table-of-contents `<ul>` from the headings found inside a
 container, assigning an `id` to each heading (if it doesn't already have

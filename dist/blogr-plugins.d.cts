@@ -757,32 +757,6 @@ declare const defaultShortcodeTags: Record<string, ShortcodeHandler>;
  */
 declare function shortcodify(input: ElementInput, options: ShortcodifyDomOptions): PluginInstance;
 //#endregion
-//#region src/plugins/tocify.d.ts
-/** Configuration options for {@link tocify}. */
-interface TocifyOptions {
-  /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
-  headings?: string;
-  /** Root element to scan for headings. Defaults to the `input` element itself. */
-  content?: ElementInput;
-}
-/**
- * Builds a nested table-of-contents `<ul>` from the headings found inside a
- * container, assigning an `id` to each heading (if it doesn't already have
- * one) so the TOC links can jump to them.
- *
- * @param input - Selector, element, or jQuery collection to render the TOC into.
- * @param options Configuration object.
- * See {@link TocifyOptions}.
- * @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
- *
- * @example
- * ```ts
- * import { tocify } from "blogr-plugins";
- * tocify("#toc", { content: "#article", headings: "h2,h3" });
- * ```
- */
-declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
-//#endregion
 //#region src/plugins/stackify.d.ts
 /** Which way the auto-cycle rotates the stack. */
 type StackDirection = "forward" | "backward";
@@ -1004,4 +978,30 @@ interface StickifyOptions {
  */
 declare function stickify(input: ElementInput, options?: StickifyOptions): PluginInstance;
 //#endregion
-export { type AuthorEntry, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+//#region src/plugins/tocify.d.ts
+/** Configuration options for {@link tocify}. */
+interface TocifyOptions {
+  /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
+  headings?: string;
+  /** Root element to scan for headings. Defaults to the `input` element itself. */
+  content?: ElementInput;
+}
+/**
+ * Builds a nested table-of-contents `<ul>` from the headings found inside a
+ * container, assigning an `id` to each heading (if it doesn't already have
+ * one) so the TOC links can jump to them.
+ *
+ * @param input - Selector, element, or jQuery collection to render the TOC into.
+ * @param options Configuration object.
+ * See {@link TocifyOptions}.
+ * @returns A {@link PluginInstance} with `destroy()` to remove the generated TOC.
+ *
+ * @example
+ * ```ts
+ * import { tocify } from "blogr-plugins";
+ * tocify("#toc", { content: "#article", headings: "h2,h3" });
+ * ```
+ */
+declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
+//#endregion
+export { type AuthorEntry, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };

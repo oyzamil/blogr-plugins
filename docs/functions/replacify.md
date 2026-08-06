@@ -8,7 +8,7 @@
 
 > **replacify**(`input`, `search`, `replacement`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/replacify.ts:32](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/replacify.ts#L32)
+Defined in: src/plugins/replacify.ts:32
 
 Finds and replaces text within an element's text nodes only — it never
 touches tag names or attributes, so it's safe to run on rendered markup.

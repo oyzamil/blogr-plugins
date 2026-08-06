@@ -6,7 +6,7 @@
 
 # Interface: AuthorEntry
 
-Defined in: [src/plugins/createWidget.ts:69](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L69)
+Defined in: src/plugins/createWidget.ts:69
 
 A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`, `image`), nothing invented.
 
@@ -16,7 +16,7 @@ A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`
 
 > **id**: `string`
 
-Defined in: [src/plugins/createWidget.ts:71](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L71)
+Defined in: src/plugins/createWidget.ts:71
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/plugins/createWidget.ts:71](https://github.com/oyzamil/blogr-pl
 
 > **image**: `string`
 
-Defined in: [src/plugins/createWidget.ts:74](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L74)
+Defined in: src/plugins/createWidget.ts:74
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/plugins/createWidget.ts:74](https://github.com/oyzamil/blogr-pl
 
 > **kind**: `"authors"`
 
-Defined in: [src/plugins/createWidget.ts:70](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L70)
+Defined in: src/plugins/createWidget.ts:70
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/plugins/createWidget.ts:70](https://github.com/oyzamil/blogr-pl
 
 > **name**: `string`
 
-Defined in: [src/plugins/createWidget.ts:72](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L72)
+Defined in: src/plugins/createWidget.ts:72
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/plugins/createWidget.ts:72](https://github.com/oyzamil/blogr-pl
 
 > **raw**: `Author`
 
-Defined in: [src/plugins/createWidget.ts:75](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L75)
+Defined in: src/plugins/createWidget.ts:75
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/plugins/createWidget.ts:75](https://github.com/oyzamil/blogr-pl
 
 > **url**: `string`
 
-Defined in: [src/plugins/createWidget.ts:73](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L73)
+Defined in: src/plugins/createWidget.ts:73

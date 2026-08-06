@@ -8,6 +8,6 @@
 
 > **ShortcodeAttributeValue** = `string` \| `number` \| `boolean`
 
-Defined in: [src/plugins/shortcodify.ts:6](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/shortcodify.ts#L6)
+Defined in: src/plugins/shortcodify.ts:6
 
 A single shortcode attribute value, auto-coerced from its raw text.

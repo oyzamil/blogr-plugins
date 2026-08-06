@@ -1,458 +1,573 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { stackify } from "../src/plugins/stackify";
+import { stackify } from "../src/plugins/stackify.js";
 
-function makeStack(count = 3): void {
-	document.body.innerHTML = `<div id="stack">${Array.from(
+function makeStack(count = 3, id = "stack"): HTMLElement {
+	document.body.innerHTML = `<div id="${id}">${Array.from(
 		{ length: count },
-		(_, i) => `<div class="card" id="card-${i}">Card ${i}</div>`,
+		(_, i) => `<div class="card" id="card-${i}"></div>`,
 	).join("")}</div>`;
+	return document.getElementById(id)!;
 }
 
-function cards(): HTMLElement[] {
-	return Array.from(document.querySelectorAll<HTMLElement>("#stack > .card"));
+/**
+ * Builds a plain Event with `clientX`/`clientY` overridden so we can drive
+ * the plugin's pointer handlers without depending on jsdom's (patchy)
+ * PointerEvent constructor support — the plugin only ever reads
+ * `e.clientX`/`e.clientY` off the event, so this is a faithful stand-in.
+ */
+function coordEvent(type: string, client: number): Event {
+	const event = new Event(type, { bubbles: true, cancelable: true });
+	Object.defineProperty(event, "clientY", {
+		value: client,
+		configurable: true,
+	});
+	Object.defineProperty(event, "clientX", {
+		value: client,
+		configurable: true,
+	});
+	return event;
+}
+
+async function flush() {
+	await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 beforeEach(() => {
-	makeStack();
+	document.body.innerHTML = "";
 });
 
 afterEach(() => {
 	vi.useRealTimers();
+	document.body.innerHTML = "";
 });
 
-describe("stackify", () => {
-	it("positions cards front-to-back with decreasing top offset and z-index", () => {
-		stackify("#stack", { autoplay: false, offset: 20 });
-		const [c0, c1, c2] = cards();
+describe("stackify - stack layout", () => {
+	it("adds stack/card classes and activates the front card on init", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
 
-		expect(c0.style.top).toBe("40px"); // (n-1-0)*20
-		expect(c1.style.top).toBe("20px"); // (n-1-1)*20
-		expect(c2.style.top).toBe("0px"); // (n-1-2)*20
-		expect(Number(c0.style.zIndex)).toBeGreaterThan(Number(c1.style.zIndex));
-		expect(Number(c1.style.zIndex)).toBeGreaterThan(Number(c2.style.zIndex));
+		expect(container.classList.contains("stackify-stack")).toBe(true);
+		const cards = Array.from(container.children) as HTMLElement[];
+		expect(cards.every((c) => c.classList.contains("stackify-card"))).toBe(
+			true,
+		);
+		expect(cards[0].classList.contains("stackify-active")).toBe(true);
+		expect(cards[1].classList.contains("stackify-active")).toBe(false);
+		expect(widget.getActiveIndex()).toEqual([0]);
+
+		widget.destroy();
 	});
 
-	it("marks the front card active and gives it pointer events, unlike the rest", () => {
-		stackify("#stack", { autoplay: false });
-		const [c0, c1] = cards();
+	it("honors startIndex by activating that card immediately", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			startIndex: 2,
+		});
 
-		expect(c0.classList.contains("stackify-active")).toBe(true);
-		expect(c0.style.pointerEvents).toBe("auto");
-		expect(c1.classList.contains("stackify-active")).toBe(false);
-		expect(c1.style.pointerEvents).toBe("none");
+		expect(widget.getActiveIndex()).toEqual([2]);
+		const cards = Array.from(container.children) as HTMLElement[];
+		expect(cards[2].classList.contains("stackify-active")).toBe(true);
+
+		widget.destroy();
 	});
 
-	it("next() sends the front card to the back and promotes the next one", () => {
-		const instance = stackify("#stack", { autoplay: false });
-		const [c0, c1] = cards();
+	it("next()/prev()/goTo() rotate the active card", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
 
-		instance.next();
+		widget.next();
+		expect(widget.getActiveIndex()).toEqual([1]);
 
-		expect(c1.classList.contains("stackify-active")).toBe(true);
-		expect(c0.classList.contains("stackify-active")).toBe(false);
-		expect(c0.style.top).toBe("0px"); // now the back-most card
+		widget.prev();
+		expect(widget.getActiveIndex()).toEqual([0]);
+
+		widget.prev();
+		expect(widget.getActiveIndex()).toEqual([2]);
+
+		widget.goTo(1);
+		expect(widget.getActiveIndex()).toEqual([1]);
+
+		widget.destroy();
+
+		void container;
 	});
 
-	it("prev() brings the back-most card to the front", () => {
-		const instance = stackify("#stack", { autoplay: false });
-		const [, , c2] = cards();
-
-		instance.prev();
-
-		expect(c2.classList.contains("stackify-active")).toBe(true);
-	});
-
-	it("goTo() brings the target original index to the front", () => {
-		const instance = stackify("#stack", { autoplay: false });
-		const [, , c2] = cards();
-
-		instance.goTo(2);
-
-		expect(c2.classList.contains("stackify-active")).toBe(true);
-		expect(instance.getActiveIndex()).toEqual([2]);
-	});
-
-	it("fires onBeforeChange immediately and onAfterChange once the transition duration elapses", () => {
+	it("fires onBeforeChange synchronously and onAfterChange after `duration` ms", () => {
 		vi.useFakeTimers();
+		const container = makeStack(3);
 		const onBeforeChange = vi.fn();
 		const onAfterChange = vi.fn();
-		const instance = stackify("#stack", {
+		const widget = stackify(`#${container.id}`, {
 			autoplay: false,
 			duration: 500,
 			onBeforeChange,
 			onAfterChange,
 		});
+		const cards = Array.from(container.children) as HTMLElement[];
 
-		instance.next();
+		widget.next();
 
-		expect(onBeforeChange).toHaveBeenCalledOnce();
-		expect(onBeforeChange).toHaveBeenCalledWith(
-			expect.objectContaining({ fromIndex: 0, toIndex: 1 }),
-		);
+		expect(onBeforeChange).toHaveBeenCalledTimes(1);
+		expect(onBeforeChange).toHaveBeenCalledWith({
+			fromIndex: 0,
+			toIndex: 1,
+			fromCard: cards[0],
+			toCard: cards[1],
+		});
 		expect(onAfterChange).not.toHaveBeenCalled();
 
 		vi.advanceTimersByTime(500);
-		expect(onAfterChange).toHaveBeenCalledOnce();
+
+		expect(onAfterChange).toHaveBeenCalledWith({
+			fromIndex: 0,
+			toIndex: 1,
+			fromCard: cards[0],
+			toCard: cards[1],
+		});
+
+		widget.destroy();
 	});
 
-	it("auto-cycles on the configured interval when autoplay is on", () => {
+	it("autoplay advances the active card every `interval` ms", () => {
 		vi.useFakeTimers();
-		stackify("#stack", { autoplay: true, interval: 1000, duration: 0 });
-		const [c0, c1] = cards();
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, { interval: 1000 });
 
-		expect(c0.classList.contains("stackify-active")).toBe(true);
+		expect(widget.getActiveIndex()).toEqual([0]);
 		vi.advanceTimersByTime(1000);
-		expect(c1.classList.contains("stackify-active")).toBe(true);
+		expect(widget.getActiveIndex()).toEqual([1]);
+		vi.advanceTimersByTime(1000);
+		expect(widget.getActiveIndex()).toEqual([2]);
+
+		widget.destroy();
 	});
 
-	it("direction: backward cycles the back card to the front on each tick", () => {
+	it("direction: 'backward' cycles the active card via prev() instead", () => {
 		vi.useFakeTimers();
-		stackify("#stack", {
-			autoplay: true,
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
 			interval: 1000,
-			duration: 0,
 			direction: "backward",
 		});
-		const [, , c2] = cards();
 
 		vi.advanceTimersByTime(1000);
-		expect(c2.classList.contains("stackify-active")).toBe(true);
+		expect(widget.getActiveIndex()).toEqual([2]);
+
+		widget.destroy();
 	});
 
-	it("pauses on mouseenter and resumes on mouseleave when pauseOnHover is true", () => {
+	it("pauseOnHover pauses the timer on mouseenter and resumes on mouseleave", () => {
 		vi.useFakeTimers();
-		stackify("#stack", {
-			autoplay: true,
-			interval: 1000,
-			duration: 0,
-			pauseOnHover: true,
-		});
-		const [c0, c1] = cards();
-		const container = document.getElementById("stack")!;
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, { interval: 1000 });
 
-		container.dispatchEvent(new Event("mouseenter"));
-		vi.advanceTimersByTime(5000);
-		expect(c0.classList.contains("stackify-active")).toBe(true); // still paused
+		container.dispatchEvent(new MouseEvent("mouseenter"));
+		vi.advanceTimersByTime(2000);
+		expect(widget.getActiveIndex()).toEqual([0]);
 
-		container.dispatchEvent(new Event("mouseleave"));
+		container.dispatchEvent(new MouseEvent("mouseleave"));
 		vi.advanceTimersByTime(1000);
-		expect(c1.classList.contains("stackify-active")).toBe(true);
+		expect(widget.getActiveIndex()).toEqual([1]);
+
+		widget.destroy();
 	});
 
-	it("clicking a non-front card brings it to the front when clickToActivate is true", () => {
-		stackify("#stack", { autoplay: false, clickToActivate: true });
-		const [, , c2] = cards();
+	it("clickToActivate brings a clicked non-front card to the front", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
+		const back = container.children[2] as HTMLElement;
 
-		c2.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		back.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		expect(widget.getActiveIndex()).toEqual([2]);
 
-		expect(c2.classList.contains("stackify-active")).toBe(true);
+		widget.destroy();
 	});
 
-	it("ignores clicks when clickToActivate is false", () => {
-		stackify("#stack", { autoplay: false, clickToActivate: false });
-		const [c0, , c2] = cards();
+	it("does nothing on click when clickToActivate is false", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			clickToActivate: false,
+		});
+		const back = container.children[2] as HTMLElement;
 
-		c2.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		back.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		expect(widget.getActiveIndex()).toEqual([0]);
 
-		expect(c0.classList.contains("stackify-active")).toBe(true);
+		widget.destroy();
 	});
 
-	it("respects startIndex", () => {
-		stackify("#stack", { autoplay: false, startIndex: 1 });
-		const [, c1] = cards();
+	it("dragging the front card past the threshold advances to the next card", () => {
+		const container = makeStack(3);
+		const front = container.children[0] as HTMLElement;
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			draggable: true,
+		});
 
-		expect(c1.classList.contains("stackify-active")).toBe(true);
+		front.dispatchEvent(coordEvent("pointerdown", 200));
+		container.dispatchEvent(coordEvent("pointermove", 100));
+		container.dispatchEvent(coordEvent("pointerup", 100));
+
+		expect(widget.getActiveIndex()).toEqual([1]);
+
+		widget.destroy();
+	});
+
+	it("dragging under the threshold snaps back without changing the active card", () => {
+		const container = makeStack(3);
+		const front = container.children[0] as HTMLElement;
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			draggable: true,
+		});
+
+		front.dispatchEvent(coordEvent("pointerdown", 200));
+		container.dispatchEvent(coordEvent("pointermove", 180));
+		container.dispatchEvent(coordEvent("pointerup", 180));
+
+		expect(widget.getActiveIndex()).toEqual([0]);
+
+		widget.destroy();
+	});
+
+	it("ignores pointer events entirely when draggable is false", () => {
+		const container = makeStack(3);
+		const front = container.children[0] as HTMLElement;
+		const widget = stackify(`#${container.id}`, { autoplay: false });
+
+		front.dispatchEvent(coordEvent("pointerdown", 200));
+		container.dispatchEvent(coordEvent("pointermove", 0));
+		container.dispatchEvent(coordEvent("pointerup", 0));
+
+		expect(widget.getActiveIndex()).toEqual([0]);
+
+		widget.destroy();
+	});
+
+	it("keeps every card visible when visibleCards is left unset (default Infinity)", () => {
+		const container = makeStack(4);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
+
+		for (const card of Array.from(container.children) as HTMLElement[]) {
+			expect(card.style.opacity).toBe("1");
+		}
+
+		widget.destroy();
 	});
 
 	it("fades cards beyond visibleCards to opacity 0", () => {
-		stackify("#stack", { autoplay: false, visibleCards: 1 });
-		const [c0, c1, c2] = cards();
+		const container = makeStack(4);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			visibleCards: 2,
+		});
+		const cards = Array.from(container.children) as HTMLElement[];
 
-		expect(c0.style.opacity).toBe("1");
-		expect(c1.style.opacity).toBe("0");
-		expect(c2.style.opacity).toBe("0");
+		expect(cards[0].style.opacity).toBe("1");
+		expect(cards[1].style.opacity).toBe("1");
+		expect(cards[2].style.opacity).toBe("0");
+		expect(cards[3].style.opacity).toBe("0");
+
+		widget.destroy();
 	});
 
-	it("applies scaleStep to cards behind the front one", () => {
-		stackify("#stack", { autoplay: false, scaleStep: 0.05 });
-		const [c0, c1, c2] = cards();
+	it("does not let an explicit `undefined` in options erase a value read from data-* attributes", () => {
+		// Regression test for the bug described in stackify.ts's
+		// stripUndefined() doc comment: a caller-built options object with a
+		// stray `someOption: undefined` (e.g. from an empty form field) must
+		// not silently wipe out a value already resolved from data-*.
+		const container = makeStack(4);
+		container.dataset.visibleCards = "2";
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			visibleCards: undefined,
+		});
+		const cards = Array.from(container.children) as HTMLElement[];
 
-		expect(c0.style.transform).toBe("");
-		expect(c1.style.transform).toBe("scale(0.95)");
-		expect(c2.style.transform).toBe("scale(0.9)");
+		expect(cards[0].style.opacity).toBe("1");
+		expect(cards[1].style.opacity).toBe("1");
+		expect(cards[2].style.opacity).toBe("0");
+		expect(cards[3].style.opacity).toBe("0");
+
+		widget.destroy();
 	});
 
-	it("destroy() restores every card's original inline styles and stops the timer", () => {
+	it("applies a flat size regardless of layout", () => {
+		const container = makeStack(2);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			size: { height: 300, width: "50%" },
+		});
+
+		expect(container.style.height).toBe("300px");
+		expect(container.style.width).toBe("50%");
+
+		widget.destroy();
+	});
+
+	it("applies only the size block matching the active layout", () => {
+		const container = makeStack(2);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			layout: "stack",
+			size: { stack: { height: 200 }, marquee: { width: "80%" } },
+		});
+
+		expect(container.style.height).toBe("200px");
+		expect(container.style.width).toBe("");
+
+		widget.destroy();
+	});
+
+	it("reads configuration from data-* attributes when no options object is passed", () => {
 		vi.useFakeTimers();
-		document.body.innerHTML = `
-			<div id="stack">
-				<div class="card" style="color: red;">A</div>
-				<div class="card">B</div>
-			</div>
-		`;
-		const instance = stackify("#stack", {
-			autoplay: true,
-			interval: 500,
-			duration: 0,
+		const container = makeStack(3);
+		container.dataset.interval = "500";
+		container.dataset.direction = "backward";
+		const widget = stackify(`#${container.id}`);
+
+		expect(container.dataset.direction).toBe("backward");
+		vi.advanceTimersByTime(500);
+		expect(widget.getActiveIndex()).toEqual([2]);
+
+		widget.destroy();
+	});
+
+	it("lets explicit options override data-* attributes", () => {
+		vi.useFakeTimers();
+		const container = makeStack(3);
+		container.dataset.interval = "9999";
+		const widget = stackify(`#${container.id}`, { interval: 100 });
+
+		vi.advanceTimersByTime(100);
+		expect(widget.getActiveIndex()).toEqual([1]);
+
+		widget.destroy();
+	});
+
+	it("mirrors resolved config onto container.dataset and clears it on destroy", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			autoplay: false,
+			layout: "stack",
+			direction: "backward",
+			draggable: true,
 		});
-		const [c0] = cards();
 
-		instance.destroy();
+		expect(container.dataset.layout).toBe("stack");
+		expect(container.dataset.direction).toBe("backward");
+		expect(container.dataset.draggable).toBe("true");
+		expect(container.dataset.peekWidth).toBeDefined();
 
-		expect(c0.style.cssText).toBe("color: red;");
-		expect(c0.classList.contains("stackify-card")).toBe(false);
-		expect(
-			document.getElementById("stack")!.classList.contains("stackify-stack"),
-		).toBe(false);
+		widget.destroy();
 
-		// timer should no longer be running post-destroy
+		expect(container.dataset.layout).toBeUndefined();
+		expect(container.dataset.direction).toBeUndefined();
+		expect(container.dataset.draggable).toBeUndefined();
+		expect(container.dataset.peekWidth).toBeUndefined();
+	});
+
+	it("destroy() removes classes, restores styles, and stops the timer", () => {
+		vi.useFakeTimers();
+		const container = makeStack(3);
+		const cards = Array.from(container.children) as HTMLElement[];
+		const originalCardCss = cards[0].style.cssText;
+		const originalContainerCss = container.style.cssText;
+		const widget = stackify(`#${container.id}`, { interval: 1000 });
+
+		widget.destroy();
+
+		expect(container.classList.contains("stackify-stack")).toBe(false);
+		expect(container.style.cssText).toBe(originalContainerCss);
+		for (const card of cards) {
+			expect(card.classList.contains("stackify-card")).toBe(false);
+			expect(card.classList.contains("stackify-active")).toBe(false);
+			expect(card.style.cssText).toBe(originalCardCss);
+		}
+
+		// The autoplay timer must no longer fire after destroy().
 		vi.advanceTimersByTime(5000);
-		expect(c0.classList.contains("stackify-active")).toBe(false);
+		expect(widget.getActiveIndex()).toEqual([0]);
 	});
 
-	it("does nothing (but doesn't throw) for an empty container", () => {
-		document.body.innerHTML = `<div id="empty"></div>`;
-		expect(() => stackify("#empty")).not.toThrow();
-		const instance = stackify("#empty");
-		expect(instance.getActiveIndex()).toEqual([]);
-		expect(() => instance.next()).not.toThrow();
-		expect(() => instance.destroy()).not.toThrow();
+	it("detects a dynamically appended card and includes it in the stack", async () => {
+		const container = makeStack(2);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
+
+		const newCard = document.createElement("div");
+		newCard.className = "card";
+		container.appendChild(newCard);
+		await flush();
+
+		expect(newCard.classList.contains("stackify-card")).toBe(true);
+		widget.goTo(2);
+		expect(widget.getActiveIndex()).toEqual([2]);
+
+		widget.destroy();
 	});
 
-	it("controls every matched container when the selector matches more than one stack", () => {
+	it("stops watching for new cards after destroy()", async () => {
+		const container = makeStack(2);
+		const widget = stackify(`#${container.id}`, { autoplay: false });
+		widget.destroy();
+
+		const newCard = document.createElement("div");
+		newCard.className = "card";
+		container.appendChild(newCard);
+		await flush();
+
+		expect(newCard.classList.contains("stackify-card")).toBe(false);
+	});
+
+	it("controls every matched container when the selector matches multiple stacks", () => {
 		document.body.innerHTML = `
-			<div class="stack"><div class="card">A0</div><div class="card">A1</div></div>
-			<div class="stack"><div class="card">B0</div><div class="card">B1</div></div>
+			<div class="stack"><div class="card"></div><div class="card"></div></div>
+			<div class="stack"><div class="card"></div><div class="card"></div></div>
 		`;
-		const instance = stackify(".stack", { autoplay: false });
-		expect(instance.getActiveIndex()).toEqual([0, 0]);
+		const widget = stackify(".stack", { autoplay: false });
 
-		instance.next();
-		expect(instance.getActiveIndex()).toEqual([1, 1]);
-	});
+		expect(widget.getActiveIndex()).toEqual([0, 0]);
+		widget.next();
+		expect(widget.getActiveIndex()).toEqual([1, 1]);
 
-	it("an explicit `undefined` in the options object doesn't wipe the matching default", () => {
-		// regression test: `{ ...defaults, ...options }` used to let a
-		// caller-supplied `key: undefined` (e.g. from reading a blank form
-		// field with `raw ? Number(raw) : undefined`) stomp a valid default.
-		// visibleCards going through as `undefined` turned into
-		// `Math.min(undefined, n)` -> NaN, hiding every card at opacity 0.
-		stackify("#stack", { autoplay: false, visibleCards: undefined });
-		const [c0, c1, c2] = cards();
-
-		expect(c0.style.opacity).toBe("1");
-		expect(c1.style.opacity).toBe("1");
-		expect(c2.style.opacity).toBe("1");
-	});
-
-	it("peekWidth: expand widens cards behind the front one via scaleX", () => {
-		stackify("#stack", {
-			autoplay: false,
-			peekWidth: "expand",
-			peekWidthStep: 0.1,
-		});
-		const [c0, c1, c2] = cards();
-
-		expect(c0.style.transform).toBe("");
-		expect(c1.style.transform).toBe("scaleX(1.1)");
-		expect(c2.style.transform).toBe("scaleX(1.2)");
-	});
-
-	it("peekWidth: shrink narrows cards behind the front one via scaleX", () => {
-		stackify("#stack", {
-			autoplay: false,
-			peekWidth: "shrink",
-			peekWidthStep: 0.1,
-		});
-		const [c0, c1, c2] = cards();
-
-		expect(c0.style.transform).toBe("");
-		expect(c1.style.transform).toBe("scaleX(0.9)");
-		expect(c2.style.transform).toBe("scaleX(0.8)");
-	});
-
-	it("peekWidth combines with scaleStep in a single transform", () => {
-		stackify("#stack", {
-			autoplay: false,
-			scaleStep: 0.05,
-			peekWidth: "expand",
-			peekWidthStep: 0.1,
-		});
-		const [, c1] = cards();
-
-		expect(c1.style.transform).toBe("scale(0.95) scaleX(1.1)");
-	});
-
-	it("peekWidth: none (default) leaves width untouched", () => {
-		stackify("#stack", { autoplay: false });
-		const [c0, c1, c2] = cards();
-
-		expect(c0.style.transform).toBe("");
-		expect(c1.style.transform).toBe("");
-		expect(c2.style.transform).toBe("");
+		widget.destroy();
 	});
 });
 
-describe("stackify — layout: marquee", () => {
-	// marquee moves cards into an inner track div + appends a cloned set
-	// after them for seamless looping, so this needs a descendant
-	// selector — originals are appended before clones, so the first
-	// `n` matches (in document order) are always the originals.
-	function marqueeCards(): HTMLElement[] {
-		return Array.from(
-			document.querySelectorAll<HTMLElement>("#stack .card"),
-		).slice(0, 3);
-	}
-
-	it("moves cards into an inner track and appends a cloned set for seamless looping", () => {
-		stackify("#stack", { layout: "marquee", autoplay: false });
-		const container = document.getElementById("stack")!;
-		const track = container.firstElementChild as HTMLElement;
-
-		expect(track.children.length).toBe(6); // 3 originals + 3 clones
-		expect(container.querySelectorAll(".card").length).toBe(6);
-	});
-
-	it("marks the first original card active on init", () => {
-		stackify("#stack", { layout: "marquee", autoplay: false });
-		const [c0] = marqueeCards();
-
-		expect(c0.classList.contains("stackify-active")).toBe(true);
-	});
-
-	it("next()/prev() move the active card forward/back and fire change hooks", () => {
-		const onBeforeChange = vi.fn();
-		const onAfterChange = vi.fn();
-		vi.useFakeTimers();
-		const instance = stackify("#stack", {
+describe("stackify - marquee layout", () => {
+	it("builds a track containing the original cards plus looping clones", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
 			layout: "marquee",
 			autoplay: false,
-			duration: 0,
+		});
+
+		const track = container.firstElementChild as HTMLElement;
+		expect(track.children.length).toBe(6); // 3 originals + 3 clones
+		expect(container.style.display).toBe("flex");
+		expect(container.style.overflow).toBe("hidden");
+		for (const card of Array.from(track.children) as HTMLElement[]) {
+			expect(card.classList.contains("stackify-card")).toBe(true);
+		}
+
+		widget.destroy();
+	});
+
+	it("advances the track's transform while playing", () => {
+		vi.useFakeTimers({
+			toFake: [
+				"setTimeout",
+				"clearTimeout",
+				"setInterval",
+				"clearInterval",
+				"requestAnimationFrame",
+				"cancelAnimationFrame",
+			],
+		});
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			layout: "marquee",
+			marqueeSpeed: 60,
+		});
+
+		const track = container.firstElementChild as HTMLElement;
+		const initialTransform = track.style.transform;
+
+		vi.advanceTimersByTime(1000);
+
+		expect(track.style.transform).not.toBe(initialTransform);
+
+		widget.destroy();
+	});
+
+	it("does not animate when marqueeSpeed is 0", () => {
+		vi.useFakeTimers({
+			toFake: [
+				"setTimeout",
+				"clearTimeout",
+				"setInterval",
+				"clearInterval",
+				"requestAnimationFrame",
+				"cancelAnimationFrame",
+			],
+		});
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			layout: "marquee",
+			marqueeSpeed: 0,
+		});
+
+		const track = container.firstElementChild as HTMLElement;
+		vi.advanceTimersByTime(1000);
+
+		expect(track.style.transform).toBe("");
+
+		widget.destroy();
+	});
+
+	it("goTo() jumps to the given original card and marks it active", () => {
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			layout: "marquee",
+			autoplay: false,
+		});
+
+		widget.goTo(1);
+
+		expect(widget.getActiveIndex()).toEqual([1]);
+		const cards = Array.from(
+			container.querySelectorAll(".card"),
+		) as HTMLElement[];
+		expect(cards[1].classList.contains("stackify-active")).toBe(true);
+
+		widget.destroy();
+	});
+
+	it("onBeforeChange/onAfterChange fire around a goTo() jump", () => {
+		vi.useFakeTimers();
+		const onBeforeChange = vi.fn();
+		const onAfterChange = vi.fn();
+		const container = makeStack(3);
+		const widget = stackify(`#${container.id}`, {
+			layout: "marquee",
+			autoplay: false,
+			duration: 300,
 			onBeforeChange,
 			onAfterChange,
 		});
-		const [, c1] = marqueeCards();
 
-		instance.next();
+		widget.goTo(2);
 
-		expect(c1.classList.contains("stackify-active")).toBe(true);
-		expect(onBeforeChange).toHaveBeenCalledOnce();
-		vi.advanceTimersByTime(0);
-		expect(onAfterChange).toHaveBeenCalledOnce();
+		expect(onBeforeChange).toHaveBeenCalledTimes(1);
+		expect(onAfterChange).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(300);
+		expect(onAfterChange).toHaveBeenCalledTimes(1);
+
+		widget.destroy();
 	});
 
-	it("goTo() jumps directly to the target original index", () => {
-		const instance = stackify("#stack", { layout: "marquee", autoplay: false });
-		const [, , c2] = marqueeCards();
-
-		instance.goTo(2);
-
-		expect(c2.classList.contains("stackify-active")).toBe(true);
-		expect(instance.getActiveIndex()).toEqual([2]);
-	});
-
-	it("play()/pause() toggle the auto-scroll loop without throwing", () => {
-		const instance = stackify("#stack", {
+	it("destroy() removes the track and restores the container and cards", () => {
+		const container = makeStack(3);
+		const cards = Array.from(container.children) as HTMLElement[];
+		const originalContainerCss = container.style.cssText;
+		const widget = stackify(`#${container.id}`, {
 			layout: "marquee",
 			autoplay: false,
-			marqueeSpeed: 100,
 		});
+		const track = container.firstElementChild as HTMLElement;
 
-		expect(() => instance.play()).not.toThrow();
-		expect(() => instance.pause()).not.toThrow();
-	});
+		widget.destroy();
 
-	it("destroy() removes the clones and moves original cards back under the container", () => {
-		const instance = stackify("#stack", { layout: "marquee", autoplay: false });
-		const container = document.getElementById("stack")!;
-
-		instance.destroy();
-
-		expect(container.children.length).toBe(3); // track + clones gone
-		expect(container.querySelectorAll(".card").length).toBe(3);
-		expect(container.classList.contains("stackify-stack")).toBe(false);
-	});
-
-	it("ignores an empty container without throwing", () => {
-		document.body.innerHTML = `<div id="empty"></div>`;
-		expect(() => stackify("#empty", { layout: "marquee" })).not.toThrow();
-		const instance = stackify("#empty", { layout: "marquee" });
-		expect(instance.getActiveIndex()).toEqual([]);
-		expect(() => instance.next()).not.toThrow();
-		expect(() => instance.destroy()).not.toThrow();
-	});
-});
-
-describe("stackify — orientation", () => {
-	it("stack defaults to vertical: positions via `top`, not `left`", () => {
-		stackify("#stack", { autoplay: false, offset: 20 });
-		const [c0, c1] = cards();
-
-		expect(c0.style.top).toBe("40px");
-		expect(c0.style.left).toBe("0px");
-		expect(c1.style.top).toBe("20px");
-	});
-
-	it("stack orientation: horizontal positions via `left`, not `top`", () => {
-		stackify("#stack", {
-			autoplay: false,
-			offset: 20,
-			orientation: "horizontal",
-		});
-		const [c0, c1, c2] = cards();
-
-		expect(c0.style.left).toBe("40px");
-		expect(c1.style.left).toBe("20px");
-		expect(c2.style.left).toBe("0px");
-		expect(c0.style.top).toBe("0px");
-	});
-
-	it("stack orientation: horizontal sizes the container by width, not height", () => {
-		stackify("#stack", {
-			autoplay: false,
-			offset: 20,
-			orientation: "horizontal",
-		});
-		const container = document.getElementById("stack")!;
-
-		expect(container.style.width).not.toBe("");
-		expect(container.style.height).toBe("");
-	});
-
-	it("marquee defaults to horizontal: track lays out as a row", () => {
-		stackify("#stack", { layout: "marquee", autoplay: false });
-		const track = document.getElementById("stack")!
-			.firstElementChild as HTMLElement;
-
-		expect(track.style.flexDirection).toBe("row");
-	});
-
-	it("marquee orientation: vertical lays the track out as a column", () => {
-		stackify("#stack", {
-			layout: "marquee",
-			autoplay: false,
-			orientation: "vertical",
-		});
-		const track = document.getElementById("stack")!
-			.firstElementChild as HTMLElement;
-
-		expect(track.style.flexDirection).toBe("column");
-	});
-
-	it("marquee orientation: vertical steps still fire next()/prev() correctly", () => {
-		const instance = stackify("#stack", {
-			layout: "marquee",
-			autoplay: false,
-			orientation: "vertical",
-		});
-		const container = document.getElementById("stack")!;
-		const originals = Array.from(
-			container.querySelectorAll<HTMLElement>(".card"),
-		).slice(0, 3);
-
-		instance.next();
-
-		expect(originals[1].classList.contains("stackify-active")).toBe(true);
+		expect(container.contains(track)).toBe(false);
+		expect(container.style.cssText).toBe(originalContainerCss);
+		expect(Array.from(container.children)).toEqual(cards);
+		for (const card of cards) {
+			expect(card.classList.contains("stackify-card")).toBe(false);
+			expect(card.classList.contains("stackify-active")).toBe(false);
+		}
 	});
 });

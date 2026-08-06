@@ -8,7 +8,7 @@
 
 > **WidgetTransformer** = (`entry`, `index`) => [`WidgetEntry`](WidgetEntry.md) \| `null` \| `Promise`\<[`WidgetEntry`](WidgetEntry.md) \| `null`\>
 
-Defined in: [src/plugins/createWidget.ts:95](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L95)
+Defined in: src/plugins/createWidget.ts:95
 
 Transforms one normalized entry, e.g. to inject a computed field, rewrite
 a value from a transformer chain, or pull in data from elsewhere. Applied

@@ -6,7 +6,7 @@
 
 # Interface: CommentEntry
 
-Defined in: [src/plugins/createWidget.ts:58](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L58)
+Defined in: src/plugins/createWidget.ts:58
 
 A normalized comment — every field from the raw comment feed entry (id,
 url, author, post, inReplyTo, extended, etc.) is spread directly onto
@@ -36,7 +36,7 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:100
 
 > **content**: `string`
 
-Defined in: [src/plugins/createWidget.ts:63](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L63)
+Defined in: src/plugins/createWidget.ts:63
 
 ***
 
@@ -82,7 +82,7 @@ Id of the parent comment when this is a reply, else `null`.
 
 > **kind**: `"comments"`
 
-Defined in: [src/plugins/createWidget.ts:62](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L62)
+Defined in: src/plugins/createWidget.ts:62
 
 ***
 
@@ -124,7 +124,7 @@ The post this comment belongs to.
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:64](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L64)
+Defined in: src/plugins/createWidget.ts:64
 
 ***
 
@@ -156,7 +156,7 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:96
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:65](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L65)
+Defined in: src/plugins/createWidget.ts:65
 
 ***
 

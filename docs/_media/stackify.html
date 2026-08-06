@@ -1,0 +1,346 @@
+<!-- biome-ignore-all lint/a11y/useValidAnchor: demo page -->
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>stackify demo — blogr-plugins</title>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="../dist/blogr-plugins.js"></script>
+	<style>
+		body {
+			font-family: system-ui, sans-serif;
+			max-width: 480px;
+			margin: 60px auto;
+			color: #222;
+		}
+
+		h1 {
+			font-size: 20px;
+			margin-bottom: 4px;
+		}
+
+		p.lede {
+			color: #666;
+			margin-top: 0;
+			margin-bottom: 32px;
+		}
+
+		/* --- the stack itself --- */
+		#testimonials {
+			margin-bottom: 24px;
+		}
+
+		.card {
+			background: #fff;
+			border: 1px solid #e5e5e5;
+			border-radius: 12px;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+			padding: 20px 22px;
+			box-sizing: border-box;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.card .head {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.card .avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: #eee;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			flex-shrink: 0;
+		}
+
+		.card .name {
+			font-weight: 600;
+			font-size: 14px;
+		}
+
+		.card .role {
+			font-size: 12px;
+			color: #888;
+		}
+
+		.card .role b {
+			color: #444;
+		}
+
+		.card hr {
+			border: none;
+			border-top: 1px solid #eee;
+			margin: 14px 0;
+		}
+
+		.card .stars {
+			color: #e08a1e;
+			letter-spacing: 2px;
+			margin-bottom: 10px;
+		}
+
+		.card .review {
+			font-size: 13px;
+			line-height: 1.6;
+			color: #555;
+			margin: 0;
+		}
+
+		/* stackify-active is toggled automatically on whichever card is in front */
+		.card.stackify-active {
+			cursor: default;
+		}
+
+		/* --- controls --- */
+		.controls {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin-bottom: 24px;
+		}
+
+		.controls button {
+			border: 1px solid #ccc;
+			background: #fff;
+			border-radius: 6px;
+			padding: 6px 14px;
+			font-size: 13px;
+			cursor: pointer;
+		}
+
+		.controls button:hover {
+			background: #f5f5f5;
+		}
+
+		.options {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 12px 20px;
+			font-size: 13px;
+			background: #f7f7f7;
+			border-radius: 8px;
+			padding: 16px;
+		}
+
+		.options label {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.options input[type="checkbox"] {
+			margin-right: 6px;
+		}
+
+		#log {
+			white-space: pre-wrap;
+			font: 12px/1.4 monospace;
+			background: #111;
+			color: #0f0;
+			padding: 12px;
+			margin-top: 20px;
+			border-radius: 6px;
+			max-height: 160px;
+			overflow-y: auto;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>stackify</h1>
+	<p class="lede">
+		A peeking card stack that auto-cycles the front card to the back. Click any
+		peeking card to bring it forward, drag the front card left/right, or use the
+		controls below.
+	</p>
+
+	<div id="testimonials">
+		<div class="card">
+			<div class="head">
+				<div class="avatar">🧑‍💼</div>
+				<div>
+					<div class="name">Tony Stark</div>
+					<div class="role">CEO &amp; Co Founder <b>Stark Industries</b></div>
+				</div>
+			</div>
+			<hr />
+			<div class="stars">★★★★★</div>
+			<p class="review">
+				Exceptional service—intuitive, reliable, and exceeded my expectations. The team
+				was incredibly helpful and ensured a seamless integration process.
+			</p>
+		</div>
+		<div class="card">
+			<div class="head">
+				<div class="avatar">🧑‍🚀</div>
+				<div>
+					<div class="name">Carol Danvers</div>
+					<div class="role">VP Engineering <b>Marvel Labs</b></div>
+				</div>
+			</div>
+			<hr />
+			<div class="stars">★★★★★</div>
+			<p class="review">
+				Rock-solid API and great docs. We shipped our integration in an afternoon
+				and haven't touched it since.
+			</p>
+		</div>
+		<div class="card">
+			<div class="head">
+				<div class="avatar">🧑‍🔬</div>
+				<div>
+					<div class="name">Bruce Banner</div>
+					<div class="role">Head of Research <b>Gamma Corp</b></div>
+				</div>
+			</div>
+			<hr />
+			<div class="stars">★★★★☆</div>
+			<p class="review">
+				Does exactly what it says. Support was quick to respond when we hit an
+				edge case with our data.
+			</p>
+		</div>
+		<div class="card">
+			<div class="head">
+				<div class="avatar">🧑‍🎨</div>
+				<div>
+					<div class="name">Wanda Maximoff</div>
+					<div class="role">Design Lead <b>Sokovia Studio</b></div>
+				</div>
+			</div>
+			<hr />
+			<div class="stars">★★★★★</div>
+			<p class="review">
+				Clean, predictable, and easy to theme. Exactly what we needed for the
+				redesign.
+			</p>
+		</div>
+	</div>
+
+	<div class="controls">
+		<button id="prev">◀ Prev</button>
+		<button id="next">Next ▶</button>
+		<button id="play">▶ Play</button>
+		<button id="pause">⏸ Pause</button>
+	</div>
+
+	<div class="options">
+		<label>Layout
+			<select id="opt-layout">
+				<option value="stack">stack</option>
+				<option value="marquee">marquee</option>
+			</select>
+		</label>
+		<label>Offset / gap (px)
+			<input type="number" id="opt-offset" value="20" />
+		</label>
+		<label>Scale step (0–0.2)
+			<input type="number" id="opt-scaleStep" value="0" step="0.01" min="0" max="0.2" />
+		</label>
+		<label>Peek width (stack only)
+			<select id="opt-peekWidth">
+				<option value="none">none</option>
+				<option value="expand">expand</option>
+				<option value="shrink">shrink</option>
+			</select>
+		</label>
+		<label>Peek width step (0–0.3)
+			<input type="number" id="opt-peekWidthStep" value="0.05" step="0.01" min="0" max="0.3" />
+		</label>
+		<label>Marquee speed (px/s)
+			<input type="number" id="opt-marqueeSpeed" value="60" step="10" />
+		</label>
+		<label>Interval (ms, 0 = off)
+			<input type="number" id="opt-interval" value="3000" step="500" />
+		</label>
+		<label>Duration (ms)
+			<input type="number" id="opt-duration" value="500" step="50" />
+		</label>
+		<label>Direction
+			<select id="opt-direction">
+				<option value="forward">forward</option>
+				<option value="backward">backward</option>
+			</select>
+		</label>
+		<label>Visible cards (blank = all, stack only)
+			<input type="number" id="opt-visibleCards" placeholder="all" />
+		</label>
+		<label><input type="checkbox" id="opt-pauseOnHover" checked /> Pause on hover</label>
+		<label><input type="checkbox" id="opt-clickToActivate" checked /> Click to activate</label>
+		<label><input type="checkbox" id="opt-draggable" /> Draggable</label>
+	</div>
+
+	<div id="log"></div>
+
+	<script>
+		function log(msg) {
+			const el = document.getElementById("log");
+			el.textContent += `${msg}\n`;
+			el.scrollTop = el.scrollHeight;
+		}
+
+		const { stackify } = BlogrPlugins;
+
+		function readOptions() {
+			const visibleCardsRaw = document.getElementById("opt-visibleCards").value;
+			return {
+				layout: document.getElementById("opt-layout").value,
+				offset: Number(document.getElementById("opt-offset").value),
+				scaleStep: Number(document.getElementById("opt-scaleStep").value),
+				peekWidth: document.getElementById("opt-peekWidth").value,
+				peekWidthStep: Number(document.getElementById("opt-peekWidthStep").value),
+				marqueeSpeed: Number(document.getElementById("opt-marqueeSpeed").value),
+				interval: Number(document.getElementById("opt-interval").value),
+				duration: Number(document.getElementById("opt-duration").value),
+				direction: document.getElementById("opt-direction").value,
+				visibleCards: visibleCardsRaw ? Number(visibleCardsRaw) : undefined,
+				pauseOnHover: document.getElementById("opt-pauseOnHover").checked,
+				clickToActivate: document.getElementById("opt-clickToActivate").checked,
+				draggable: document.getElementById("opt-draggable").checked,
+				onBeforeChange: (d) => log(`before: #${d.fromIndex} -> #${d.toIndex}`),
+				onAfterChange: (d) => log(`after:  #${d.fromIndex} -> #${d.toIndex} (settled)`),
+			};
+		}
+
+		let stack = stackify("#testimonials", readOptions());
+
+		document.getElementById("prev").addEventListener("click", () => stack.prev());
+		document.getElementById("next").addEventListener("click", () => stack.next());
+		document.getElementById("play").addEventListener("click", () => stack.play());
+		document.getElementById("pause").addEventListener("click", () => stack.pause());
+
+		// --- live options: any change in the panel rebuilds the stack ---
+		// debounced so typing a number doesn't rebuild on every keystroke
+		let rebuildTimer = null;
+		function rebuild() {
+			stack.destroy();
+			stack = stackify("#testimonials", readOptions());
+		}
+		function scheduleRebuild() {
+			clearTimeout(rebuildTimer);
+			rebuildTimer = setTimeout(rebuild, 150);
+		}
+		for (const el of document.querySelectorAll(".options input, .options select")) {
+			// "input" catches live typing/dragging, "change" catches
+			// checkboxes/selects that only fire input in some browsers
+			el.addEventListener("input", scheduleRebuild);
+			el.addEventListener("change", scheduleRebuild);
+		}
+
+		// --- jQuery usage (equivalent) ---
+		// let $stack = $("#testimonials").stackify({ offset: 20, interval: 3000 }).data("blogr-stackify");
+		// $stack.next();
+	</script>
+
+</body>
+
+</html>

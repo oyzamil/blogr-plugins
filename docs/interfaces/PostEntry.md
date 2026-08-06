@@ -6,7 +6,7 @@
 
 # Interface: PostEntry
 
-Defined in: [src/plugins/createWidget.ts:27](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L27)
+Defined in: src/plugins/createWidget.ts:27
 
 A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead.
 
@@ -16,7 +16,7 @@ A normalized post or page. Anything not listed here — id, title, url, author, 
 
 > **author**: `Author`
 
-Defined in: [src/plugins/createWidget.ts:36](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L36)
+Defined in: src/plugins/createWidget.ts:36
 
 Author Details.
 
@@ -26,7 +26,7 @@ Author Details.
 
 > **content**: `string`
 
-Defined in: [src/plugins/createWidget.ts:46](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L46)
+Defined in: src/plugins/createWidget.ts:46
 
 Plain-text summary, truncated to `summaryLength` characters.
 
@@ -36,7 +36,7 @@ Plain-text summary, truncated to `summaryLength` characters.
 
 > **id**: `string`
 
-Defined in: [src/plugins/createWidget.ts:30](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L30)
+Defined in: src/plugins/createWidget.ts:30
 
 Numeric id, as reported by Blogger.
 
@@ -46,7 +46,7 @@ Numeric id, as reported by Blogger.
 
 > **kind**: `"posts"` \| `"pages"`
 
-Defined in: [src/plugins/createWidget.ts:28](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L28)
+Defined in: src/plugins/createWidget.ts:28
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [src/plugins/createWidget.ts:28](https://github.com/oyzamil/blogr-pl
 
 > **labels**: `string`[]
 
-Defined in: [src/plugins/createWidget.ts:42](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L42)
+Defined in: src/plugins/createWidget.ts:42
 
 Labels. Always `[]` for pages/comments (which carry none).
 
@@ -64,7 +64,7 @@ Labels. Always `[]` for pages/comments (which carry none).
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:38](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L38)
+Defined in: src/plugins/createWidget.ts:38
 
 Publish date, formatted per `dateFormat`.
 
@@ -74,7 +74,7 @@ Publish date, formatted per `dateFormat`.
 
 > **raw**: `Post`
 
-Defined in: [src/plugins/createWidget.ts:48](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L48)
+Defined in: src/plugins/createWidget.ts:48
 
 The original, un-normalized SDK object.
 
@@ -84,7 +84,7 @@ The original, un-normalized SDK object.
 
 > **thumbnail**: `string`
 
-Defined in: [src/plugins/createWidget.ts:44](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L44)
+Defined in: src/plugins/createWidget.ts:44
 
 Resized thumbnail (via [resizeImage](../functions/resizeImage.md)), falling back to `fallbackImage`. `""` when `thumbnail: false`.
 
@@ -94,7 +94,7 @@ Resized thumbnail (via [resizeImage](../functions/resizeImage.md)), falling back
 
 > **title**: `string`
 
-Defined in: [src/plugins/createWidget.ts:32](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L32)
+Defined in: src/plugins/createWidget.ts:32
 
 Title. `""` for comments (which have none).
 
@@ -104,7 +104,7 @@ Title. `""` for comments (which have none).
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:40](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L40)
+Defined in: src/plugins/createWidget.ts:40
 
 Last-updated date, formatted per `dateFormat`.
 
@@ -114,6 +114,6 @@ Last-updated date, formatted per `dateFormat`.
 
 > **url**: `string`
 
-Defined in: [src/plugins/createWidget.ts:34](https://github.com/oyzamil/blogr-plugins/blob/8ead24b94d5a4e6ad2ececeab3afb6768104a8ff/src/plugins/createWidget.ts#L34)
+Defined in: src/plugins/createWidget.ts:34
 
 Canonical URL.
