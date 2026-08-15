@@ -1,5 +1,5 @@
-import { type StickifyOptions, stickify } from "../plugins/stickify.js";
-import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge.js";
+import { type StickifyOptions, stickify } from "../plugins/stickify";
+import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

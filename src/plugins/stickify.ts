@@ -10,9 +10,9 @@
  * function's first argument instead of living inside options.
  */
 
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link stickify}. */
 export interface StickifyOptions {

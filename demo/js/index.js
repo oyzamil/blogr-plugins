@@ -1,33 +1,4 @@
-import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
-
-const BLANK_GIF = /(?:https?:)?\/\/img1\.blogblog\.com\/img\/blank\.gif/i;
-
-function isBlank(image) {
-	if (typeof value !== "string" || value.trim() === "") return true;
-	return BLANK_GIF.test(value);
-}
-
-function randomEmojiImage(size = 45, emojis = ["🙍‍♂️", "🧑‍🚀", "🧑‍🔬", "🧑‍🎨"]) {
-	if (emojis.length === 0) {
-		throw new Error("Emoji array cannot be empty.");
-	}
-	const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-	const canvas = document.createElement("canvas");
-	canvas.width = size;
-	canvas.height = size;
-	const ctx = canvas.getContext("2d");
-	if (!ctx) {
-		throw new Error("Failed to get canvas context.");
-	}
-	ctx.font = `${size * 0.8}px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif`;
-	ctx.textAlign = "center";
-	ctx.textBaseline = "middle";
-	ctx.fillText(emoji, size / 2, size / 2);
-	return {
-		emoji,
-		base64: canvas.toDataURL("image/png"),
-	};
-}
+const logger = createLogger();
 
 function diffHighlight(before, after) {
 	let start = 0;
@@ -203,12 +174,6 @@ document.getElementById("run-reset").addEventListener("click", () => {
 updateBlogger();
 updateYouTube();
 
-/* ---- page log, shared by lazify/shortcodify/cookify/createWidget below ---- */
-function pageLog(msg) {
-	const el = document.getElementById("page-log");
-	el.textContent += `${msg}\n`;
-}
-
 /* ---- sidebar: stickify + tocify | header: menuify ---- */
 // containerSelector "body" so the sidebar has the full page height to
 // stick within — its own parent (<aside>) is only as tall as itself.
@@ -240,9 +205,9 @@ BlogrPlugins.tocify("#toc", { content: "main", headings: "h2, h3" });
 
 /* ---- lazify: gallery images ---- */
 BlogrPlugins.lazify("img[data-src], iframe[data-src], video, [data-bg-image]", {
-	onLoad: (el) => pageLog("lazify", `loaded ${el.tagName.toLowerCase()}`),
+	onLoad: (el) => logger("lazify", `loaded ${el.tagName.toLowerCase()}`),
 	onError: (el, event) =>
-		pageLog("lazify", `error on ${el.tagName.toLowerCase()}`, event),
+		logger("lazify", `error on ${el.tagName.toLowerCase()}`, event),
 });
 
 /* ---- replacify: trademark the plugin name in the hero copy ---- */
@@ -265,10 +230,10 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 		BlogrPlugins.cookify.set("resize-image-tab", btn.dataset.tab, {
 			expiresDays: 30,
 		});
-		pageLog(`cookify.set("resize-image-tab", "${btn.dataset.tab}")`);
+		logger(`cookify.set("resize-image-tab", "${btn.dataset.tab}")`);
 	});
 });
-pageLog(
+logger(
 	`cookify.get("resize-image-tab") = ${BlogrPlugins.cookify.get("resize-image-tab")}`,
 );
 const capitalizeFirstChar = (text) => text[0].toUpperCase() + text.slice(1);
@@ -281,13 +246,13 @@ BlogrPlugins.createWidget({
 	blogUrl,
 	type: "recent",
 	labels: ["tool"],
-	maxVisibleItems: 6,
+	maxVisibleItems: 3,
 	loadMore: false,
 	summaryLength: 70,
 	afterFetch: (entries) =>
-		pageLog(`createWidget: fetched ${entries.length} entries`),
-	onError: (err) => pageLog(`createWidget: error - ${err}`),
-	onEmpty: () => pageLog("createWidget: no entries found"),
+		logger(`createWidget: fetched ${entries.length} entries`),
+	onError: (err) => logger(`createWidget: error - ${err}`),
+	onEmpty: () => logger("createWidget: no entries found"),
 	loading: () => LOADER,
 	template: (entry) => {
 		return `
@@ -424,27 +389,16 @@ const commentWidget = BlogrPlugins.createWidget({
 	maxVisibleItems: 3,
 	loading: () => LOADER,
 	template: (comment) => {
-		const emojiAvatar = randomEmojiImage(40);
-		const avatar = isBlank(comment.author.image)
-			? emojiAvatar.base64
-			: comment.author.image;
-		return `<div class="w-full max-w-sm">
-		<div class="rounded-xl border border-gray-200 bg-white shadow-sm">
-			<div class="flex items-center gap-3 border-b p-3">
-				<img src="${avatar}" alt="${comment.author.name}" class="h-10 w-10 p-2 shrink-0 rounded-full bg-gray-100" />
-				<div class="min-w-0">
-					<p class="text-sm font-semibold text-gray-900">${comment.author.name}</p>
-					<p class="truncate text-sm text-gray-500">
-						${comment.published}
-					</p>
+		return `
+		<div class="comment flex gap-3 border border-slate-200 rounded-lg p-4 bg-white w-full">
+			<div class="avatar-container"><div class="avatar" data-avatar="${comment.author.image}"></div></div>
+			<div class="flex-1">
+				<div class="meta flex items-baseline gap-2">
+					<span class="name font-semibold text-sm"><bdi>${comment.author.name}</bdi></span>
+					<span class="date text-xs text-slate-400" data-datetime="2026-01-04T10:00:00Z">${comment.published}</span>
 				</div>
+				<p class="text-sm text-slate-600 mt-1">${capitalizeFirstChar(comment.content)}</p>
 			</div>
-
-			<div class="content p-3 pt-1">
-				<span class="text-sm text-yellow-400">★★★★★</span>
-				<p class="mt-1 text-[15px] leading-relaxed text-gray-500">${capitalizeFirstChar(comment.content)}</p>
-			</div>
-		</div>
-	</div>`;
+		</div>`;
 	},
 });

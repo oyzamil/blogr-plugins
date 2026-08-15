@@ -267,10 +267,8 @@ resizeImageInDom(".thumb", { ytThumbnail: "mqdefault" });
 				<div class="thumb-grid" id="thumb-grid"></div>
 
 				<div class="action-row">
-					<button class="run-btn" id="run-nodelist" type="button">Run resizeImageInDom(".thumb", {
-						ytThumbnail:
-						'mqdefault' })</button>
-					<button class="run-btn" id="run-reset" type="button">Reset</button>
+					<button class="btn" id="run-nodelist">Run resizeImageInDom</button>
+					<button class="btn" id="run-reset">Reset</button>
 					<span class="run-status" id="dom-status"></span>
 				</div>
 			</section>
@@ -428,15 +426,16 @@ stackify("#stackify-demo", {
 				<h3>Stackify Demo</h3>
 
 				<div class="flex flex-col justify-center items-center gap-4">
-					<div id="stackify-demo" class="relative w-full max-w-7xl flex justify-center items-center h-50">
+					<div id="stackify-demo"
+						class="comments relative w-full max-w-7xl flex justify-center items-center h-50">
 						<div
-							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							class="comment box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
 							<div class="flex items-center gap-3">
-								<div
-									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
-									🧑‍🚀</div>
-								<div>
-									<div class="text-sm font-semibold">Carol Danvers</div>
+								<div class="avatar-container">
+									<div class="avatar"></div>
+								</div>
+								<div class="meta">
+									<div class="name text-sm font-semibold">Carol Danvers</div>
 									<div class="text-xs text-neutral-500">VP Engineering, Marvel Labs</div>
 								</div>
 							</div>
@@ -446,13 +445,13 @@ stackify("#stackify-demo", {
 								Rock-solid API and great docs — shipped in an afternoon.</p>
 						</div>
 						<div
-							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							class="card box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
 							<div class="flex items-center gap-3">
-								<div
-									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
-									🧑‍🔬</div>
-								<div>
-									<div class="text-sm font-semibold">Bruce Banner</div>
+								<div class="avatar-container">
+									<div class="avatar"></div>
+								</div>
+								<div class="meta">
+									<div class="name text-sm font-semibold">Bruce Banner</div>
 									<div class="text-xs text-neutral-500">Head of Research, Gamma Corp</div>
 								</div>
 							</div>
@@ -462,13 +461,13 @@ stackify("#stackify-demo", {
 								Does exactly what it says, support was quick to respond.</p>
 						</div>
 						<div
-							class="box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
+							class="card box-border rounded-xl border border-neutral-200 bg-white p-5 shadow-lg shadow-black/5 dark:border-neutral-800 dark:bg-neutral-900 w-full max-w-sm">
 							<div class="flex items-center gap-3">
-								<div
-									class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl dark:bg-neutral-800">
-									🧑‍🎨</div>
-								<div>
-									<div class="text-sm font-semibold">Wanda Maximoff</div>
+								<div class="avatar-container">
+									<div class="avatar"></div>
+								</div>
+								<div class="meta">
+									<div class="name text-sm font-semibold">Wanda Maximoff</div>
 									<div class="text-xs text-neutral-500">Design Lead, Sokovia Studio</div>
 								</div>
 							</div>
@@ -481,18 +480,10 @@ stackify("#stackify-demo", {
 
 					<div class="flex flex-col gap-4 w-full">
 						<div class="flex flex-wrap gap-2 justify-center items-center">
-							<button id="sk-prev" type="button"
-								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">◀
-								Prev</button>
-							<button id="sk-next" type="button"
-								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">Next
-								▶</button>
-							<button id="sk-play" type="button"
-								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">▶
-								Play</button>
-							<button id="sk-pause" type="button"
-								class="rounded-md border border-neutral-300 bg-white px-3.5 py-1.5 text-[13px] hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">⏸
-								Pause</button>
+							<button id="sk-prev" class="btn">Prev</button>
+							<button id="sk-next" class="btn">Next</button>
+							<button id="sk-play" class="btn" title="Play">▶</button>
+							<button id="sk-pause" class="btn" title="Pause">⏸</button>
 						</div>
 
 						<div id="sk-options"
@@ -544,8 +535,7 @@ stackify("#stackify-demo", {
 								Draggable</label>
 						</div>
 
-						<div id="sk-log"
-							class="max-h-40 overflow-y-auto rounded-md bg-neutral-950 p-3 font-mono text-xs leading-relaxed text-emerald-400 whitespace-pre-wrap">
+						<div id="stackify-logs" class="logger">
 						</div>
 					</div>
 				</div>
@@ -597,6 +587,67 @@ stackify("#stackify-demo", {
 					above, is logged live below.
 				</p>
 				<div id="page-log"></div>
+			</section>
+
+			<section id="avatarify">
+				<p class="section-label">avatarify</p>
+				<h2>Blank Avatar replacement helper</h2>
+				<p class="section-desc">
+					Auto-generates a DiceBear avatar for any commenter whose profile picture is blank — scroll down to
+					trigger the lazy-load, then use the buttons below to add comments dynamically and watch the
+					<code class="code-inline">MutationObserver</code> pick them up.
+				</p>
+				<div id="avatarify-logs" class="logger"></div>
+				<div class="flex flex-wrap gap-2 justify-between items-center">
+					<h2>Comments</h2>
+					<button id="add-comment" class="btn">
+						+ Add a comment
+					</button>
+				</div>
+				<div class="comments space-y-4">
+					<div class="comment flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+						<div class="avatar-container">
+							<div class="avatar"></div>
+						</div>
+						<div class="flex-1">
+							<div class="meta flex items-baseline gap-2">
+								<span class="name font-semibold text-sm"><bdi>Tony Stark</bdi></span>
+								<span class="date text-xs text-slate-400" data-datetime="2026-01-04T10:00:00Z">Jan
+									4</span>
+							</div>
+							<p class="text-sm text-slate-600 mt-1">Great write-up, exactly what I needed.</p>
+						</div>
+					</div>
+					<div class="comment flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+						<div class="avatar-container">
+							<div class="avatar" style="background-image: url(https://i.pravatar.cc/80?img=12);"></div>
+						</div>
+						<div class="flex-1">
+							<div class="meta flex items-baseline gap-2">
+								<span class="name font-semibold text-sm"><bdi>Carol Danvers</bdi></span>
+								<span class="date text-xs text-slate-400" data-datetime="2026-01-04T11:15:00Z">Jan
+									4</span>
+							</div>
+							<p class="text-sm text-slate-600 mt-1">This already had a real photo — left untouched by
+								default.</p>
+						</div>
+					</div>
+					<div class="comment flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+						<div class="avatar-container">
+							<div class="avatar" style="background-image: url(//resources.blogblog.com/img/blank.gif);">
+							</div>
+						</div>
+						<div class="flex-1">
+							<div class="meta flex items-baseline gap-2">
+								<span class="name font-semibold text-sm"><bdi>Anonymous</bdi></span>
+								<span class="date text-xs text-slate-400" data-datetime="2026-01-04T12:30:00Z">Jan
+									4</span>
+							</div>
+							<p class="text-sm text-slate-600 mt-1">Blogger's own blank.gif placeholder — the exact case
+								this plugin targets.</p>
+						</div>
+					</div>
+				</div>
 			</section>
 
 			<section id="create-widget">
@@ -757,7 +808,7 @@ createWidget({
 
 			<div class="widget" id="widget-5">
 				<h4>Recent Comments</h4>
-				<div id="recentComments" class="flex flex-col gap-4"></div>
+				<div id="recentComments" class="comments flex flex-col gap-4"></div>
 			</div>
 
 		</aside>
@@ -832,9 +883,22 @@ createWidget({
 		</div>
 	</footer>
 
-	<!-- <script src="../dist/blogr-plugins.min.js"></script> -->
+	<script src="../dist/blogr-plugins.min.js"></script>
+	<script>
+		// import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
+		function createLogger(options = {}) {
+			const { containerSelector = "#page-log", scrollable = false } = options;
+			return function log(msg) {
+				const el = document.querySelector(containerSelector);
+				if (!el) return;
+				el.textContent += `${msg}\n`;
+				if (scrollable) el.scrollTop = el.scrollHeight;
+			};
+		}
+	</script>
 	<script src="js/index.js" type="module"></script>
 	<script src="js/stackify.js" type="module"></script>
+	<script src="js/avatarify.js" type="module"></script>
 	<script type="module">
 		import babel from "https://esm.sh/prettier/plugins/babel";
 		import estree from "https://esm.sh/prettier/plugins/estree";

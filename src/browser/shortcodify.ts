@@ -4,8 +4,8 @@ import {
 	renderShortcodes,
 	type ShortcodifyDomOptions,
 	shortcodify,
-} from "../plugins/shortcodify.js";
-import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge.js";
+} from "../plugins/shortcodify";
+import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

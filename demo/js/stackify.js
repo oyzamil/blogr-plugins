@@ -1,10 +1,7 @@
-import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
-
-function skLog(msg) {
-	const el = document.getElementById("sk-log");
-	el.textContent += `${msg}\n`;
-	el.scrollTop = el.scrollHeight;
-}
+const logger = createLogger({
+	containerSelector: "#stackify-logs",
+	scrollable: true,
+});
 
 function skReadOptions() {
 	return {
@@ -17,9 +14,9 @@ function skReadOptions() {
 		direction: document.getElementById("sk-direction").value,
 		pauseOnHover: document.getElementById("sk-pauseOnHover").checked,
 		draggable: document.getElementById("sk-draggable").checked,
-		onBeforeChange: (d) => skLog(`before: #${d.fromIndex} -> #${d.toIndex}`),
+		onBeforeChange: (d) => logger(`before: #${d.fromIndex} -> #${d.toIndex}`),
 		onAfterChange: (d) =>
-			skLog(`after:  #${d.fromIndex} -> #${d.toIndex} (settled)`),
+			logger(`after:  #${d.fromIndex} -> #${d.toIndex} (settled)`),
 		size: { stack: { height: "200px" }, marquee: { width: "50%" } },
 	};
 }

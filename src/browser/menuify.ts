@@ -1,5 +1,5 @@
-import { type MenuifyOptions, menuify } from "../plugins/menuify.js";
-import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge.js";
+import { type MenuifyOptions, menuify } from "../plugins/menuify";
+import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

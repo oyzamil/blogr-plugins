@@ -4,7 +4,7 @@ import {
 	type WidgetEntry,
 	type WidgetInstance,
 	type WidgetTransformer,
-} from "../plugins/createWidget.js";
+} from "../plugins/createWidget";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

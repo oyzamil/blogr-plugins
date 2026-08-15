@@ -1,5 +1,9 @@
-import type { PluginInstance } from "./types";
-
+import {
+	type AvatarifyConfig,
+	type AvatarifyInstance,
+	type AvatarSetDetail,
+	avatarify,
+} from "./plugins/avatarify";
 import { cookify } from "./plugins/cookify";
 import {
 	type CreateWidgetOptions,
@@ -9,7 +13,17 @@ import {
 	type WidgetTransformer,
 } from "./plugins/createWidget";
 import { type LazifyOptions, lazify } from "./plugins/lazify";
+import {
+	type MarqifyInstance,
+	type MarqifyOptions,
+	marqify,
+} from "./plugins/marqify";
 import { type MenuifyOptions, menuify } from "./plugins/menuify";
+import {
+	type RelatedPost,
+	type RelatifyOptions,
+	relatify,
+} from "./plugins/relatify";
 import { type ReplacifyOptions, replacify } from "./plugins/replacify";
 import {
 	isSupportedImage,
@@ -26,12 +40,20 @@ import {
 import { type StackifyOptions, stackify } from "./plugins/stackify";
 import { type StickifyOptions, stickify } from "./plugins/stickify";
 import { type TocifyOptions, tocify } from "./plugins/tocify";
+import { type PluginInstance } from "./types";
 import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge";
-
 /**
- * Registers `$.fn.stickify`, `$.fn.menuify`, `$.fn.lazify`, `$.fn.tocify`
- * and `$.fn.replacify` on the given jQuery instance, so any plugin can be
- * called the classic jQuery way, e.g. `$("#sidebar").stickify();`.
+ * Registers `$.fn.stickify`, `$.fn.menuify`, `$.fn.lazify`, `$.fn.tocify`,
+ * `$.fn.replacify`, `$.fn.shortcodify`, `$.fn.stackify` and `$.fn.relatify` and `$.fn.marqify`
+ * on the given jQuery instance, so any plugin can be called the classic
+ * jQuery way, e.g. `$("#sidebar").stickify();`.
+ *
+ * `createWidget` isn't included here: its `containerSelector` lives
+ * *inside* its options object rather than being the jQuery target itself,
+ * so it doesn't fit the `$(sel).plugin(options)` shape — call
+ * `BlogrPlugins.createWidget({ containerSelector: "#el", ... })` directly.
+ * `avatarify` isn't included for the same reason (its `container` is
+ * inside its config object) — call `BlogrPlugins.avatarify({ ... })`.
  *
  * @param jq - A jQuery instance (`window.jQuery` / `window.$`).
  */
@@ -64,6 +86,12 @@ export function registerJQueryPlugins(jq: any): void {
 	bindJQueryPlugin(jq, "stackify", (els, options?: StackifyOptions) =>
 		stackify(els, options),
 	);
+	bindJQueryPlugin(jq, "relatify", (els, options?: RelatifyOptions) =>
+		relatify(els, options),
+	);
+	bindJQueryPlugin(jq, "marqify", (els, options?: MarqifyOptions) =>
+		marqify(els, options),
+	);
 }
 
 if (hasJQuery()) {
@@ -71,10 +99,17 @@ if (hasJQuery()) {
 }
 
 export type {
+	AvatarifyConfig,
+	AvatarifyInstance,
+	AvatarSetDetail,
 	CreateWidgetOptions,
 	LazifyOptions,
+	MarqifyInstance,
+	MarqifyOptions,
 	MenuifyOptions,
 	PluginInstance,
+	RelatedPost,
+	RelatifyOptions,
 	ReplacifyOptions,
 	ResizeImageOptions,
 	ShortcodifyDomOptions,
@@ -87,13 +122,16 @@ export type {
 };
 
 export {
+	avatarify,
 	cookify,
 	createShortcodeRegistry,
 	createWidget,
 	defaultShortcodeTags,
 	isSupportedImage,
 	lazify,
+	marqify,
 	menuify,
+	relatify,
 	renderShortcodes,
 	replacify,
 	resizeImage,

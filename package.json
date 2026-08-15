@@ -26,6 +26,9 @@
 		"./resizeImage": "./dist/resizeImage.js",
 		"./shortcodify": "./dist/shortcodify.js",
 		"./createWidget": "./dist/createWidget.js",
+		"./avatarify": "./dist/avatarify.js",
+		"./relatify": "./dist/relatify.js",
+		"./marqify": "./dist/marqify.js",
 		"./package.json": "./package.json"
 	},
 	"files": [

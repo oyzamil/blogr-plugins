@@ -1,5 +1,5 @@
-import { type ReplacifyOptions, replacify } from "../plugins/replacify.js";
-import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge.js";
+import { type ReplacifyOptions, replacify } from "../plugins/replacify";
+import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

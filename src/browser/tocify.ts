@@ -1,5 +1,5 @@
-import { type TocifyOptions, tocify } from "../plugins/tocify.js";
-import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge.js";
+import { type TocifyOptions, tocify } from "../plugins/tocify";
+import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

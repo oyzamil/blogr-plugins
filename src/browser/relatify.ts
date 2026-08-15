@@ -1,19 +1,19 @@
-import { type LazifyOptions, lazify } from "../plugins/lazify";
+import { type RelatifyOptions, relatify } from "../plugins/relatify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},
-	{ lazify },
+	{ relatify },
 );
 
 if (hasJQuery()) {
 	bindJQueryPlugin(
 		(window as any).jQuery,
-		"lazify",
-		(els, options?: LazifyOptions) => lazify(els, options),
+		"relatify",
+		(els, options?: RelatifyOptions) => relatify(els, options),
 	);
 }
 
-export type { LazifyOptions };
+export type { RelatifyOptions };
 
-export { lazify };
+export { relatify };

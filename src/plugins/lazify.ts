@@ -1,6 +1,6 @@
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link lazify}. */
 export interface LazifyOptions {
@@ -186,11 +186,16 @@ export function lazify(
 			for (const entry of entries) {
 				if (!entry.isIntersecting) continue;
 				const el = entry.target;
+				if ((el as HTMLElement).dataset.lazifyLoaded === "true") {
+					observer.unobserve(el);
+					continue;
+				}
 
 				const finish = (success: boolean, event?: Event) => {
 					el.classList.remove(opts.loadedClass, opts.errorClass);
 					el.classList.add(success ? opts.loadedClass : opts.errorClass);
 					if (success) {
+						(el as HTMLElement).dataset.lazifyLoaded = "true";
 						onLoadCb?.(el);
 					} else {
 						onErrorCb?.(el, event ?? new Event("error"));
@@ -243,6 +248,11 @@ export function lazify(
 	);
 
 	for (const el of elements) {
+		const dataset = (el as HTMLElement).dataset;
+		if (dataset.lazifyLoaded === "true" || dataset.lazifyObserved === "true") {
+			continue;
+		}
+		dataset.lazifyObserved = "true";
 		applyPlaceholder(el, opts);
 		observer.observe(el);
 	}

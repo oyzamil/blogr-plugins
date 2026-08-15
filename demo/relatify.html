@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>relatify demo — blogr-plugins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../dist/blogr-plugins.js"></script>
+    <style type="text/tailwindcss">
+        .relatify-link {
+			@apply my-4 rounded-md border border-indigo-100 bg-indigo-50 px-4 py-2.5 text-sm text-indigo-900;
+		}
+		.relatify-link a {
+			@apply font-medium underline;
+		}
+	</style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 font-sans">
+
+    <div class="max-w-2xl mx-auto py-14 px-4">
+
+        <h1 class="text-xl font-bold mb-1">relatify</h1>
+        <p class="text-slate-500 mb-8 leading-relaxed">
+            Fetches related posts by label and drops a link into the article after a random
+            paragraph (or two, or three — scaled to article length). This demo reads live from
+            <code class="bg-slate-100 px-1 rounded">softwebtuts.blogspot.com</code>.
+        </p>
+
+        <!--
+			This is exactly what you'd paste into your Blogger post template to get
+			the current post's own labels — see the README for where it goes.
+
+			<script>
+				const labels = [
+					<b:loop values='data:post.labels' var='label'>
+						"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+					</b:loop>
+				];
+			</script>
+
+			For this static demo (no real Blogger templating engine here) we hardcode
+			an equivalent array below instead.
+		-->
+
+        <div class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm bg-slate-100 rounded-lg p-4 mb-4">
+            <label class="flex flex-col gap-1 text-slate-600">Labels (comma-separated, blank = none)
+                <input id="opt-labels" class="border border-slate-300 rounded-md px-2 py-1 text-sm"
+                    placeholder="e.g. tutorial, javascript" />
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Exclude labels
+                <input id="opt-exclude" class="border border-slate-300 rounded-md px-2 py-1 text-sm"
+                    placeholder="e.g. announcement" />
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Relevance
+                <select id="opt-relevance" class="border border-slate-300 rounded-md px-2 py-1 text-sm">
+                    <option value="strict">strict</option>
+                    <option value="default">default</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Max links (blank = auto by word count)
+                <input type="number" id="opt-maxlinks" class="border border-slate-300 rounded-md px-2 py-1 text-sm"
+                    placeholder="auto" />
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Lazy load
+                <select id="opt-lazy" class="border border-slate-300 rounded-md px-2 py-1 text-sm">
+                    <option value="true">enabled (default)</option>
+                    <option value="false">disabled</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Root margin (lazy load trigger)
+                <input id="opt-rootmargin" class="border border-slate-300 rounded-md px-2 py-1 text-sm"
+                    placeholder="e.g. 100px, 10%" value="0px" />
+            </label>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-10">
+            <button id="rebuild"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ↻ Rebuild with options above
+            </button>
+            <button id="destroy"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ✕ destroy()
+            </button>
+        </div>
+
+        <article id="article">
+            <h1 class="text-2xl font-bold mb-4">How to Improve Blogger SEO</h1>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                Search engine optimization for a Blogger site starts with the fundamentals: fast
+                page loads, clear headings, and content that actually answers the question a
+                visitor searched for. Before touching any plugin or template tweak, make sure
+                every post has a single, descriptive title and a meta description that summarizes
+                it in one sentence.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                Internal linking is one of the most underused levers on small blogs. Pointing
+                readers toward related posts — ideally ones that share a label or a topic with
+                the article they're already reading — keeps them on the site longer and helps
+                search engines understand how your content is connected.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                Image weight is another common culprit behind slow Blogger pages. Resizing images
+                to the dimensions they're actually displayed at, and serving modern formats like
+                WebP, can shave real time off a page's load — which in turn helps both rankings
+                and bounce rate.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                Finally, a clean URL structure and a working sitemap make it far easier for
+                crawlers to index new posts quickly. Blogger generates a sitemap automatically,
+                but it's worth submitting it to Search Console yourself rather than waiting for
+                it to be discovered.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                None of this replaces writing something genuinely useful — but it does mean the
+                people searching for it actually find it.
+            </p>
+        </article>
+
+        <div id="log"
+            class="whitespace-pre-wrap font-mono text-xs bg-slate-900 text-green-400 p-3 rounded-md max-h-48 overflow-y-auto mt-10">
+        </div>
+
+    </div>
+
+    <script>
+        function log(msg) {
+            const el = document.getElementById("log");
+            el.textContent += `${msg}\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // Stand-in for the `const labels = [...]` array Blogger's own
+        // <b:loop> would render on a real post page (see the comment above).
+        const demoLabels = [];
+
+        const { relatify } = BlogrPlugins;
+
+        function readOptions() {
+            const labelsRaw = document.getElementById("opt-labels").value.trim();
+            const excludeRaw = document.getElementById("opt-exclude").value.trim();
+            const maxLinksRaw = document.getElementById("opt-maxlinks").value.trim();
+            const lazyRaw = document.getElementById("opt-lazy").value;
+            const rootMarginRaw = document.getElementById("opt-rootmargin").value.trim();
+
+            const options = {
+                blogUrl: "https://softwebtuts.blogspot.com",
+                relevance: document.getElementById("opt-relevance").value,
+                lazy: lazyRaw === "true",
+                rootMargin: rootMarginRaw || "0px",
+                beforeFetch: () => log("fetching related posts..."),
+                afterFetch: (posts) => log(`chose ${posts.length} related post(s): ${posts.map((p) => p.title).join(", ")}`),
+                onInsert: (d) => log(`inserted link #${d.index} -> "${d.post.title}"`),
+                onEmpty: () => log("no related posts / insertion points found"),
+                onError: (err) => log(`error: ${err}`),
+            };
+            if (labelsRaw) options.labels = labelsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+            if (excludeRaw) options.excludeLabels = excludeRaw.split(",").map((s) => s.trim()).filter(Boolean);
+            if (maxLinksRaw) options.maxLinks = Number(maxLinksRaw);
+            return options;
+        }
+
+        let instance = relatify("#article", readOptions());
+        log("relatify() called");
+
+        document.getElementById("rebuild").addEventListener("click", () => {
+            instance.destroy();
+            document.querySelectorAll("#article .relatify-link").forEach((el) => el.remove());
+            instance = relatify("#article", readOptions());
+            log("--- rebuilt with new options ---");
+        });
+
+        document.getElementById("destroy").addEventListener("click", () => {
+            instance.destroy();
+            log("destroy() called — inserted links removed");
+        });
+
+        // --- jQuery usage (equivalent) ---
+        // $("#article").relatify({ blogUrl: "https://softwebtuts.blogspot.com", labels: demoLabels });
+    </script>
+
+</body>
+
+</html>

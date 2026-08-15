@@ -13,12 +13,13 @@
 	--red: #e8603f;
 	--red-ink: #a8391f;
 	--indigo: #a8391f;
-	--panel-dark: #221a12;
+	--panel-dark: #09090b;
 	--panel-dark-ink: #f2e7d2;
 	--panel-dark-border: #3a2e21;
-	--radius: 14px;
+	--radius: 10px;
 	font-family: "Manrope", sans-serif;
 	--sidebar-width: 400px;
+	--log-color: #9edca8;
 }
 * {
 	@apply border-(--border);
@@ -93,10 +94,11 @@ h1 em {
 	color: var(--ink-soft);
 }
 main > section {
-	@apply p-4 not-last:border-b;
+	@apply p-4 not-last:border-b space-y-4;
 }
 /* ---------- sections ---------- */
-.section-label {
+.section-label,
+.btn {
 	font-family: "JetBrains Mono", monospace;
 	font-size: 12.5px;
 	letter-spacing: 0.08em;
@@ -106,7 +108,13 @@ main > section {
 	display: inline-block;
 	padding: 4px 10px;
 	border-radius: 4px;
-	margin: 0 0 14px;
+}
+
+.btn {
+	@apply bg-(--theme) text-(--theme-soft) transition-all duration-300 py-2 px-3 rounded-(--radius) cursor-pointer border-(--border) text-sm;
+}
+.btn:hover {
+	@apply bg-(--theme-dark);
 }
 
 h2,
@@ -128,10 +136,7 @@ main h4 {
 }
 
 .section-desc {
-	color: var(--ink-soft);
-	font-size: 15px;
-	line-height: 1.6;
-	margin: 0 0 32px;
+	@apply space-y-4 text-sm text-(--ink-soft);
 }
 
 /* ---------- tabs ---------- */
@@ -324,10 +329,10 @@ select:focus {
 }
 
 /* ---------- dom api demo ---------- */
-:is(.code-block, .code-inline, .shiki) {
+:is(.code-block, .code-inline, .shiki, .logger) {
 	background: var(--panel-dark);
 	color: #d7dce8;
-	border-radius: 12px;
+	border-radius: var(--radius);
 	padding: 20px;
 	font-family: "JetBrains Mono", monospace;
 	font-size: 13px;
@@ -341,7 +346,9 @@ select:focus {
 	border-radius: 4px;
 	user-select: all;
 }
-
+.logger {
+	@apply max-h-40 overflow-y-auto text-(--log-color);
+}
 .thumb-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -380,22 +387,6 @@ select:focus {
 	gap: 14px;
 	flex-wrap: wrap;
 	margin-bottom: 8px;
-}
-
-.run-btn {
-	font-family: "JetBrains Mono", monospace;
-	font-size: 13px;
-	font-weight: 600;
-	background: var(--theme);
-	border: 1px solid var(--theme);
-	color: #402e06;
-	padding: 11px 18px;
-	border-radius: 8px;
-	cursor: pointer;
-}
-
-.run-btn:hover {
-	background: #e39d2c;
 }
 
 .run-status {
@@ -638,4 +629,8 @@ img[data-src] {
 }
 .lazy-ify-error {
 	@apply border;
+}
+
+.avatar {
+	@apply block h-10 w-10 shrink-0 rounded-full bg-gray-100 bg-cover bg-center;
 }

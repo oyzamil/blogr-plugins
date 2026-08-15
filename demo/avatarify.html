@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>avatarify demo — blogr-plugins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../dist/blogr-plugins.js"></script>
+    <style type="text/tailwindcss">
+        .im { @apply block h-10 w-10 shrink-0 rounded-full bg-gray-100 bg-cover bg-center; }
+	</style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 font-sans">
+
+    <div class="max-w-2xl mx-auto py-14 px-4">
+
+        <h1 class="text-xl font-bold mb-1">avatarify</h1>
+        <p class="text-slate-500 mb-8 leading-relaxed">
+            Auto-generates a <a class="underline" href="https://www.dicebear.com" target="_blank"
+                rel="noreferrer">DiceBear</a> avatar for any commenter whose profile picture is blank —
+            scroll down to trigger the lazy-load, then use the buttons below to add comments dynamically
+            and watch the <code class="bg-slate-100 px-1 rounded">MutationObserver</code> pick them up.
+        </p>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button id="add-comment"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                + Add a comment dynamically
+            </button>
+            <button id="refresh"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ↻ refresh()
+            </button>
+            <button id="destroy"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ✕ destroy()
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm bg-slate-100 rounded-lg p-4 mb-4">
+            <label class="flex flex-col gap-1 text-slate-600">Avatar style
+                <select id="opt-style" class="border border-slate-300 rounded-md px-2 py-1 text-sm">
+                    <option value="thumbs">thumbs</option>
+                    <option value="bottts">bottts</option>
+                    <option value="identicon">identicon</option>
+                    <option value="initials">initials</option>
+                    <option value="pixel-art">pixel-art</option>
+                </select>
+            </label>
+            <label class="flex items-center gap-2 text-slate-600 mt-5">
+                <input type="checkbox" id="opt-force" />
+                setRandomAvatarForAll (replace real photos too)
+            </label>
+        </div>
+        <button id="rebuild"
+            class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50 mb-10">
+            ↻ Rebuild with options above
+        </button>
+
+        <!-- spacer so #comments starts below the fold — scroll down to trigger the lazy-load -->
+        <div
+            class="h-[70vh] flex items-center justify-center text-slate-300 text-sm border border-dashed border-slate-200 rounded-lg mb-10">
+            scroll down ↓ — avatarify won't scan #comments until it nears the viewport
+        </div>
+
+        <h2 class="text-lg font-semibold mb-4">Comments</h2>
+
+        <!-- Structure mirrors Blogger's own native comment widget markup, matching
+		     the selectors in the config below (.c / .cmHr .n bdi / .d.dtTm / .cmAv .im) -->
+        <div id="comments" class="space-y-4 mb-10">
+            <div class="c flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+                <div class="cmAv">
+                    <div class="im"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="cmHr flex items-baseline gap-2">
+                        <span class="n font-semibold text-sm"><bdi>Tony Stark</bdi></span>
+                        <span class="d dtTm text-xs text-slate-400" data-datetime="2026-01-04T10:00:00Z">Jan 4</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-1">Great write-up, exactly what I needed.</p>
+                </div>
+            </div>
+            <div class="c flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+                <div class="cmAv">
+                    <div class="im" style="background-image: url(https://i.pravatar.cc/80?img=12);"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="cmHr flex items-baseline gap-2">
+                        <span class="n font-semibold text-sm"><bdi>Carol Danvers</bdi></span>
+                        <span class="d dtTm text-xs text-slate-400" data-datetime="2026-01-04T11:15:00Z">Jan 4</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-1">This already had a real photo — left untouched by default.
+                    </p>
+                </div>
+            </div>
+            <div class="c flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+                <div class="cmAv">
+                    <div class="im" style="background-image: url(//resources.blogblog.com/img/blank.gif);"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="cmHr flex items-baseline gap-2">
+                        <span class="n font-semibold text-sm"><bdi>Anonymous</bdi></span>
+                        <span class="d dtTm text-xs text-slate-400" data-datetime="2026-01-04T12:30:00Z">Jan 4</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-1">Blogger's own blank.gif placeholder — the exact case this
+                        plugin targets.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="log"
+            class="whitespace-pre-wrap font-mono text-xs bg-slate-900 text-green-400 p-3 rounded-md max-h-48 overflow-y-auto">
+        </div>
+
+    </div>
+
+    <script>
+        function log(msg) {
+            const el = document.getElementById("log");
+            el.textContent += `${msg}\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        const { avatarify } = BlogrPlugins;
+        let commentN = 0;
+
+        function readOptions() {
+            return {
+                container: "#comments",
+                usernameSelector: ".cmHr .n bdi",
+                commentSelector: ".c",
+                timestampSelector: ".d.dtTm",
+                timestampAttribute: "data-datetime",
+                avatarSelector: ".cmAv .im",
+                avatarStyle: document.getElementById("opt-style").value,
+                setRandomAvatarForAll: document.getElementById("opt-force").checked,
+                onAvatarSet: (d) => log(`avatar set for "${d.username}"`),
+                onError: (msg) => log(`error: ${msg}`),
+            };
+        }
+
+        let instance = avatarify(readOptions());
+        log("avatarify() called — waiting for #comments to scroll into view...");
+
+        document.getElementById("add-comment").addEventListener("click", () => {
+            commentN++;
+            const names = ["Bruce Banner", "Wanda Maximoff", "Peter Parker", "Natasha Romanoff"];
+            const name = names[commentN % names.length];
+            document.getElementById("comments").insertAdjacentHTML(
+                "beforeend",
+                `<div class="c flex gap-3 border border-slate-200 rounded-lg p-4 bg-white">
+					<div class="cmAv"><div class="im" style="background-image: url(//resources.blogblog.com/img/blank.gif);"></div></div>
+					<div class="flex-1">
+						<div class="cmHr flex items-baseline gap-2">
+							<span class="n font-semibold text-sm"><bdi>${name} #${commentN}</bdi></span>
+							<span class="d dtTm text-xs text-slate-400" data-datetime="${new Date().toISOString()}">just now</span>
+						</div>
+						<p class="text-sm text-slate-600 mt-1">Dynamically added comment — picked up by the MutationObserver.</p>
+					</div>
+				</div>`,
+            );
+            log(`comment added for "${name} #${commentN}" — waiting for the debounced rescan...`);
+        });
+
+        document.getElementById("refresh").addEventListener("click", () => {
+            instance.refresh();
+            log("refresh() called");
+        });
+
+        document.getElementById("destroy").addEventListener("click", () => {
+            instance.destroy();
+            log("destroy() called — observers stopped");
+        });
+
+        document.getElementById("rebuild").addEventListener("click", () => {
+            instance.destroy();
+            instance = avatarify(readOptions());
+            log("--- rebuilt with new options ---");
+        });
+
+        // --- jQuery usage ---
+        // avatarify has no jQuery bridge (its `container` lives inside the
+        // config object rather than being the jQuery target) — call
+        // BlogrPlugins.avatarify({...}) directly either way.
+    </script>
+
+</body>
+
+</html>

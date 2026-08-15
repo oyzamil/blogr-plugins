@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { OutputOptions } from "rolldown";
+import { type OutputOptions } from "rolldown";
 import { defineConfig, type UserConfig } from "tsdown";
 
 const pkg = JSON.parse(
@@ -17,6 +17,9 @@ const PLUGINS = [
 	"shortcodify",
 	"createWidget",
 	"stackify",
+	"avatarify",
+	"relatify",
+	"marqify",
 ] as const;
 
 const BANNER = (format: string) =>

@@ -1,6 +1,6 @@
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link menuify}. */
 export interface MenuifyOptions {

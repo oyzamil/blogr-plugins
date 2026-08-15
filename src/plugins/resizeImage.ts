@@ -1,6 +1,6 @@
-import type { ElementInput } from "../types.js";
+import type { ElementInput } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /**
  * Detects and rewrites Blogger-hosted media URLs:

@@ -99,7 +99,7 @@ export type WidgetTransformer = (
 
 /** Configuration for {@link createWidget}. */
 export interface CreateWidgetOptions {
-	/** Enable JSONP transport (browser-only). @default false */
+	/** Enable JSONP transport (browser-only). @default true */
 	jsonp?: boolean;
 	/**
 	 * What the widget lists.

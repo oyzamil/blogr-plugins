@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>marqify demo — blogr-plugins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../dist/blogr-plugins.js"></script>
+    <style type="text/tailwindcss">
+        .card {
+			@apply flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 shadow-sm mx-2;
+		}
+	</style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 font-sans">
+
+    <div class="max-w-3xl mx-auto py-14 px-4">
+
+        <h1 class="text-xl font-bold mb-1">marqify</h1>
+        <p class="text-slate-500 mb-8 leading-relaxed">
+            Turns a container's children into an infinitely-scrolling marquee. Resize the window
+            to see it recompute how many copies it needs to always fill the row.
+        </p>
+
+        <div class="grid grid-cols-2 gap-x-5 gap-y-3 text-sm bg-slate-100 rounded-lg p-4 mb-4">
+            <label class="flex flex-col gap-1 text-slate-600">Direction
+                <select id="opt-direction" class="border border-slate-300 rounded-md px-2 py-1 text-sm">
+                    <option value="left">left</option>
+                    <option value="right">right</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Speed
+                <select id="opt-speed" class="border border-slate-300 rounded-md px-2 py-1 text-sm">
+                    <option value="slow">slow</option>
+                    <option value="medium" selected>medium</option>
+                    <option value="fast">fast</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-slate-600">Delay before start (ms)
+                <input type="number" id="opt-delay" value="0"
+                    class="border border-slate-300 rounded-md px-2 py-1 text-sm" />
+            </label>
+            <div class="flex items-end gap-4">
+                <label class="flex items-center gap-2 text-slate-600">
+                    <input type="checkbox" id="opt-duplicated" checked />
+                    duplicated
+                </label>
+                <label class="flex items-center gap-2 text-slate-600">
+                    <input type="checkbox" id="opt-pause" checked />
+                    pauseOnHover
+                </label>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-10">
+            <button id="rebuild"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ↻ Rebuild with options above
+            </button>
+            <button id="destroy"
+                class="border border-slate-300 bg-white rounded-md px-3.5 py-1.5 text-sm hover:bg-slate-50">
+                ✕ destroy()
+            </button>
+        </div>
+
+        <h2 class="text-sm font-semibold text-slate-500 mb-2">Logos / tech stack</h2>
+        <div class="cards mb-10">
+            <div class="card">⚛️ React</div>
+            <div class="card">🟦 TypeScript</div>
+            <div class="card">▲ Vite</div>
+            <div class="card">🎨 Tailwind CSS</div>
+            <div class="card">📦 npm</div>
+            <div class="card">🧪 Vitest</div>
+        </div>
+
+        <h2 class="text-sm font-semibold text-slate-500 mb-2">Testimonials (right, slow)</h2>
+        <div class="cards-right mb-10">
+            <div class="card">"Rock-solid and easy to theme." — Wanda</div>
+            <div class="card">"Shipped in an afternoon." — Carol</div>
+            <div class="card">"Exactly what we needed." — Bruce</div>
+        </div>
+
+        <h2 class="text-sm font-semibold text-slate-500 mb-2">Ticker — announcements (left/right, next/previous)</h2>
+        <div class="flex items-center gap-3 mb-2">
+            <button id="ticker-lr-prev"
+                class="border border-slate-300 bg-white rounded-md px-3 py-1.5 text-sm hover:bg-slate-50">‹
+                previous()</button>
+            <button id="ticker-lr-next"
+                class="border border-slate-300 bg-white rounded-md px-3 py-1.5 text-sm hover:bg-slate-50">next()
+                ›</button>
+        </div>
+        <div class="ticker-lr mb-10 rounded-lg border border-slate-200 bg-white">
+            <div class="card !mx-0 !border-0 !shadow-none">📣 New release shipped</div>
+            <div class="card !mx-0 !border-0 !shadow-none">🐛 Fixed a nasty bug</div>
+            <div class="card !mx-0 !border-0 !shadow-none">🎉 100 stars on GitHub</div>
+            <div class="card !mx-0 !border-0 !shadow-none">🚀 v2 in the works</div>
+        </div>
+
+        <h2 class="text-sm font-semibold text-slate-500 mb-2">Ticker — quotes (top/bottom, next/previous)</h2>
+        <div class="flex items-center gap-3 mb-2">
+            <button id="ticker-tb-prev"
+                class="border border-slate-300 bg-white rounded-md px-3 py-1.5 text-sm hover:bg-slate-50">‹
+                previous()</button>
+            <button id="ticker-tb-next"
+                class="border border-slate-300 bg-white rounded-md px-3 py-1.5 text-sm hover:bg-slate-50">next()
+                ›</button>
+        </div>
+        <div class="ticker-tb mb-10 rounded-lg border border-slate-200 bg-white">
+            <div class="card !mx-0 !border-0 !shadow-none">"Rock-solid and easy to theme." — Wanda</div>
+            <div class="card !mx-0 !border-0 !shadow-none">"Shipped in an afternoon." — Carol</div>
+            <div class="card !mx-0 !border-0 !shadow-none">"Exactly what we needed." — Bruce</div>
+        </div>
+
+        <div id="log"
+            class="whitespace-pre-wrap font-mono text-xs bg-slate-900 text-green-400 p-3 rounded-md max-h-40 overflow-y-auto">
+        </div>
+
+    </div>
+
+    <script>
+        function log(msg) {
+            const el = document.getElementById("log");
+            el.textContent += `${msg}\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        const { marqify } = BlogrPlugins;
+
+        // second row: fixed right/slow example, independent of the controls
+        marqify(".cards-right", { direction: "right", speed: "slow" });
+
+        function readOptions() {
+            return {
+                direction: document.getElementById("opt-direction").value,
+                speed: document.getElementById("opt-speed").value,
+                delayBeforeStart: Number(document.getElementById("opt-delay").value),
+                duplicated: document.getElementById("opt-duplicated").checked,
+                pauseOnHover: document.getElementById("opt-pause").checked,
+            };
+        }
+
+        let instance = marqify(".cards", readOptions());
+        log("marqify() called — a <style id=\"marqify-styles\"> tag has been injected into <head>");
+
+        document.getElementById("rebuild").addEventListener("click", () => {
+            instance.destroy();
+            instance = marqify(".cards", readOptions());
+            log("--- rebuilt with new options ---");
+        });
+
+        document.getElementById("destroy").addEventListener("click", () => {
+            instance.destroy();
+            log("destroy() called — original content restored");
+        });
+
+        // --- jQuery usage (equivalent) ---
+        // $(".cards").marqify({ direction: "left", speed: "medium" });
+
+        // --- ticker: left/right, driven by next()/previous() buttons ---
+        const tickerLR = marqify(".ticker-lr", {
+            type: "ticker",
+            direction: "left",
+            speed: "medium",
+        });
+        document.getElementById("ticker-lr-next").addEventListener("click", () => tickerLR.next());
+        document.getElementById("ticker-lr-prev").addEventListener("click", () => tickerLR.previous());
+
+        // --- ticker: top/bottom, driven by next()/previous() buttons ---
+        const tickerTB = marqify(".ticker-tb", {
+            type: "ticker",
+            direction: "top",
+            speed: "medium",
+        });
+        document.getElementById("ticker-tb-next").addEventListener("click", () => tickerTB.next());
+        document.getElementById("ticker-tb-prev").addEventListener("click", () => tickerTB.previous());
+    </script>
+
+</body>
+
+</html>

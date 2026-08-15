@@ -1,6 +1,6 @@
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /** Which way the auto-cycle rotates the stack. */
 export type StackDirection = "forward" | "backward";

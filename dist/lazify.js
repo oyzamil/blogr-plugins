@@ -137,11 +137,17 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			for (const entry of entries) {
 				if (!entry.isIntersecting) continue;
 				const el = entry.target;
+				if (el.dataset.lazifyLoaded === "true") {
+					observer.unobserve(el);
+					continue;
+				}
 				const finish = (success, event) => {
 					el.classList.remove(opts.loadedClass, opts.errorClass);
 					el.classList.add(success ? opts.loadedClass : opts.errorClass);
-					if (success) onLoadCb?.(el);
-					else onErrorCb?.(el, event ?? new Event("error"));
+					if (success) {
+						el.dataset.lazifyLoaded = "true";
+						onLoadCb?.(el);
+					} else onErrorCb?.(el, event ?? new Event("error"));
 				};
 				if (el instanceof HTMLVideoElement) {
 					if (!loadVideo(el, opts, finish)) {
@@ -172,6 +178,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			}
 		}, { rootMargin: opts.rootMargin });
 		for (const el of elements) {
+			const dataset = el.dataset;
+			if (dataset.lazifyLoaded === "true" || dataset.lazifyObserved === "true") continue;
+			dataset.lazifyObserved = "true";
 			applyPlaceholder(el, opts);
 			observer.observe(el);
 		}

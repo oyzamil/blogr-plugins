@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { menuify } from "../src/plugins/menuify.js";
 
 function makeMenu(): HTMLUListElement {

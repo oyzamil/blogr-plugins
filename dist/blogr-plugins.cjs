@@ -1,5 +1,328 @@
 /*! blogr-plugins v0.0.1 - cjs | M.Muzammil <https://muzammil.work/> | MIT License */
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+//#region src/utils/dom.ts
+/**
+* Normalizes any supported input (selector string, Element, NodeList, array,
+* or jQuery collection) into a plain array of Elements.
+*
+* @param input - Selector string, Element, element list, or jQuery object.
+* @returns Array of matched elements. Empty if nothing matched.
+*/
+function resolveElements(input) {
+	if (typeof input === "string") return Array.from(document.querySelectorAll(input));
+	if (input instanceof Element) return [input];
+	if (input == null) return [];
+	return Array.from(input);
+}
+
+//#endregion
+//#region src/utils/merge-options.ts
+/**
+* Merges user-supplied options over a set of defaults, dropping any key
+* whose value is explicitly `undefined` first.
+*
+* Plain `{ ...defaults, ...options }` lets `{ someOption: undefined }` (e.g.
+* from a form field that's blank, or a variable that happens to be
+* `undefined`) silently overwrite a real default instead of falling back to
+* it — a common footgun. This closes that gap.
+*
+* @param defaultValues - The base/default option values.
+* @param options - User-supplied options; `undefined`-valued keys are ignored.
+* @returns A merged object with every default preserved unless the caller
+* gave it an actual (non-`undefined`) value.
+*/
+function mergeOptions(defaultValues, options) {
+	const cleaned = {};
+	for (const key of Object.keys(options)) if (options[key] !== void 0) cleaned[key] = options[key];
+	return {
+		...defaultValues,
+		...cleaned
+	};
+}
+
+//#endregion
+//#region src/plugins/avatarify.ts
+const defaults$11 = {
+	timestampSelector: "",
+	timestampAttribute: "",
+	setRandomAvatarForAll: false,
+	avatarStyle: "thumbs",
+	emptyAvatarPatterns: [/(\/blank\.gif|\/blogger_logo_round_35\.png)$/],
+	dicebearVersion: "10.x",
+	avatarDataAttribute: "data-avatar",
+	rootMargin: "0px",
+	debounce: 150,
+	onError: (message) => console.error(message)
+};
+function buildAvatarUrl(opts, seed) {
+	const encoded = encodeURIComponent(seed);
+	if (opts.apiUrl) return opts.apiUrl.replace("{seed}", encoded).replace("{style}", opts.avatarStyle);
+	return `https://api.dicebear.com/${opts.dicebearVersion}/${opts.avatarStyle}/svg?seed=${encoded}`;
+}
+function isEmptyAvatar(currentValue, patterns) {
+	if (!currentValue || currentValue === "none") return true;
+	return patterns.some((pattern) => {
+		if (pattern instanceof RegExp) return pattern.test(currentValue);
+		return currentValue.includes(pattern);
+	});
+}
+/** Reads the `background-image` CSS url currently rendered on the element (`"none"`/`""` if unset). */
+function extractBackgroundUrl(avatarEl) {
+	const bg = getComputedStyle(avatarEl).getPropertyValue("background-image");
+	const match = bg.match(/url\(["']?(.*?)["']?\)/);
+	return match ? match[1] : bg;
+}
+/**
+* Reads whatever real image the element already knows about, checked in
+* order: `data-avatar` attr VALUE (Blogger/lazy-src style — holds the url
+* itself, not just a flag), then `src` for `<img>`, then rendered CSS
+* `background-image`.
+*/
+function extractCurrentUrl(avatarEl, isImg, dataAttribute) {
+	const dataAvatar = avatarEl.getAttribute(dataAttribute);
+	if (dataAvatar) return dataAvatar;
+	if (isImg) return avatarEl.getAttribute("src") ?? "";
+	return extractBackgroundUrl(avatarEl);
+}
+function applyAvatar(avatarEl, mode, url) {
+	if (mode === "src") avatarEl.setAttribute("src", url);
+	else avatarEl.style.setProperty("background-image", `url(${url})`, "important");
+}
+/**
+* Preload-probes `url`, fires `opts.onSuccess` once it actually finishes
+* loading (not just once it's assigned to the DOM). No-op if `onSuccess`
+* isn't set.
+*/
+function notifySuccess(url, counter, opts, base) {
+	if (!opts.onSuccess) return;
+	const index = counter.value++;
+	const id = base.avatarEl.id || `avatar-${index}`;
+	const probe = new Image();
+	probe.onload = () => {
+		opts.onSuccess?.({
+			...base,
+			url,
+			index,
+			id
+		});
+	};
+	probe.src = url;
+}
+/**
+* Finds `selector` scoped to `from`'s own local siblings first, expanding
+* outward one ancestor at a time, capped at `boundary`. Fixes nested
+* replies picking up the PARENT comment's avatar: a plain
+* `commentEl.querySelector(avatarSelector)` returns the first match in the
+* whole subtree, which is always the outermost/main comment's avatar when
+* replies live inside the same comment wrapper. Starting local and
+* expanding out finds each comment's own avatar first.
+*/
+function findNearest(from, selector, boundary) {
+	let scope = from.parentElement;
+	while (scope) {
+		const match = scope.querySelector(selector);
+		if (match) return match;
+		if (scope === boundary) break;
+		scope = scope.parentElement;
+	}
+	return null;
+}
+/** Resolves + applies avatar for one comment. Called lazily, once per comment, when its avatar nears the viewport (or immediately via `refresh()`). */
+function processEntry(usernameEl, opts, counter) {
+	const username = usernameEl.textContent?.trim();
+	if (!username) return;
+	const commentEl = usernameEl.closest(opts.commentSelector);
+	if (!commentEl) {
+		opts.onError(`avatarify: no ancestor found for commentSelector "${opts.commentSelector}".`);
+		return;
+	}
+	const avatarEl = findNearest(usernameEl, opts.avatarSelector, commentEl);
+	if (!avatarEl) {
+		opts.onError(`avatarify: no elements found for avatarSelector "${opts.avatarSelector}".`);
+		return;
+	}
+	if (avatarEl.dataset.avatarSet === "true") return;
+	let timestamp = "";
+	if (opts.timestampSelector) {
+		const timestampEl = findNearest(usernameEl, opts.timestampSelector, commentEl);
+		if (!timestampEl) opts.onError(`avatarify: no elements found for timestampSelector "${opts.timestampSelector}".`);
+		else timestamp = opts.timestampAttribute ? timestampEl.getAttribute(opts.timestampAttribute) ?? "" : timestampEl.textContent?.trim() ?? "";
+	}
+	const isImg = avatarEl.tagName === "IMG";
+	const hasDataAvatar = avatarEl.hasAttribute(opts.avatarDataAttribute);
+	const mode = opts.avatarAttribute ?? (hasDataAvatar ? "background-image" : isImg ? "src" : "background-image");
+	const naturalUrl = extractCurrentUrl(avatarEl, isImg, opts.avatarDataAttribute);
+	const empty = isEmptyAvatar(naturalUrl, opts.emptyAvatarPatterns);
+	if (!opts.setRandomAvatarForAll && !empty) {
+		if ((mode === "src" ? avatarEl.getAttribute("src") ?? "" : extractBackgroundUrl(avatarEl)) !== naturalUrl) {
+			applyAvatar(avatarEl, mode, naturalUrl);
+			avatarEl.dataset.avatarSet = "true";
+			opts.onAvatarSet?.({
+				username,
+				url: naturalUrl,
+				usernameEl,
+				avatarEl
+			});
+			notifySuccess(naturalUrl, counter, opts, {
+				username,
+				usernameEl,
+				avatarEl
+			});
+		}
+		return;
+	}
+	const url = buildAvatarUrl(opts, opts.seed ? opts.seed(username, timestamp) : opts.avatarStyle === "initials" ? username : `${username}${timestamp}`);
+	applyAvatar(avatarEl, mode, url);
+	avatarEl.dataset.avatarSet = "true";
+	opts.onAvatarSet?.({
+		username,
+		url,
+		usernameEl,
+		avatarEl
+	});
+	notifySuccess(url, counter, opts, {
+		username,
+		usernameEl,
+		avatarEl
+	});
+}
+/** Finds not-yet-seen comments and starts watching each one's avatar for lazy load. Returns every username element found (seen or not) so `refresh()` can force-process the lot. */
+function discoverEntries(container, opts, avatarObserver, entryMap) {
+	const usernameEls = container.querySelectorAll(opts.usernameSelector);
+	if (usernameEls.length === 0) {
+		opts.onError(`avatarify: no elements found for usernameSelector "${opts.usernameSelector}".`);
+		return [];
+	}
+	const found = [];
+	for (const usernameEl of usernameEls) {
+		found.push(usernameEl);
+		if (usernameEl.dataset.avatarifyObserved === "true") continue;
+		usernameEl.dataset.avatarifyObserved = "true";
+		const commentEl = usernameEl.closest(opts.commentSelector);
+		const target = (commentEl ? findNearest(usernameEl, opts.avatarSelector, commentEl) : null) ?? commentEl ?? usernameEl;
+		entryMap.set(target, usernameEl);
+		avatarObserver.observe(target);
+	}
+	return found;
+}
+function resolveContainer(config) {
+	if (config.container) {
+		const el = resolveElements(config.container)[0];
+		if (el) return el;
+	}
+	const byComment = document.querySelector(config.commentSelector);
+	if (byComment) return byComment.parentElement ?? document.body;
+	const byAvatar = document.querySelector(config.avatarSelector);
+	if (byAvatar) return byAvatar.parentElement ?? document.body;
+	return document.body;
+}
+function createEngine$2(container, opts, counter) {
+	let debounceTimer = null;
+	let destroyed = false;
+	const entryMap = /* @__PURE__ */ new WeakMap();
+	const avatarObserver = new IntersectionObserver((entries) => {
+		for (const entry of entries) {
+			if (!entry.isIntersecting) continue;
+			avatarObserver.unobserve(entry.target);
+			const usernameEl = entryMap.get(entry.target);
+			if (usernameEl) processEntry(usernameEl, opts, counter);
+		}
+	}, { rootMargin: opts.rootMargin });
+	function discover() {
+		if (destroyed) return [];
+		return discoverEntries(container, opts, avatarObserver, entryMap);
+	}
+	function scheduleDiscover() {
+		if (destroyed) return;
+		if (debounceTimer) clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			debounceTimer = null;
+			discover();
+		}, opts.debounce);
+	}
+	const mutationObserver = new MutationObserver(scheduleDiscover);
+	mutationObserver.observe(container, {
+		childList: true,
+		subtree: true
+	});
+	container.addEventListener("toggle", (event) => {
+		if (destroyed) return;
+		const details = event.target;
+		if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+		const usernameEls = details.querySelectorAll(opts.usernameSelector);
+		for (const usernameEl of usernameEls) processEntry(usernameEl, opts, counter);
+	}, true);
+	discover();
+	return {
+		refresh() {
+			if (debounceTimer) {
+				clearTimeout(debounceTimer);
+				debounceTimer = null;
+			}
+			const usernameEls = discover();
+			for (const usernameEl of usernameEls) processEntry(usernameEl, opts, counter);
+		},
+		destroy() {
+			destroyed = true;
+			mutationObserver.disconnect();
+			avatarObserver.disconnect();
+			if (debounceTimer) clearTimeout(debounceTimer);
+		}
+	};
+}
+/**
+* Auto-generates a [DiceBear](https://www.dicebear.com) avatar for every
+* commenter who doesn't already have one — built for Blogger's native
+* comment widget, where anonymous/no-photo commenters get a blank
+* placeholder image. Each avatar lazy-loads independently (only fetched
+* once it nears the viewport) and a `MutationObserver` keeps watching so
+* comments added later — pagination, "load more", async widgets — get
+* avatars too.
+*
+* @param config - {@link AvatarifyConfig}
+* @returns An {@link AvatarifyInstance} — `destroy()` stops both observers
+* (already-set avatars are left in place); `refresh()` force-loads every
+* matched avatar immediately.
+*
+* @example
+* ```ts
+* import { avatarify } from "blogr-plugins";
+*
+* avatarify({
+* 	container: "#comments",
+* 	usernameSelector: ".cmHr .n bdi",
+* 	commentSelector: ".c",
+* 	timestampSelector: ".d.dtTm",
+* 	timestampAttribute: "data-datetime",
+* 	avatarSelector: ".cmAv .im",
+* 	setRandomAvatarForAll: true,
+* 	avatarStyle: "thumbs",
+* });
+* ```
+*/
+function avatarify(config) {
+	const opts = mergeOptions(defaults$11, config);
+	opts.usernameSelector = config.usernameSelector;
+	opts.commentSelector = config.commentSelector;
+	opts.avatarSelector = config.avatarSelector;
+	opts.apiUrl = config.apiUrl;
+	opts.seed = config.seed;
+	opts.onAvatarSet = config.onAvatarSet;
+	opts.onSuccess = config.onSuccess;
+	opts.avatarAttribute = config.avatarAttribute;
+	const counter = { value: 0 };
+	const engines = (config.container ? resolveElements(config.container) : [resolveContainer(config)]).map((container) => createEngine$2(container, opts, counter));
+	return {
+		refresh() {
+			for (const engine of engines) engine.refresh();
+		},
+		destroy() {
+			for (const engine of engines) engine.destroy();
+		}
+	};
+}
+
+//#endregion
 //#region src/plugins/cookify.ts
 /**
 * Small, dependency-free cookie utility (a typed replacement for the classic
@@ -1647,22 +1970,6 @@ var Blogr = class Blogr {
 };
 
 //#endregion
-//#region src/utils/dom.ts
-/**
-* Normalizes any supported input (selector string, Element, NodeList, array,
-* or jQuery collection) into a plain array of Elements.
-*
-* @param input - Selector string, Element, element list, or jQuery object.
-* @returns Array of matched elements. Empty if nothing matched.
-*/
-function resolveElements(input) {
-	if (typeof input === "string") return Array.from(document.querySelectorAll(input));
-	if (input instanceof Element) return [input];
-	if (input == null) return [];
-	return Array.from(input);
-}
-
-//#endregion
 //#region src/plugins/resizeImage.ts
 /**
 * Detects and rewrites Blogger-hosted media URLs:
@@ -1751,7 +2058,7 @@ const FORMAT_PARAMS = [
 const FLIP_PARAMS = ["fh", "fv"];
 /** Prefixes that crop the image into a circle or square; mutually exclusive. */
 const CROP_PARAMS = ["cc", "ci"];
-const defaults$8 = {
+const defaults$10 = {
 	height: 360,
 	width: 640,
 	format: "webp",
@@ -1823,7 +2130,7 @@ function resizeYouTubeThumbnail(match, options) {
 	const protocol = match[1] ?? "https:";
 	const videoId = match[3];
 	const query = match[4] ?? "";
-	return `${protocol}//i.ytimg.com/vi_webp/${videoId}/${options.ytThumbnail ?? defaults$8.ytThumbnail}.webp${query}`;
+	return `${protocol}//i.ytimg.com/vi_webp/${videoId}/${options.ytThumbnail ?? defaults$10.ytThumbnail}.webp${query}`;
 }
 /**
 * Checks whether a URL is a Blogger/Google-hosted image (old or new URL
@@ -1886,13 +2193,13 @@ function resizeImage(url, options = {}) {
 	params.delete("s");
 	params.set("w", {
 		kind: "num",
-		value: options.width ?? defaults$8.width
+		value: options.width ?? defaults$10.width
 	});
 	params.set("h", {
 		kind: "num",
-		value: options.height ?? defaults$8.height
+		value: options.height ?? defaults$10.height
 	});
-	const format = options.format ?? defaults$8.format;
+	const format = options.format ?? defaults$10.format;
 	if (format === "jpeg") setExclusive(params, FORMAT_PARAMS, "rj");
 	else if (format === "png") setExclusive(params, FORMAT_PARAMS, "rp");
 	else if (format === "webp") setExclusive(params, FORMAT_PARAMS, "rw");
@@ -1961,7 +2268,7 @@ function resizeImageInDom(input, options = {}) {
 
 //#endregion
 //#region src/plugins/createWidget.ts
-const defaults$7 = {
+const defaults$9 = {
 	jsonp: true,
 	type: "posts",
 	source: "recent",
@@ -2040,7 +2347,7 @@ function formatDate(iso, pattern) {
 	};
 	return pattern.replace(/EEEE|EEE|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|hh|mm|ss|a/g, (token) => tokens[token] ?? token);
 }
-function shuffle(items) {
+function shuffle$1(items) {
 	const out = [...items];
 	for (let i = out.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -2139,7 +2446,7 @@ function createWidget(options) {
 		};
 	}
 	const opts = {
-		...defaults$7,
+		...defaults$9,
 		...options
 	};
 	const container = resolveElements(opts.containerSelector)[0];
@@ -2245,13 +2552,13 @@ function createWidget(options) {
 		if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.raw.id !== currentPostId);
 		if (opts.related && currentPostLabels.length) out = out.filter((e) => e.labels.some((l) => currentPostLabels.includes(l)));
 		if (opts.sort === "asc") out = [...out].reverse();
-		if (opts.random) out = shuffle(out);
+		if (opts.random) out = shuffle$1(out);
 		return out;
 	}
 	function applyCommentFilters(entries) {
 		let out = entries;
 		if (opts.sort === "asc") out = [...out].reverse();
-		if (opts.random) out = shuffle(out);
+		if (opts.random) out = shuffle$1(out);
 		return out;
 	}
 	function matchesQuery(entry, query) {
@@ -2541,7 +2848,7 @@ function createWidget(options) {
 
 //#endregion
 //#region src/plugins/lazify.ts
-const defaults$6 = {
+const defaults$8 = {
 	attribute: "data-src",
 	posterAttribute: "data-poster",
 	bgImageAttribute: "data-bg-image",
@@ -2649,7 +2956,7 @@ function loadBackgroundImage(el, url, onDone) {
 */
 function lazify(input, options = {}) {
 	const opts = {
-		...defaults$6,
+		...defaults$8,
 		...options
 	};
 	const onLoadCb = options.onLoad;
@@ -2659,11 +2966,17 @@ function lazify(input, options = {}) {
 		for (const entry of entries) {
 			if (!entry.isIntersecting) continue;
 			const el = entry.target;
+			if (el.dataset.lazifyLoaded === "true") {
+				observer.unobserve(el);
+				continue;
+			}
 			const finish = (success, event) => {
 				el.classList.remove(opts.loadedClass, opts.errorClass);
 				el.classList.add(success ? opts.loadedClass : opts.errorClass);
-				if (success) onLoadCb?.(el);
-				else onErrorCb?.(el, event ?? new Event("error"));
+				if (success) {
+					el.dataset.lazifyLoaded = "true";
+					onLoadCb?.(el);
+				} else onErrorCb?.(el, event ?? new Event("error"));
 			};
 			if (el instanceof HTMLVideoElement) {
 				if (!loadVideo(el, opts, finish)) {
@@ -2694,6 +3007,9 @@ function lazify(input, options = {}) {
 		}
 	}, { rootMargin: opts.rootMargin });
 	for (const el of elements) {
+		const dataset = el.dataset;
+		if (dataset.lazifyLoaded === "true" || dataset.lazifyObserved === "true") continue;
+		dataset.lazifyObserved = "true";
 		applyPlaceholder(el, opts);
 		observer.observe(el);
 	}
@@ -2703,8 +3019,420 @@ function lazify(input, options = {}) {
 }
 
 //#endregion
+//#region src/plugins/marqify.ts
+const SPEED_MAP = {
+	slow: .25,
+	medium: .5,
+	fast: 1
+};
+const TICKER_DURATION_MAP = {
+	slow: 800,
+	medium: 500,
+	fast: 300
+};
+const defaults$7 = {
+	type: "marquee",
+	direction: "left",
+	delayBeforeStart: 0,
+	duplicated: true,
+	pauseOnHover: true,
+	speed: "medium",
+	autoPlay: true,
+	interval: 3e3
+};
+const STYLE_ID = "marqify-styles";
+const STYLES = `
+[data-marqify] {
+	display: block;
+	position: relative;
+	width: 100%;
+	overflow: clip;
+}
+[data-marqify-inner] {
+	display: flex;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+[data-marqify-inner]::-webkit-scrollbar {
+	display: none;
+}
+[data-marqify][data-marqify-direction="right"] [data-marqify-inner] {
+	justify-content: flex-end;
+}
+[data-marqify-content] {
+	display: flex;
+	flex: 1 0 auto;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-play-state: running;
+	will-change: transform;
+}
+[data-marqify][data-marqify-direction="left"] [data-marqify-content] {
+	animation-name: marqifyLeft;
+}
+[data-marqify][data-marqify-direction="right"] [data-marqify-content] {
+	animation-name: marqifyRight;
+}
+[data-marqify][data-marqify-pause-on-hover]:hover > [data-marqify-inner] > [data-marqify-content] {
+	animation-play-state: paused;
+}
+[data-marqify-item] {
+	display: flex;
+	align-items: center;
+	flex-grow: 0;
+}
+@keyframes marqifyLeft {
+	0% { transform: translate3d(0, 0, 0); }
+	100% { transform: translate3d(-100%, 0, 0); }
+}
+@keyframes marqifyRight {
+	0% { transform: translate3d(0, 0, 0); }
+	100% { transform: translate3d(100%, 0, 0); }
+}
+@media (prefers-reduced-motion) {
+	[data-marqify-inner] {
+		overflow-x: scroll;
+	}
+	[data-marqify-content] {
+		animation: none !important;
+	}
+}
+[data-marqify][data-marqify-type="ticker"] {
+	overflow: visible;
+}
+[data-marqify][data-marqify-type="ticker"] > [data-marqify-inner] {
+	position: relative;
+	display: block;
+	overflow: hidden;
+	width: 100%;
+}
+[data-marqify-slide] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	will-change: transform;
+}
+`.trim();
+/** Injects marqify's stylesheet into `<head>` once per document, no matter how many times `marqify()` is called. */
+function injectStyles() {
+	if (document.getElementById(STYLE_ID)) return;
+	const style = document.createElement("style");
+	style.id = STYLE_ID;
+	style.textContent = STYLES;
+	document.head.appendChild(style);
+}
+function resolveSpeed(speed) {
+	return typeof speed === "number" ? speed : SPEED_MAP[speed];
+}
+function calcReps(containerSize, itemSize) {
+	return itemSize > 0 ? Math.ceil(containerSize / itemSize) : 1;
+}
+function calcAnimationDuration(itemSize, reps, speed) {
+	return `${(itemSize ?? 0) * reps / (100 * speed)}s`;
+}
+function resolveTickerDuration(speed) {
+	return typeof speed === "number" ? speed : TICKER_DURATION_MAP[speed];
+}
+function reverseDirection(direction) {
+	return {
+		left: "right",
+		right: "left",
+		top: "bottom",
+		bottom: "top"
+	}[direction];
+}
+/** Off-screen resting transform for a slide entering from the side opposite `direction`. */
+function enterTransform(direction) {
+	switch (direction) {
+		case "left": return "translate3d(100%, 0, 0)";
+		case "right": return "translate3d(-100%, 0, 0)";
+		case "top": return "translate3d(0, 100%, 0)";
+		case "bottom": return "translate3d(0, -100%, 0)";
+	}
+}
+/** Off-screen transform a slide animates to when leaving in `direction`. */
+function exitTransform(direction) {
+	return enterTransform(reverseDirection(direction));
+}
+function createMarqueeEngine$1(container, opts) {
+	const slotHTML = container.innerHTML;
+	const cloneCount = opts.duplicated ? 2 : 1;
+	const numericSpeed = resolveSpeed(opts.speed);
+	let reps = 1;
+	let containerWidth = 0;
+	let itemWidth = 0;
+	let itemObserver = null;
+	container.innerHTML = "";
+	container.setAttribute("data-marqify", "");
+	container.setAttribute("data-marqify-type", "marquee");
+	container.setAttribute("data-marqify-direction", opts.direction);
+	if (opts.pauseOnHover) container.setAttribute("data-marqify-pause-on-hover", "");
+	const inner = document.createElement("div");
+	inner.setAttribute("data-marqify-inner", "");
+	for (let clone = 0; clone < cloneCount; clone++) {
+		const content = document.createElement("div");
+		content.setAttribute("data-marqify-content", "");
+		inner.appendChild(content);
+	}
+	container.appendChild(inner);
+	function buildItems() {
+		inner.querySelectorAll("[data-marqify-content]").forEach((content, clone) => {
+			content.innerHTML = "";
+			for (let rep = 0; rep < reps; rep++) {
+				const item = document.createElement("div");
+				item.setAttribute("data-marqify-item", "");
+				if (clone !== 0 || rep !== 0) item.setAttribute("aria-hidden", "true");
+				item.innerHTML = slotHTML;
+				content.appendChild(item);
+			}
+		});
+		applyDuration();
+		observeItem();
+	}
+	function applyDuration() {
+		const duration = calcAnimationDuration(itemWidth, reps, numericSpeed);
+		inner.querySelectorAll("[data-marqify-content]").forEach((content) => {
+			content.style.animationDuration = duration;
+			content.style.animationDelay = opts.delayBeforeStart > 0 ? `${opts.delayBeforeStart}ms` : "";
+		});
+	}
+	function recalc() {
+		const newReps = calcReps(containerWidth, itemWidth);
+		if (newReps !== reps) {
+			reps = newReps;
+			buildItems();
+		} else applyDuration();
+	}
+	function observeItem() {
+		itemObserver?.disconnect();
+		const firstItem = container.querySelector("[data-marqify-item]");
+		if (!firstItem) return;
+		itemObserver = new ResizeObserver(([entry]) => {
+			itemWidth = entry.contentRect.width;
+			recalc();
+		});
+		itemObserver.observe(firstItem);
+	}
+	const containerObserver = new ResizeObserver(([entry]) => {
+		containerWidth = entry.contentRect.width;
+		recalc();
+	});
+	containerObserver.observe(container);
+	buildItems();
+	return {
+		destroy() {
+			containerObserver.disconnect();
+			itemObserver?.disconnect();
+			container.removeAttribute("data-marqify");
+			container.removeAttribute("data-marqify-type");
+			container.removeAttribute("data-marqify-direction");
+			container.removeAttribute("data-marqify-pause-on-hover");
+			container.innerHTML = slotHTML;
+		},
+		next() {},
+		previous() {}
+	};
+}
+function createTickerEngine(container, opts) {
+	const originalHTML = container.innerHTML;
+	const itemEls = Array.from(container.children);
+	const durationMs = resolveTickerDuration(opts.speed);
+	let currentIndex = 0;
+	let locked = false;
+	let heightObserver = null;
+	let autoplayTimer = null;
+	container.innerHTML = "";
+	container.setAttribute("data-marqify", "");
+	container.setAttribute("data-marqify-type", "ticker");
+	container.setAttribute("data-marqify-direction", opts.direction);
+	const inner = document.createElement("div");
+	inner.setAttribute("data-marqify-inner", "");
+	const slideEls = itemEls.map((item, i) => {
+		const slide = document.createElement("div");
+		slide.setAttribute("data-marqify-slide", "");
+		if (i !== 0) slide.setAttribute("aria-hidden", "true");
+		slide.style.transform = i === 0 ? "translate3d(0, 0, 0)" : enterTransform(opts.direction);
+		slide.appendChild(item);
+		inner.appendChild(slide);
+		return slide;
+	});
+	container.appendChild(inner);
+	function observeHeight() {
+		heightObserver?.disconnect();
+		const active = slideEls[currentIndex];
+		if (!active) return;
+		heightObserver = new ResizeObserver(([entry]) => {
+			inner.style.height = `${entry.contentRect.height}px`;
+		});
+		heightObserver.observe(active);
+	}
+	observeHeight();
+	function stopAutoplay() {
+		if (autoplayTimer !== null) {
+			clearInterval(autoplayTimer);
+			autoplayTimer = null;
+		}
+	}
+	function startAutoplay() {
+		if (!opts.autoPlay || slideEls.length < 2) return;
+		stopAutoplay();
+		autoplayTimer = setInterval(() => {
+			goTo(currentIndex + 1, opts.direction);
+		}, opts.interval);
+	}
+	function handleMouseEnter() {
+		if (opts.pauseOnHover) stopAutoplay();
+	}
+	function handleMouseLeave() {
+		if (opts.pauseOnHover) startAutoplay();
+	}
+	container.addEventListener("mouseenter", handleMouseEnter);
+	container.addEventListener("mouseleave", handleMouseLeave);
+	startAutoplay();
+	function goTo(newIndex, direction) {
+		if (slideEls.length < 2 || locked) return;
+		const target = (newIndex % slideEls.length + slideEls.length) % slideEls.length;
+		if (target === currentIndex) return;
+		locked = true;
+		const outEl = slideEls[currentIndex];
+		const inEl = slideEls[target];
+		outEl.removeAttribute("aria-hidden");
+		inEl.removeAttribute("aria-hidden");
+		inEl.style.transition = "none";
+		inEl.style.transform = enterTransform(direction);
+		inEl.offsetWidth;
+		inEl.style.transition = `transform ${durationMs}ms ease-in-out`;
+		outEl.style.transition = `transform ${durationMs}ms ease-in-out`;
+		requestAnimationFrame(() => {
+			outEl.style.transform = exitTransform(direction);
+			inEl.style.transform = "translate3d(0, 0, 0)";
+		});
+		setTimeout(() => {
+			outEl.style.transition = "none";
+			outEl.style.transform = enterTransform(direction);
+			outEl.setAttribute("aria-hidden", "true");
+			currentIndex = target;
+			observeHeight();
+			locked = false;
+		}, durationMs);
+	}
+	return {
+		destroy() {
+			stopAutoplay();
+			container.removeEventListener("mouseenter", handleMouseEnter);
+			container.removeEventListener("mouseleave", handleMouseLeave);
+			heightObserver?.disconnect();
+			container.removeAttribute("data-marqify");
+			container.removeAttribute("data-marqify-type");
+			container.removeAttribute("data-marqify-direction");
+			container.innerHTML = originalHTML;
+		},
+		next() {
+			goTo(currentIndex + 1, opts.direction);
+			startAutoplay();
+		},
+		previous() {
+			goTo(currentIndex - 1, reverseDirection(opts.direction));
+			startAutoplay();
+		}
+	};
+}
+/**
+* Turns a container's children into an infinitely-scrolling CSS marquee —
+* logos, card rows, testimonial strips, anything you'd otherwise reach for
+* a heavier carousel library for. Ports the reps/duration calculation from
+* the [marqy](https://github.com/abnud1/marqy) web component into an
+* imperative plugin: pass it a container of items instead of a custom
+* element, and it rebuilds that container into a seamless, duplicated
+* marquee track sized to always fill it, regardless of viewport width.
+*
+* Injects a small stylesheet into `<head>` the first time it's called
+* (once per page, however many containers you marquee).
+*
+* Also doubles as a **ticker**: pass `type: "ticker"` and instead of a
+* continuous scroll, one child at a time is shown, sliding out to make way
+* for the next in the direction you configure (`"left"` / `"right"` /
+* `"top"` / `"bottom"`). Advance it with the returned instance's
+* {@link MarqifyInstance.next} / {@link MarqifyInstance.previous} — e.g.
+* from a pair of prev/next buttons.
+*
+* @param input - Selector, element(s), or jQuery collection for the
+* container(s) whose children should marquee/tick.
+* @param options - {@link MarqifyOptions}
+* @returns A {@link MarqifyInstance} — `destroy()` disconnects the resize
+* observers and restores the container's original content; `next()` /
+* `previous()` step the ticker (no-ops when `type` is `"marquee"`).
+*
+* @example
+* ```html
+* <div class="cards">
+* 	<div class="card">Card A</div>
+* 	<div class="card">Card B</div>
+* 	<div class="card">Card C</div>
+* </div>
+* ```
+* ```ts
+* import { marqify } from "blogr-plugins";
+*
+* const instance = marqify(".cards", {
+* 	direction: "left",
+* 	speed: "fast",
+* 	pauseOnHover: true,
+* });
+*
+* instance.destroy();
+* ```
+*
+* @example Ticker
+* ```html
+* <div class="announcements">
+* 	<div>📣 New release shipped</div>
+* 	<div>🐛 Fixed a nasty bug</div>
+* 	<div>🎉 100 stars on GitHub</div>
+* </div>
+* <button id="prev">‹</button>
+* <button id="next">›</button>
+* ```
+* ```ts
+* import { marqify } from "blogr-plugins";
+*
+* const ticker = marqify(".announcements", {
+* 	type: "ticker",
+* 	direction: "top",
+* 	speed: "medium",
+* });
+*
+* document.getElementById("next").addEventListener("click", () => ticker.next());
+* document.getElementById("prev").addEventListener("click", () => ticker.previous());
+* ```
+*/
+function marqify(input, options = {}) {
+	injectStyles();
+	const opts = mergeOptions(defaults$7, options);
+	if (opts.type === "marquee" && opts.direction !== "left" && opts.direction !== "right") {
+		console.warn(`marqify: direction "${opts.direction}" is only valid for type: "ticker" — falling back to "left" for this marquee.`);
+		opts.direction = "left";
+	}
+	const containers = resolveElements(input);
+	const createEngine = opts.type === "ticker" ? createTickerEngine : createMarqueeEngine$1;
+	const engines = containers.map((container) => createEngine(container, opts));
+	return {
+		destroy() {
+			for (const engine of engines) engine.destroy();
+		},
+		next() {
+			for (const engine of engines) engine.next();
+		},
+		previous() {
+			for (const engine of engines) engine.previous();
+		}
+	};
+}
+
+//#endregion
 //#region src/plugins/menuify.ts
-const defaults$5 = {
+const defaults$6 = {
 	nestingPrefix: "_",
 	submenuClass: "sub-menu",
 	hasSubClass: "has-sub",
@@ -2712,7 +3440,7 @@ const defaults$5 = {
 };
 function menuify(input, options = {}) {
 	const opts = {
-		...defaults$5,
+		...defaults$6,
 		...options
 	};
 	const lists = resolveElements(input);
@@ -2782,6 +3510,236 @@ function menuify(input, options = {}) {
 	}
 	return { destroy() {
 		for (const undo of undoFns) undo();
+	} };
+}
+
+//#endregion
+//#region src/plugins/relatify.ts
+const defaults$5 = {
+	jsonp: true,
+	labels: [],
+	insertAfter: "p",
+	excludeLabels: [],
+	relevance: "strict",
+	sampleSize: 20,
+	linkClass: "relatify-link",
+	lazy: true,
+	rootMargin: "0px",
+	template: (post, _index) => `<p>You may also like: <a href="${post.url}">${post.title}</a></p>`
+};
+const STOPWORDS = /* @__PURE__ */ new Set([
+	"a",
+	"an",
+	"the",
+	"and",
+	"or",
+	"but",
+	"of",
+	"to",
+	"for",
+	"in",
+	"on",
+	"is",
+	"are",
+	"with",
+	"how",
+	"what",
+	"why",
+	"your",
+	"you",
+	"it",
+	"at"
+]);
+function tokenize(text) {
+	return text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter((word) => word.length > 1 && !STOPWORDS.has(word));
+}
+function countWords(text) {
+	return text.trim().split(/\s+/).filter(Boolean).length;
+}
+function defaultMaxLinks(wordCount) {
+	return Math.max(1, Math.floor(wordCount / 500) + 1);
+}
+function detectCurrentUrl() {
+	return (document.querySelector("link[rel=\"canonical\"]")?.href || location.href).split(/[?#]/)[0].replace(/\/$/, "");
+}
+function normalizeUrl(url) {
+	return url.split(/[?#]/)[0].replace(/\/$/, "");
+}
+function normalize(post) {
+	return {
+		id: post.id,
+		title: post.title,
+		url: post.url,
+		author: post.author?.name ?? "",
+		published: post.published,
+		labels: post.labels ?? [],
+		content: post.summary ?? "",
+		raw: post
+	};
+}
+function shuffle(items) {
+	const out = [...items];
+	for (let i = out.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[out[i], out[j]] = [out[j], out[i]];
+	}
+	return out;
+}
+function findReferenceTitle(container) {
+	return container.querySelector("h1, h2, h3")?.textContent?.trim() || document.title;
+}
+function scoreByRelevance(candidates, referenceTitle) {
+	const referenceWords = new Set(tokenize(referenceTitle));
+	if (referenceWords.size === 0) return candidates;
+	return [...candidates].map((post) => {
+		return {
+			post,
+			score: tokenize(post.title).filter((word) => referenceWords.has(word)).length
+		};
+	}).sort((a, b) => b.score - a.score).map((entry) => entry.post);
+}
+async function fetchCandidates(blog, searchLabels, sampleSize) {
+	if (searchLabels.length === 0) return (await blog.posts({
+		limit: sampleSize,
+		orderBy: "published"
+	})).items;
+	const byId = /* @__PURE__ */ new Map();
+	for (const label of searchLabels) {
+		const pager = await blog.label(label, {
+			limit: sampleSize,
+			orderBy: "published"
+		});
+		for (const post of pager.items) byId.set(post.id, post);
+	}
+	return [...byId.values()];
+}
+function resolveOptions(options) {
+	return mergeOptions({
+		...defaults$5,
+		labels: defaults$5.labels,
+		maxLinks: void 0,
+		blogUrl: void 0,
+		currentUrl: void 0,
+		lazy: defaults$5.lazy,
+		rootMargin: defaults$5.rootMargin,
+		beforeFetch: () => {},
+		afterFetch: (_posts) => {},
+		onInsert: (_detail) => {},
+		onEmpty: () => {},
+		onError: (err) => console.error("relatify:", err)
+	}, options);
+}
+function createEngine$1(container, opts) {
+	let cancelled = false;
+	const inserted = [];
+	const insertAfterSelector = Array.isArray(opts.insertAfter) ? opts.insertAfter.join(", ") : opts.insertAfter;
+	const searchLabels = (opts.labels ?? []).filter((label) => !opts.excludeLabels.includes(label));
+	const currentUrl = normalizeUrl(opts.currentUrl ?? detectCurrentUrl());
+	const blog = new Blogr(opts.blogUrl ?? location.origin, { jsonp: opts.jsonp });
+	async function run() {
+		opts.beforeFetch();
+		const eligible = Array.from(container.querySelectorAll(insertAfterSelector));
+		const wordCount = countWords(container.textContent ?? "");
+		const linkCount = Math.min(opts.maxLinks ?? defaultMaxLinks(wordCount), eligible.length);
+		if (linkCount <= 0 || eligible.length === 0) {
+			opts.onEmpty();
+			return;
+		}
+		let rawPosts;
+		try {
+			rawPosts = await fetchCandidates(blog, searchLabels, opts.sampleSize);
+		} catch (err) {
+			opts.onError(err);
+			return;
+		}
+		if (cancelled) return;
+		let candidates = rawPosts.map(normalize).filter((post) => normalizeUrl(post.url) !== currentUrl);
+		candidates = opts.relevance === "strict" ? scoreByRelevance(candidates, findReferenceTitle(container)) : shuffle(candidates);
+		const chosenPosts = candidates.slice(0, linkCount);
+		if (chosenPosts.length === 0) {
+			opts.onEmpty();
+			return;
+		}
+		opts.afterFetch(chosenPosts);
+		if (cancelled) return;
+		shuffle(eligible).slice(0, chosenPosts.length).sort((a, b) => eligible.indexOf(a) - eligible.indexOf(b)).forEach((spot, index) => {
+			const post = chosenPosts[index];
+			const wrapper = document.createElement("div");
+			wrapper.className = opts.linkClass;
+			wrapper.innerHTML = opts.template(post, index);
+			spot.insertAdjacentElement("afterend", wrapper);
+			inserted.push(wrapper);
+			opts.onInsert({
+				post,
+				element: wrapper,
+				index
+			});
+		});
+	}
+	function initializeWithLazyLoad() {
+		const eligible = container.querySelector(insertAfterSelector);
+		if (!eligible) {
+			opts.onEmpty();
+			return;
+		}
+		const observer = new IntersectionObserver((entries) => {
+			if (entries.some((entry) => entry.isIntersecting) && !cancelled) {
+				observer.disconnect();
+				run();
+			}
+		}, { rootMargin: opts.rootMargin });
+		observer.observe(eligible);
+	}
+	if (opts.lazy) initializeWithLazyLoad();
+	else run();
+	return { destroy() {
+		cancelled = true;
+		for (const el of inserted.splice(0)) el.remove();
+	} };
+}
+/**
+* Fetches related posts for the current article by label and inserts a
+* randomly-placed link (or several, scaled to article length) after
+* `insertAfter` elements within the container.
+*
+* Get the current post's labels straight from your Blogger template and
+* pass them in as `labels`:
+*
+* ```html
+* <script>
+* 	const labels = [
+* 		<b:loop values='data:post.labels' var='label'>
+* 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+* 		</b:loop>
+* 	];
+* <\/script>
+* ```
+*
+* @param input - Selector, element(s), or jQuery collection for the
+* article container — related links are inserted inside it.
+* @param options - {@link RelatifyOptions}
+* @returns A {@link PluginInstance} — `destroy()` removes every link it
+* inserted (or, if the fetch hasn't resolved yet, cancels it).
+*
+* @example
+* ```ts
+* import { relatify } from "blogr-plugins";
+*
+* relatify("article", {
+* 	labels,
+* 	insertAfter: ["p", ".paragraph", ".video"],
+* 	excludeLabels: ["announcements"],
+* 	relevance: "strict",
+* 	template: (post) =>
+* 		`Related: <a href="${post.url}">${post.title}</a>`,
+* });
+* ```
+*/
+function relatify(input, options = {}) {
+	const opts = resolveOptions(options);
+	const engines = resolveElements(input).map((container) => createEngine$1(container, opts));
+	return { destroy() {
+		for (const engine of engines) engine.destroy();
 	} };
 }
 
@@ -4165,13 +5123,16 @@ function tocify(input, options = {}) {
 }
 
 //#endregion
+exports.avatarify = avatarify;
 exports.cookify = cookify;
 exports.createShortcodeRegistry = createShortcodeRegistry;
 exports.createWidget = createWidget;
 exports.defaultShortcodeTags = defaultShortcodeTags;
 exports.isSupportedImage = isSupportedImage;
 exports.lazify = lazify;
+exports.marqify = marqify;
 exports.menuify = menuify;
+exports.relatify = relatify;
 exports.renderShortcodes = renderShortcodes;
 exports.replacify = replacify;
 exports.resizeImage = resizeImage;

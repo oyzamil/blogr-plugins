@@ -1,3 +1,173 @@
+//#region src/types.d.ts
+/**
+ * Anything a plugin accepts as its target: a CSS selector, a single element,
+ * a list of elements, or a jQuery collection (if jQuery is on the page).
+ */
+type ElementInput = string | Element | Element[] | NodeListOf<Element> | ArrayLike<Element>;
+/**
+ * Common shape returned by every plugin instance so callers always have a
+ * predictable way to tear a plugin down.
+ */
+interface PluginInstance {
+  /** Removes listeners/observers and undoes DOM changes made by the plugin. */
+  destroy(): void;
+}
+//#endregion
+//#region src/plugins/avatarify.d.ts
+/**
+ * Any [DiceBear](https://www.dicebear.com/styles) style name (`"thumbs"`,
+ * `"bottts"`, `"initials"`, `"identicon"`, ...). Kept as a plain `string`
+ * rather than a strict union so new DiceBear styles work without a type
+ * update.
+ */
+type AvatarStyle = "adventurer" | "adventurer-neutral" | "avataaars" | "avataaars-neutral" | "big-ears" | "big-ears-neutral" | "big-smile" | "blobs" | "bottts" | "bottts-neutral" | "clay" | "constellation" | "critters" | "croodles" | "croodles-neutral" | "disco" | "dylan" | "fun-emoji" | "glass" | "glyphs" | "icons" | "identicon" | "initial-face" | "initials" | "landscape" | "loops" | "lorelei" | "lorelei-neutral" | "micah" | "miniavs" | "moods" | "notionists" | "notionists-neutral" | "open-peeps" | "personas" | "pixel-art" | "pixel-art-neutral" | "pixelbot" | "planets" | "rings" | "shape-grid" | "shapes" | "sprouts" | "squircles" | "stripes" | "thumbs" | "toon-head" | "triangles" | "waves" | "weave";
+/** Detail passed to `onAvatarSet`. */
+interface AvatarSetDetail {
+  /** The username the avatar was generated for. */
+  username: string;
+  /** The generated avatar URL that was applied. */
+  url: string;
+  /** The element matched by `usernameSelector`. */
+  usernameEl: Element;
+  /** The element matched by `avatarSelector` that received the avatar. */
+  avatarEl: Element;
+}
+/** Detail passed to `onSuccess`. */
+interface AvatarSuccessDetail extends AvatarSetDetail {
+  /** Increments once per avatar that actually finishes loading, in load order — use to log/track individual images. */
+  index: number;
+  /** Stable id for this avatar: `avatarEl.id` if the element has one, else `"avatar-{index}"`. */
+  id: string;
+}
+/** Configuration for {@link avatarify}. */
+interface AvatarifyConfig {
+  /**
+   * Root element to watch (selector, element(s), or jQuery collection).
+   * The `MutationObserver` (detect dynamically-added comments) watches
+   * this element. Optional — if omitted, falls back to the closest
+   * ancestor of the first element matching `commentSelector`, then of the
+   * first element matching `avatarSelector`, then to `document.body`.
+   */
+  container?: ElementInput;
+  /** Selector (relative to a comment element) for the commenter's username. **Required.** */
+  usernameSelector: string;
+  /** Selector for the comment element that wraps one username + timestamp + avatar. **Required.** */
+  commentSelector: string;
+  /** Selector (relative to a comment element) for the profile-picture element. **Required.** */
+  avatarSelector: string;
+  /**
+   * Selector (relative to a comment element) for the timestamp element.
+   * Omit to leave the timestamp out of the avatar seed entirely (every
+   * comment from the same username then gets the same avatar).
+   */
+  timestampSelector?: string;
+  /**
+   * Attribute on the timestamp element to read (e.g. `"data-datetime"`).
+   * Omitted/falsy reads the element's text content instead.
+   */
+  timestampAttribute?: string;
+  /**
+   * `true` replaces every avatar, even ones that already have a real
+   * image. `false` (default) leaves real avatars' image alone but still
+   * re-applies them onto `avatarAttribute`'s target (src/background-image)
+   * if that differs from where the image currently lives.
+   */
+  setRandomAvatarForAll?: boolean;
+  /**
+   * Forces how avatar gets applied: `"src"` sets `src` attr,
+   * `"background-image"` sets inline `background-image` style. Omit for
+   * auto-detect: elements with `avatarDataAttribute` set or non-`<img>`
+   * tags get `background-image`, plain `<img>` tags get `src`.
+   */
+  avatarAttribute?: "src" | "background-image";
+  /**
+   * Data-attribute NAME that holds a real avatar url directly (Blogger
+   * lazy-src style, e.g. `data-image="//..."`). Checked before `src`/css
+   * bg when reading the current image. Default `"data-avatar"` — set
+   * this to match your markup, e.g. `"data-image"`.
+   */
+  avatarDataAttribute?: string;
+  /** DiceBear style to request. Default `"thumbs"`. */
+  avatarStyle?: AvatarStyle;
+  /**
+   * Background-image/`src` substrings that count as "no avatar set" —
+   * checked with `.includes()`. Extend this if your theme's blank
+   * placeholder isn't one of the two Blogger defaults already covered.
+   * An avatar with no image at all (`background-image: none` / no `src`)
+   * always counts as empty regardless of this list.
+   */
+  emptyAvatarPatterns?: (string | RegExp)[];
+  /** DiceBear API version segment. Default `"7.x"`. */
+  dicebearVersion?: string;
+  /**
+   * Full URL template overriding DiceBear entirely — `{style}` and
+   * `{seed}` are replaced (seed is pre-encoded). Use this to point at a
+   * self-hosted avatar service instead.
+   */
+  apiUrl?: string;
+  /**
+   * Overrides how the per-comment seed string is built. Default: the
+   * username alone when `avatarStyle` is `"initials"`, otherwise the
+   * username with the timestamp appended (so re-commenting the same text
+   * still gets a distinct avatar per comment).
+   */
+  seed?: (username: string, timestamp: string) => string;
+  /**
+   * `rootMargin` for each avatar's own lazy-load `IntersectionObserver` —
+   * every avatar loads independently once it nears the viewport, so only
+   * on-screen (or about-to-be) avatars ever fetch. Default `"0px"`.
+   */
+  rootMargin?: string;
+  /** Debounce (ms) applied to `MutationObserver`-triggered rescans, so a batch of DOM changes only triggers one pass. Default `150`. */
+  debounce?: number;
+  /** Called once per avatar actually set (fires right after the url is assigned to the DOM). */
+  onAvatarSet?: (detail: AvatarSetDetail) => void;
+  /**
+   * Called once per avatar, separately, after its image actually finishes
+   * loading (real success — not just DOM assignment). Gets `index`/`id`
+   * so you can tell which avatar loaded.
+   */
+  onSuccess?: (detail: AvatarSuccessDetail) => void;
+  /** Called on a recoverable issue (selector matched nothing, etc). Defaults to `console.error`. */
+  onError?: (message: string) => void;
+}
+/** Returned by {@link avatarify}. */
+interface AvatarifyInstance extends PluginInstance {
+  /** Forces an immediate load of every matched avatar, bypassing the debounce and the per-avatar in-view gate. */
+  refresh(): void;
+}
+/**
+ * Auto-generates a [DiceBear](https://www.dicebear.com) avatar for every
+ * commenter who doesn't already have one — built for Blogger's native
+ * comment widget, where anonymous/no-photo commenters get a blank
+ * placeholder image. Each avatar lazy-loads independently (only fetched
+ * once it nears the viewport) and a `MutationObserver` keeps watching so
+ * comments added later — pagination, "load more", async widgets — get
+ * avatars too.
+ *
+ * @param config - {@link AvatarifyConfig}
+ * @returns An {@link AvatarifyInstance} — `destroy()` stops both observers
+ * (already-set avatars are left in place); `refresh()` force-loads every
+ * matched avatar immediately.
+ *
+ * @example
+ * ```ts
+ * import { avatarify } from "blogr-plugins";
+ *
+ * avatarify({
+ * 	container: "#comments",
+ * 	usernameSelector: ".cmHr .n bdi",
+ * 	commentSelector: ".c",
+ * 	timestampSelector: ".d.dtTm",
+ * 	timestampAttribute: "data-datetime",
+ * 	avatarSelector: ".cmAv .im",
+ * 	setRandomAvatarForAll: true,
+ * 	avatarStyle: "thumbs",
+ * });
+ * ```
+ */
+declare function avatarify(config: AvatarifyConfig): AvatarifyInstance;
+//#endregion
 //#region src/plugins/cookify.d.ts
 /** Options accepted when writing a cookie with {@link cookify}. */
 interface CookifySetOptions {
@@ -144,21 +314,6 @@ interface Comment {
   /** Id of the parent comment when this is a reply, else `null`. */
   inReplyTo: string | null;
   links: Link[];
-}
-//#endregion
-//#region src/types.d.ts
-/**
- * Anything a plugin accepts as its target: a CSS selector, a single element,
- * a list of elements, or a jQuery collection (if jQuery is on the page).
- */
-type ElementInput = string | Element | Element[] | NodeListOf<Element> | ArrayLike<Element>;
-/**
- * Common shape returned by every plugin instance so callers always have a
- * predictable way to tear a plugin down.
- */
-interface PluginInstance {
-  /** Removes listeners/observers and undoes DOM changes made by the plugin. */
-  destroy(): void;
 }
 //#endregion
 //#region src/plugins/resizeImage.d.ts
@@ -323,7 +478,7 @@ type WidgetEntry = PostEntry | CommentEntry | AuthorEntry | LabelEntry;
 type WidgetTransformer = (entry: WidgetEntry, index: number) => WidgetEntry | null | Promise<WidgetEntry | null>;
 /** Configuration for {@link createWidget}. */
 interface CreateWidgetOptions {
-  /** Enable JSONP transport (browser-only). @default false */
+  /** Enable JSONP transport (browser-only). @default true */
   jsonp?: boolean;
   /**
    * What the widget lists.
@@ -560,6 +715,137 @@ interface LazifyOptions {
  * ```
  */
 declare function lazify(input: ElementInput, options?: LazifyOptions): PluginInstance;
+//#endregion
+//#region src/plugins/marqify.d.ts
+/** Which mode {@link marqify} renders: a continuous scroller, or a one-at-a-time ticker. Default `"marquee"`. */
+type MarqifyType = "marquee" | "ticker";
+/**
+ * Which way content moves. `"marquee"` only supports `"left"` / `"right"`;
+ * `"ticker"` supports all four.
+ */
+type MarqifyDirection = "left" | "right" | "top" | "bottom";
+/** Direction values valid when `type` is `"marquee"`. */
+type MarqifyMarqueeDirection = "left" | "right";
+/** Named speed presets, or a raw numeric speed for fine control. */
+type MarqifySpeed = "slow" | "medium" | "fast" | number;
+/** Configuration for {@link marqify}. */
+interface MarqifyOptions {
+  /**
+   * `"marquee"` scrolls content continuously and seamlessly.
+   * `"ticker"` shows one item at a time, sliding to the next/previous
+   * item — either on its own timer or via {@link MarqifyInstance.next}
+   * and {@link MarqifyInstance.previous}. Default `"marquee"`.
+   */
+  type?: MarqifyType;
+  /**
+   * Which way content moves. For `type: "marquee"` only `"left"` /
+   * `"right"` are valid (anything else falls back to `"left"` with a
+   * warning). For `type: "ticker"` all four are valid. Default `"left"`.
+   */
+  direction?: MarqifyDirection;
+  /** Delay, in ms, before the marquee starts moving. `0` (default) means no delay. Marquee only. */
+  delayBeforeStart?: number;
+  /**
+   * Duplicates the container's content so the marquee loops seamlessly
+   * with no visible reset. `false` renders the content once with no
+   * duplication — the animation still runs, but jumps back to the start
+   * every cycle instead of looping smoothly. Default `true`. Marquee only.
+   */
+  duplicated?: boolean;
+  /** Pauses the marquee while the pointer is over it. Default `true`. Marquee only. Also pauses ticker autoplay on hover. */
+  pauseOnHover?: boolean;
+  /**
+   * `"slow"` / `"medium"` / `"fast"` map to `0.25` / `0.5` / `1`
+   * respectively (higher = faster); pass a number directly for finer
+   * control. Default `"medium"`.
+   *
+   * For `type: "ticker"` this instead controls the slide transition —
+   * `"slow"` / `"medium"` / `"fast"` map to `800` / `500` / `300` ms;
+   * pass a number directly to set the transition duration in ms.
+   */
+  speed?: MarqifySpeed;
+  /** Ticker only. Auto-advances to the next item on a timer. Default `true`. */
+  autoPlay?: boolean;
+  /** Ticker only. Ms between auto-advances when `autoPlay` is on. Default `3000`. */
+  interval?: number;
+}
+/** What {@link marqify} returns. `next()` / `previous()` are no-ops when `type` is `"marquee"`. */
+interface MarqifyInstance extends PluginInstance {
+  /** Slide to the next item. Ticker only — no-op for `"marquee"`. */
+  next(): void;
+  /** Slide to the previous item. Ticker only — no-op for `"marquee"`. */
+  previous(): void;
+}
+/**
+ * Turns a container's children into an infinitely-scrolling CSS marquee —
+ * logos, card rows, testimonial strips, anything you'd otherwise reach for
+ * a heavier carousel library for. Ports the reps/duration calculation from
+ * the [marqy](https://github.com/abnud1/marqy) web component into an
+ * imperative plugin: pass it a container of items instead of a custom
+ * element, and it rebuilds that container into a seamless, duplicated
+ * marquee track sized to always fill it, regardless of viewport width.
+ *
+ * Injects a small stylesheet into `<head>` the first time it's called
+ * (once per page, however many containers you marquee).
+ *
+ * Also doubles as a **ticker**: pass `type: "ticker"` and instead of a
+ * continuous scroll, one child at a time is shown, sliding out to make way
+ * for the next in the direction you configure (`"left"` / `"right"` /
+ * `"top"` / `"bottom"`). Advance it with the returned instance's
+ * {@link MarqifyInstance.next} / {@link MarqifyInstance.previous} — e.g.
+ * from a pair of prev/next buttons.
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * container(s) whose children should marquee/tick.
+ * @param options - {@link MarqifyOptions}
+ * @returns A {@link MarqifyInstance} — `destroy()` disconnects the resize
+ * observers and restores the container's original content; `next()` /
+ * `previous()` step the ticker (no-ops when `type` is `"marquee"`).
+ *
+ * @example
+ * ```html
+ * <div class="cards">
+ * 	<div class="card">Card A</div>
+ * 	<div class="card">Card B</div>
+ * 	<div class="card">Card C</div>
+ * </div>
+ * ```
+ * ```ts
+ * import { marqify } from "blogr-plugins";
+ *
+ * const instance = marqify(".cards", {
+ * 	direction: "left",
+ * 	speed: "fast",
+ * 	pauseOnHover: true,
+ * });
+ *
+ * instance.destroy();
+ * ```
+ *
+ * @example Ticker
+ * ```html
+ * <div class="announcements">
+ * 	<div>📣 New release shipped</div>
+ * 	<div>🐛 Fixed a nasty bug</div>
+ * 	<div>🎉 100 stars on GitHub</div>
+ * </div>
+ * <button id="prev">‹</button>
+ * <button id="next">›</button>
+ * ```
+ * ```ts
+ * import { marqify } from "blogr-plugins";
+ *
+ * const ticker = marqify(".announcements", {
+ * 	type: "ticker",
+ * 	direction: "top",
+ * 	speed: "medium",
+ * });
+ *
+ * document.getElementById("next").addEventListener("click", () => ticker.next());
+ * document.getElementById("prev").addEventListener("click", () => ticker.previous());
+ * ```
+ */
+declare function marqify(input: ElementInput, options?: MarqifyOptions): MarqifyInstance;
 //#endregion
 //#region src/plugins/menuify.d.ts
 /** Configuration options for {@link menuify}. */
@@ -1004,4 +1290,173 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type AuthorEntry, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, menuify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+//#region src/plugins/relatify.d.ts
+/** How candidate posts are picked once fetched. */
+type RelatifyRelevance = "strict" | "default";
+/**
+ * A single related post handed to `template` and the lifecycle hooks —
+ * mirrors `createWidget`'s `WidgetEntry` shape for familiarity.
+ */
+interface RelatedPost {
+  /** Post id, as reported by Blogger. */
+  id: string;
+  /** Post title. */
+  title: string;
+  /** Canonical URL of the post. */
+  url: string;
+  /** Author display name, or `""` if unavailable. */
+  author: string;
+  /** Publish date (ISO string, as reported by Blogger). */
+  published: string;
+  /** Labels on the post. */
+  labels: string[];
+  /** Plain-text summary (Blogger's own summary field, HTML stripped). */
+  content: string;
+  /** The original SDK `Post` object, for anything not exposed above. */
+  raw: Post;
+}
+/** Configuration for {@link relatify}. */
+interface RelatifyOptions {
+  /** Enable JSONP transport (browser-only). @default true */
+  jsonp?: boolean;
+  /**
+   * Labels to find related posts for — paste this straight from your
+   * Blogger template (see the `<script>` snippet in the README) so it
+   * reflects the *current* post's actual labels:
+   *
+   * ```html
+   * <script>
+   * 	const labels = [
+   * 		<b:loop values='data:post.labels' var='label'>
+   * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+   * 		</b:loop>
+   * 	];
+   * </script>
+   * ```
+   *
+   * Omitted or empty fetches recent posts across the whole blog instead
+   * of filtering by label at all.
+   */
+  labels?: string[];
+  /**
+   * Element(s) after which a related-post link may be inserted — a CSS
+   * selector, or an array of selectors (joined with `,`, so
+   * `["p", ".paragraph", ".video"]` behaves like
+   * `"p, .paragraph, .video"`). Matched *within* the container. Default
+   * `"p"`.
+   */
+  insertAfter?: string | string[];
+  /**
+   * Maximum number of links to insert. Default: scaled to the
+   * container's word count — 2 for a ~500-word article, 3 for ~1000,
+   * and so on (`Math.floor(wordCount / 500) + 1`, minimum `1`). Always
+   * additionally capped by however many eligible `insertAfter` elements
+   * and related posts actually exist.
+   */
+  maxLinks?: number;
+  /**
+   * Labels to leave out of the *search* — i.e. even if `labels` (or the
+   * post's own labels) includes one of these, it won't be used to look
+   * up related posts. This does **not** filter candidate results: a
+   * related post found via a non-excluded label is kept even if it also
+   * happens to carry an excluded label. Default `[]`.
+   */
+  excludeLabels?: string[];
+  /**
+   * `"strict"` scores every candidate by word overlap against the
+   * nearest heading inside the container (falling back to
+   * `document.title`) and picks the highest-scoring matches. `"default"`
+   * shuffles the candidates and picks randomly. Default `"strict"`.
+   */
+  relevance?: RelatifyRelevance;
+  /**
+   * Renders one inserted link. Same shape as `createWidget`'s
+   * `template`: `(post, index) => string`. Default:
+   * `` `You may also like: <a href="${post.url}">${post.title}</a>` ``.
+   */
+  template?: (post: RelatedPost, index: number) => string;
+  /**
+   * URL (or numeric id) of the Blogger blog to read from. Defaults to
+   * `window.location.origin` — override only if this runs somewhere
+   * other than the blog itself (e.g. local development against a
+   * different site).
+   */
+  blogUrl?: string;
+  /**
+   * URL of the current post, used to exclude it from its own related
+   * list. Defaults to `<link rel="canonical">`'s `href`, falling back to
+   * `location.href`. Override if neither is reliable in your setup.
+   */
+  currentUrl?: string;
+  /** How many candidate posts to fetch (per label, or overall when unfiltered) before scoring/picking from them. Default `20`. */
+  sampleSize?: number;
+  /** Wrapper element class for each inserted link. Default `"relatify-link"`. */
+  linkClass?: string;
+  /** Called right before fetching. */
+  beforeFetch?: () => void;
+  /** Called with the final list of chosen related posts, before any are inserted. */
+  afterFetch?: (posts: RelatedPost[]) => void;
+  /** Called once per link actually inserted. */
+  onInsert?: (detail: {
+    post: RelatedPost;
+    element: HTMLElement;
+    index: number;
+  }) => void;
+  /** Called when no related posts (or no eligible insertion points) were found. */
+  onEmpty?: () => void;
+  /** Called if the fetch fails. */
+  onError?: (err: unknown) => void;
+  /**
+   * Enable lazy loading — plugin initializes only when first `insertAfter`
+   * element comes near the viewport, preventing API calls on page load.
+   * Default `true`.
+   */
+  lazy?: boolean;
+  /**
+   * Margin (in pixels or CSS string) for IntersectionObserver to trigger
+   * lazy load before element enters viewport. Default `"0px"`.
+   * Examples: `"100px"`, `"10%"`, `"0px 0px 50px 0px"`.
+   */
+  rootMargin?: string;
+}
+/**
+ * Fetches related posts for the current article by label and inserts a
+ * randomly-placed link (or several, scaled to article length) after
+ * `insertAfter` elements within the container.
+ *
+ * Get the current post's labels straight from your Blogger template and
+ * pass them in as `labels`:
+ *
+ * ```html
+ * <script>
+ * 	const labels = [
+ * 		<b:loop values='data:post.labels' var='label'>
+ * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+ * 		</b:loop>
+ * 	];
+ * </script>
+ * ```
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * article container — related links are inserted inside it.
+ * @param options - {@link RelatifyOptions}
+ * @returns A {@link PluginInstance} — `destroy()` removes every link it
+ * inserted (or, if the fetch hasn't resolved yet, cancels it).
+ *
+ * @example
+ * ```ts
+ * import { relatify } from "blogr-plugins";
+ *
+ * relatify("article", {
+ * 	labels,
+ * 	insertAfter: ["p", ".paragraph", ".video"],
+ * 	excludeLabels: ["announcements"],
+ * 	relevance: "strict",
+ * 	template: (post) =>
+ * 		`Related: <a href="${post.url}">${post.title}</a>`,
+ * });
+ * ```
+ */
+declare function relatify(input: ElementInput, options?: RelatifyOptions): PluginInstance;
+//#endregion
+export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };

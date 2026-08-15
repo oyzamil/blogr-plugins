@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { replacify } from "../src/plugins/replacify.js";
 
 describe("replacify", () => {
@@ -13,7 +14,9 @@ describe("replacify", () => {
 	it("leaves markup structure untouched", () => {
 		document.body.innerHTML = `<p id="p">Hello <b>World</b></p>`;
 		replacify("#p", "World", "Universe");
-		expect(document.getElementById("p")!.innerHTML).toBe("Hello <b>Universe</b>");
+		expect(document.getElementById("p")!.innerHTML).toBe(
+			"Hello <b>Universe</b>",
+		);
 	});
 
 	it("destroy reverts replaced text", () => {

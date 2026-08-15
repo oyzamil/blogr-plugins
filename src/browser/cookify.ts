@@ -1,4 +1,4 @@
-import { cookify } from "../plugins/cookify.js";
+import { cookify } from "../plugins/cookify";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},

@@ -1,6 +1,6 @@
-import type { ElementInput, PluginInstance } from "../types.js";
+import type { ElementInput, PluginInstance } from "../types";
 
-import { resolveElements } from "../utils/dom.js";
+import { resolveElements } from "../utils/dom";
 
 /** A single shortcode attribute value, auto-coerced from its raw text. */
 export type ShortcodeAttributeValue = string | number | boolean;

@@ -3,7 +3,7 @@ import {
 	type ResizeImageOptions,
 	resizeImage,
 	type YouTubeThumbnailQuality,
-} from "../plugins/resizeImage.js";
+} from "../plugins/resizeImage";
 
 (window as any).BlogrPlugins = Object.assign(
 	(window as any).BlogrPlugins ?? {},
