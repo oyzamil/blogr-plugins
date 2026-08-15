@@ -2,13 +2,13 @@
 
 ***
 
-[blogr-plugins](../globals.md) / renderShortcodes
+[blogr-plugins](../README.md) / renderShortcodes
 
 # Function: renderShortcodes()
 
 > **renderShortcodes**(`text`, `options`): `string`
 
-Defined in: src/plugins/shortcodify.ts:320
+Defined in: [src/plugins/shortcodify.ts:319](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/shortcodify.ts#L319)
 
 Parses and renders `[tag attr="value"]content[/tag]`-style shortcodes in
 a plain string, given a map of tag → handler. Pure function — does not

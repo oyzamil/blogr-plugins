@@ -1,5 +1,4 @@
-import type { ElementInput, PluginInstance } from "../types";
-
+import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link lazify}. */

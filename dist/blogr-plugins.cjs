@@ -5114,6 +5114,13 @@ function tocify(input, options = {}) {
 		root.querySelectorAll("ul").forEach((ul) => {
 			if (ul.children.length === 0) ul.remove();
 		});
+		if (opts.title) {
+			const title = document.createElement("h2");
+			title.className = "toc-title";
+			title.textContent = opts.title;
+			target.appendChild(title);
+			cleanups.push(() => title.remove());
+		}
 		target.appendChild(root);
 		cleanups.push(() => root.remove());
 	}

@@ -10,8 +10,7 @@
  * function's first argument instead of living inside options.
  */
 
-import type { ElementInput, PluginInstance } from "../types";
-
+import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link stickify}. */

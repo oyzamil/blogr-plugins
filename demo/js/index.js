@@ -201,7 +201,11 @@ document.addEventListener("click", (e) => {
 	}
 });
 
-BlogrPlugins.tocify("#toc", { content: "main", headings: "h2, h3" });
+BlogrPlugins.tocify("#toc", {
+	title: "TOC",
+	content: "main",
+	headings: "h2, h3",
+});
 
 /* ---- lazify: gallery images ---- */
 BlogrPlugins.lazify("img[data-src], iframe[data-src], video, [data-bg-image]", {

@@ -2,11 +2,11 @@
 
 ***
 
-[blogr-plugins](../globals.md) / Cookify
+[blogr-plugins](../README.md) / Cookify
 
 # Interface: Cookify
 
-Defined in: src/plugins/cookify.ts:15
+Defined in: [src/plugins/cookify.ts:15](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/cookify.ts#L15)
 
 ## Methods
 
@@ -14,7 +14,7 @@ Defined in: src/plugins/cookify.ts:15
 
 > **get**\<`T`\>(`name`): `T` \| `undefined`
 
-Defined in: src/plugins/cookify.ts:30
+Defined in: [src/plugins/cookify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/cookify.ts#L30)
 
 Reads a cookie.
 
@@ -44,7 +44,7 @@ Parsed value, or `undefined` if not set.
 
 > **getAll**(): `Record`\<`string`, `unknown`\>
 
-Defined in: src/plugins/cookify.ts:36
+Defined in: [src/plugins/cookify.ts:36](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/cookify.ts#L36)
 
 Reads every cookie.
 
@@ -60,7 +60,7 @@ Record containing all cookies.
 
 > **remove**(`name`, `options?`): `boolean`
 
-Defined in: src/plugins/cookify.ts:44
+Defined in: [src/plugins/cookify.ts:44](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/cookify.ts#L44)
 
 Deletes a cookie.
 
@@ -90,7 +90,7 @@ Must match `path`/`domain` used when setting cookie.
 
 > **set**(`name`, `value`, `options?`): `void`
 
-Defined in: src/plugins/cookify.ts:23
+Defined in: [src/plugins/cookify.ts:23](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/cookify.ts#L23)
 
 Writes a cookie.
 

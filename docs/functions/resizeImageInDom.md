@@ -2,13 +2,13 @@
 
 ***
 
-[blogr-plugins](../globals.md) / resizeImageInDom
+[blogr-plugins](../README.md) / resizeImageInDom
 
 # Function: resizeImageInDom()
 
 > **resizeImageInDom**(`input`, `options?`): `void`
 
-Defined in: src/plugins/resizeImage.ts:371
+Defined in: [src/plugins/resizeImage.ts:370](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/resizeImage.ts#L370)
 
 Applies [resizeImage](resizeImage.md) to every matched element in place — `<img>`
 (`src` + `srcset`) or any element with an inline `background-image`.

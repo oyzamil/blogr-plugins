@@ -3,6 +3,7 @@ export type {
 	AvatarifyInstance,
 	AvatarSetDetail,
 	AvatarStyle,
+	AvatarSuccessDetail,
 } from "./plugins/avatarify";
 export type { Cookify, CookifySetOptions } from "./plugins/cookify";
 export type {
@@ -29,6 +30,11 @@ export type {
 	MarqifyType,
 } from "./plugins/marqify";
 export type { MenuifyOptions } from "./plugins/menuify";
+export type {
+	RelatedPost,
+	RelatifyOptions,
+	RelatifyRelevance,
+} from "./plugins/relatify";
 export type { ReplacifyOptions } from "./plugins/replacify";
 export type {
 	ResizeImageOptions,

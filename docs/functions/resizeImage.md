@@ -2,13 +2,13 @@
 
 ***
 
-[blogr-plugins](../globals.md) / resizeImage
+[blogr-plugins](../README.md) / resizeImage
 
 # Function: resizeImage()
 
 > **resizeImage**(`url`, `options?`): `string`
 
-Defined in: src/plugins/resizeImage.ts:257
+Defined in: [src/plugins/resizeImage.ts:256](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/resizeImage.ts#L256)
 
 Builds a resized/transformed URL for a Blogger/Google-hosted image.
 Unsupported URLs are returned unchanged rather than throwing, so it's

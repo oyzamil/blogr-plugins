@@ -1,9 +1,10 @@
-import type { ElementInput, PluginInstance } from "../types";
-
+import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
 
 /** Configuration options for {@link tocify}. */
 export interface TocifyOptions {
+	/** Optional title rendered as an `<h2>` above the table of contents. */
+	title?: string | (() => string);
 	/** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
 	headings?: string;
 	/** Root element to scan for headings. Defaults to the `input` element itself. */
@@ -93,6 +94,16 @@ export function tocify(
 		root.querySelectorAll("ul").forEach((ul) => {
 			if (ul.children.length === 0) ul.remove();
 		});
+
+		if (opts.title) {
+			if (typeof opts.title === "function") {
+				target.insertAdjacentHTML("beforeend", opts.title());
+			} else {
+				const title = document.createElement("h2");
+				title.textContent = opts.title;
+				target.appendChild(title);
+			}
+		}
 
 		target.appendChild(root);
 		cleanups.push(() => root.remove());

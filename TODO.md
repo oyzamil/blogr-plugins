@@ -1,1 +1,0 @@
-# add title and default selector support to tocify

@@ -2,13 +2,13 @@
 
 ***
 
-[blogr-plugins](../globals.md) / replacify
+[blogr-plugins](../README.md) / replacify
 
 # Function: replacify()
 
 > **replacify**(`input`, `search`, `replacement`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: src/plugins/replacify.ts:32
+Defined in: [src/plugins/replacify.ts:31](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/replacify.ts#L31)
 
 Finds and replaces text within an element's text nodes only — it never
 touches tag names or attributes, so it's safe to run on rendered markup.

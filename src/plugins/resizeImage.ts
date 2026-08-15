@@ -1,5 +1,4 @@
-import type { ElementInput } from "../types";
-
+import { type ElementInput } from "../types";
 import { resolveElements } from "../utils/dom";
 
 /**

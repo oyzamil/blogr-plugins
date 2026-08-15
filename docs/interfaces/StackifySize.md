@@ -2,11 +2,11 @@
 
 ***
 
-[blogr-plugins](../globals.md) / StackifySize
+[blogr-plugins](../README.md) / StackifySize
 
 # Interface: StackifySize
 
-Defined in: src/plugins/stackify.ts:12
+Defined in: [src/plugins/stackify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L11)
 
 Container size override. Number -> px, string used as-is.
 
@@ -16,7 +16,7 @@ Container size override. Number -> px, string used as-is.
 
 > `optional` **height?**: `string` \| `number`
 
-Defined in: src/plugins/stackify.ts:13
+Defined in: [src/plugins/stackify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L12)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: src/plugins/stackify.ts:13
 
 > `optional` **width?**: `string` \| `number`
 
-Defined in: src/plugins/stackify.ts:14
+Defined in: [src/plugins/stackify.ts:13](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L13)

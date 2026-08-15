@@ -1,8 +1,6 @@
-import type { Author, Comment, Pager, Post } from "blogr";
-import { Blogr } from "blogr";
+import { type Author, Blogr, type Comment, type Pager, type Post } from "blogr";
 
-import type { ElementInput, PluginInstance } from "../types";
-
+import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
 import { type ResizeImageOptions, resizeImage } from "./resizeImage";
 

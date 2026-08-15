@@ -2,13 +2,13 @@
 
 ***
 
-[blogr-plugins](../globals.md) / createShortcodeRegistry
+[blogr-plugins](../README.md) / createShortcodeRegistry
 
 # Function: createShortcodeRegistry()
 
 > **createShortcodeRegistry**(`initial?`): `object`
 
-Defined in: src/plugins/shortcodify.ts:355
+Defined in: [src/plugins/shortcodify.ts:354](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/shortcodify.ts#L354)
 
 A small, reusable builder for a tag → handler map, so a shared set of
 shortcodes (e.g. your site's `[gallery]`, `[youtube]`, `[button]`) can be

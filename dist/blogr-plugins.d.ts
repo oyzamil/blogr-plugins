@@ -861,6 +861,175 @@ interface MenuifyOptions {
 }
 declare function menuify(input: ElementInput, options?: MenuifyOptions): PluginInstance;
 //#endregion
+//#region src/plugins/relatify.d.ts
+/** How candidate posts are picked once fetched. */
+type RelatifyRelevance = "strict" | "default";
+/**
+ * A single related post handed to `template` and the lifecycle hooks —
+ * mirrors `createWidget`'s `WidgetEntry` shape for familiarity.
+ */
+interface RelatedPost {
+  /** Post id, as reported by Blogger. */
+  id: string;
+  /** Post title. */
+  title: string;
+  /** Canonical URL of the post. */
+  url: string;
+  /** Author display name, or `""` if unavailable. */
+  author: string;
+  /** Publish date (ISO string, as reported by Blogger). */
+  published: string;
+  /** Labels on the post. */
+  labels: string[];
+  /** Plain-text summary (Blogger's own summary field, HTML stripped). */
+  content: string;
+  /** The original SDK `Post` object, for anything not exposed above. */
+  raw: Post;
+}
+/** Configuration for {@link relatify}. */
+interface RelatifyOptions {
+  /** Enable JSONP transport (browser-only). @default true */
+  jsonp?: boolean;
+  /**
+   * Labels to find related posts for — paste this straight from your
+   * Blogger template (see the `<script>` snippet in the README) so it
+   * reflects the *current* post's actual labels:
+   *
+   * ```html
+   * <script>
+   * 	const labels = [
+   * 		<b:loop values='data:post.labels' var='label'>
+   * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+   * 		</b:loop>
+   * 	];
+   * </script>
+   * ```
+   *
+   * Omitted or empty fetches recent posts across the whole blog instead
+   * of filtering by label at all.
+   */
+  labels?: string[];
+  /**
+   * Element(s) after which a related-post link may be inserted — a CSS
+   * selector, or an array of selectors (joined with `,`, so
+   * `["p", ".paragraph", ".video"]` behaves like
+   * `"p, .paragraph, .video"`). Matched *within* the container. Default
+   * `"p"`.
+   */
+  insertAfter?: string | string[];
+  /**
+   * Maximum number of links to insert. Default: scaled to the
+   * container's word count — 2 for a ~500-word article, 3 for ~1000,
+   * and so on (`Math.floor(wordCount / 500) + 1`, minimum `1`). Always
+   * additionally capped by however many eligible `insertAfter` elements
+   * and related posts actually exist.
+   */
+  maxLinks?: number;
+  /**
+   * Labels to leave out of the *search* — i.e. even if `labels` (or the
+   * post's own labels) includes one of these, it won't be used to look
+   * up related posts. This does **not** filter candidate results: a
+   * related post found via a non-excluded label is kept even if it also
+   * happens to carry an excluded label. Default `[]`.
+   */
+  excludeLabels?: string[];
+  /**
+   * `"strict"` scores every candidate by word overlap against the
+   * nearest heading inside the container (falling back to
+   * `document.title`) and picks the highest-scoring matches. `"default"`
+   * shuffles the candidates and picks randomly. Default `"strict"`.
+   */
+  relevance?: RelatifyRelevance;
+  /**
+   * Renders one inserted link. Same shape as `createWidget`'s
+   * `template`: `(post, index) => string`. Default:
+   * `` `You may also like: <a href="${post.url}">${post.title}</a>` ``.
+   */
+  template?: (post: RelatedPost, index: number) => string;
+  /**
+   * URL (or numeric id) of the Blogger blog to read from. Defaults to
+   * `window.location.origin` — override only if this runs somewhere
+   * other than the blog itself (e.g. local development against a
+   * different site).
+   */
+  blogUrl?: string;
+  /**
+   * URL of the current post, used to exclude it from its own related
+   * list. Defaults to `<link rel="canonical">`'s `href`, falling back to
+   * `location.href`. Override if neither is reliable in your setup.
+   */
+  currentUrl?: string;
+  /** How many candidate posts to fetch (per label, or overall when unfiltered) before scoring/picking from them. Default `20`. */
+  sampleSize?: number;
+  /** Wrapper element class for each inserted link. Default `"relatify-link"`. */
+  linkClass?: string;
+  /** Called right before fetching. */
+  beforeFetch?: () => void;
+  /** Called with the final list of chosen related posts, before any are inserted. */
+  afterFetch?: (posts: RelatedPost[]) => void;
+  /** Called once per link actually inserted. */
+  onInsert?: (detail: {
+    post: RelatedPost;
+    element: HTMLElement;
+    index: number;
+  }) => void;
+  /** Called when no related posts (or no eligible insertion points) were found. */
+  onEmpty?: () => void;
+  /** Called if the fetch fails. */
+  onError?: (err: unknown) => void;
+  /**
+   * Enable lazy loading — plugin initializes only when first `insertAfter`
+   * element comes near the viewport, preventing API calls on page load.
+   * Default `true`.
+   */
+  lazy?: boolean;
+  /**
+   * Margin (in pixels or CSS string) for IntersectionObserver to trigger
+   * lazy load before element enters viewport. Default `"0px"`.
+   * Examples: `"100px"`, `"10%"`, `"0px 0px 50px 0px"`.
+   */
+  rootMargin?: string;
+}
+/**
+ * Fetches related posts for the current article by label and inserts a
+ * randomly-placed link (or several, scaled to article length) after
+ * `insertAfter` elements within the container.
+ *
+ * Get the current post's labels straight from your Blogger template and
+ * pass them in as `labels`:
+ *
+ * ```html
+ * <script>
+ * 	const labels = [
+ * 		<b:loop values='data:post.labels' var='label'>
+ * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
+ * 		</b:loop>
+ * 	];
+ * </script>
+ * ```
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * article container — related links are inserted inside it.
+ * @param options - {@link RelatifyOptions}
+ * @returns A {@link PluginInstance} — `destroy()` removes every link it
+ * inserted (or, if the fetch hasn't resolved yet, cancels it).
+ *
+ * @example
+ * ```ts
+ * import { relatify } from "blogr-plugins";
+ *
+ * relatify("article", {
+ * 	labels,
+ * 	insertAfter: ["p", ".paragraph", ".video"],
+ * 	excludeLabels: ["announcements"],
+ * 	relevance: "strict",
+ * 	template: (post) =>
+ * 		`Related: <a href="${post.url}">${post.title}</a>`,
+ * });
+ * ```
+ */
+declare function relatify(input: ElementInput, options?: RelatifyOptions): PluginInstance;
+//#endregion
 //#region src/plugins/replacify.d.ts
 /** Configuration options for {@link replacify}. */
 interface ReplacifyOptions {
@@ -1045,9 +1214,9 @@ declare function shortcodify(input: ElementInput, options: ShortcodifyDomOptions
 //#endregion
 //#region src/plugins/stackify.d.ts
 /** Which way the auto-cycle rotates the stack. */
-type StackDirection = "forward" | "backward";
+type StackDirection = 'forward' | 'backward';
 /** Which axis a layout peeks/scrolls along, and which axis dragging works on. */
-type StackOrientation = "vertical" | "horizontal";
+type StackOrientation = 'vertical' | 'horizontal';
 /** Container size override. Number -> px, string used as-is. */
 interface StackifySize {
   height?: number | string;
@@ -1132,14 +1301,14 @@ interface StackifyOptions {
    * {@link orientation}) that scrolls continuously (speed set by
    * {@link marqueeSpeed}), like a ticker.
    */
-  layout?: "stack" | "marquee";
+  layout?: 'stack' | 'marquee';
   /**
    * `"stack"` layout only. Whether cards behind the front one grow
    * (`"expand"`) or shrink (`"shrink"`) in cross-axis size relative to
    * it, for a fanned-out peek effect. `"none"` keeps every card the
    * same size. Default `"none"`.
    */
-  peekWidth?: "expand" | "shrink" | "none";
+  peekWidth?: 'expand' | 'shrink' | 'none';
   /** Size change, as a fraction per card, applied when {@link peekWidth} is set. Default `0.05`. */
   peekWidthStep?: number;
   /** `"marquee"` layout only. Scroll speed in px/second. Default `60`. */
@@ -1267,6 +1436,8 @@ declare function stickify(input: ElementInput, options?: StickifyOptions): Plugi
 //#region src/plugins/tocify.d.ts
 /** Configuration options for {@link tocify}. */
 interface TocifyOptions {
+  /** Optional title rendered as an `<h2>` above the table of contents. */
+  title?: string;
   /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
   headings?: string;
   /** Root element to scan for headings. Defaults to the `input` element itself. */
@@ -1290,173 +1461,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-//#region src/plugins/relatify.d.ts
-/** How candidate posts are picked once fetched. */
-type RelatifyRelevance = "strict" | "default";
-/**
- * A single related post handed to `template` and the lifecycle hooks —
- * mirrors `createWidget`'s `WidgetEntry` shape for familiarity.
- */
-interface RelatedPost {
-  /** Post id, as reported by Blogger. */
-  id: string;
-  /** Post title. */
-  title: string;
-  /** Canonical URL of the post. */
-  url: string;
-  /** Author display name, or `""` if unavailable. */
-  author: string;
-  /** Publish date (ISO string, as reported by Blogger). */
-  published: string;
-  /** Labels on the post. */
-  labels: string[];
-  /** Plain-text summary (Blogger's own summary field, HTML stripped). */
-  content: string;
-  /** The original SDK `Post` object, for anything not exposed above. */
-  raw: Post;
-}
-/** Configuration for {@link relatify}. */
-interface RelatifyOptions {
-  /** Enable JSONP transport (browser-only). @default true */
-  jsonp?: boolean;
-  /**
-   * Labels to find related posts for — paste this straight from your
-   * Blogger template (see the `<script>` snippet in the README) so it
-   * reflects the *current* post's actual labels:
-   *
-   * ```html
-   * <script>
-   * 	const labels = [
-   * 		<b:loop values='data:post.labels' var='label'>
-   * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
-   * 		</b:loop>
-   * 	];
-   * </script>
-   * ```
-   *
-   * Omitted or empty fetches recent posts across the whole blog instead
-   * of filtering by label at all.
-   */
-  labels?: string[];
-  /**
-   * Element(s) after which a related-post link may be inserted — a CSS
-   * selector, or an array of selectors (joined with `,`, so
-   * `["p", ".paragraph", ".video"]` behaves like
-   * `"p, .paragraph, .video"`). Matched *within* the container. Default
-   * `"p"`.
-   */
-  insertAfter?: string | string[];
-  /**
-   * Maximum number of links to insert. Default: scaled to the
-   * container's word count — 2 for a ~500-word article, 3 for ~1000,
-   * and so on (`Math.floor(wordCount / 500) + 1`, minimum `1`). Always
-   * additionally capped by however many eligible `insertAfter` elements
-   * and related posts actually exist.
-   */
-  maxLinks?: number;
-  /**
-   * Labels to leave out of the *search* — i.e. even if `labels` (or the
-   * post's own labels) includes one of these, it won't be used to look
-   * up related posts. This does **not** filter candidate results: a
-   * related post found via a non-excluded label is kept even if it also
-   * happens to carry an excluded label. Default `[]`.
-   */
-  excludeLabels?: string[];
-  /**
-   * `"strict"` scores every candidate by word overlap against the
-   * nearest heading inside the container (falling back to
-   * `document.title`) and picks the highest-scoring matches. `"default"`
-   * shuffles the candidates and picks randomly. Default `"strict"`.
-   */
-  relevance?: RelatifyRelevance;
-  /**
-   * Renders one inserted link. Same shape as `createWidget`'s
-   * `template`: `(post, index) => string`. Default:
-   * `` `You may also like: <a href="${post.url}">${post.title}</a>` ``.
-   */
-  template?: (post: RelatedPost, index: number) => string;
-  /**
-   * URL (or numeric id) of the Blogger blog to read from. Defaults to
-   * `window.location.origin` — override only if this runs somewhere
-   * other than the blog itself (e.g. local development against a
-   * different site).
-   */
-  blogUrl?: string;
-  /**
-   * URL of the current post, used to exclude it from its own related
-   * list. Defaults to `<link rel="canonical">`'s `href`, falling back to
-   * `location.href`. Override if neither is reliable in your setup.
-   */
-  currentUrl?: string;
-  /** How many candidate posts to fetch (per label, or overall when unfiltered) before scoring/picking from them. Default `20`. */
-  sampleSize?: number;
-  /** Wrapper element class for each inserted link. Default `"relatify-link"`. */
-  linkClass?: string;
-  /** Called right before fetching. */
-  beforeFetch?: () => void;
-  /** Called with the final list of chosen related posts, before any are inserted. */
-  afterFetch?: (posts: RelatedPost[]) => void;
-  /** Called once per link actually inserted. */
-  onInsert?: (detail: {
-    post: RelatedPost;
-    element: HTMLElement;
-    index: number;
-  }) => void;
-  /** Called when no related posts (or no eligible insertion points) were found. */
-  onEmpty?: () => void;
-  /** Called if the fetch fails. */
-  onError?: (err: unknown) => void;
-  /**
-   * Enable lazy loading — plugin initializes only when first `insertAfter`
-   * element comes near the viewport, preventing API calls on page load.
-   * Default `true`.
-   */
-  lazy?: boolean;
-  /**
-   * Margin (in pixels or CSS string) for IntersectionObserver to trigger
-   * lazy load before element enters viewport. Default `"0px"`.
-   * Examples: `"100px"`, `"10%"`, `"0px 0px 50px 0px"`.
-   */
-  rootMargin?: string;
-}
-/**
- * Fetches related posts for the current article by label and inserts a
- * randomly-placed link (or several, scaled to article length) after
- * `insertAfter` elements within the container.
- *
- * Get the current post's labels straight from your Blogger template and
- * pass them in as `labels`:
- *
- * ```html
- * <script>
- * 	const labels = [
- * 		<b:loop values='data:post.labels' var='label'>
- * 			"<data:label.name/>"<b:if cond='not data:label.isLast'>,</b:if>
- * 		</b:loop>
- * 	];
- * </script>
- * ```
- *
- * @param input - Selector, element(s), or jQuery collection for the
- * article container — related links are inserted inside it.
- * @param options - {@link RelatifyOptions}
- * @returns A {@link PluginInstance} — `destroy()` removes every link it
- * inserted (or, if the fetch hasn't resolved yet, cancels it).
- *
- * @example
- * ```ts
- * import { relatify } from "blogr-plugins";
- *
- * relatify("article", {
- * 	labels,
- * 	insertAfter: ["p", ".paragraph", ".video"],
- * 	excludeLabels: ["announcements"],
- * 	relevance: "strict",
- * 	template: (post) =>
- * 		`Related: <a href="${post.url}">${post.title}</a>`,
- * });
- * ```
- */
-declare function relatify(input: ElementInput, options?: RelatifyOptions): PluginInstance;
-//#endregion
-export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
