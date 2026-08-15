@@ -6,7 +6,7 @@
 
 # Interface: StackifyChangeDetail
 
-Defined in: [src/plugins/stackify.ts:23](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L23)
+Defined in: [src/plugins/stackify.ts:23](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/stackify.ts#L23)
 
 Detail object passed to `onBeforeChange`/`onAfterChange`.
 
@@ -16,7 +16,7 @@ Detail object passed to `onBeforeChange`/`onAfterChange`.
 
 > **fromCard**: `HTMLElement`
 
-Defined in: [src/plugins/stackify.ts:29](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L29)
+Defined in: [src/plugins/stackify.ts:29](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/stackify.ts#L29)
 
 The card element that was in front.
 
@@ -26,7 +26,7 @@ The card element that was in front.
 
 > **fromIndex**: `number`
 
-Defined in: [src/plugins/stackify.ts:25](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L25)
+Defined in: [src/plugins/stackify.ts:25](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/stackify.ts#L25)
 
 Original index (in DOM order) of the card that was in front.
 
@@ -36,7 +36,7 @@ Original index (in DOM order) of the card that was in front.
 
 > **toCard**: `HTMLElement`
 
-Defined in: [src/plugins/stackify.ts:31](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L31)
+Defined in: [src/plugins/stackify.ts:31](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/stackify.ts#L31)
 
 The card element that is now in front.
 
@@ -46,6 +46,6 @@ The card element that is now in front.
 
 > **toIndex**: `number`
 
-Defined in: [src/plugins/stackify.ts:27](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/stackify.ts#L27)
+Defined in: [src/plugins/stackify.ts:27](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/stackify.ts#L27)
 
 Original index (in DOM order) of the card that is now in front.

@@ -6,9 +6,9 @@
 
 # Function: createShortcodeRegistry()
 
-> **createShortcodeRegistry**(`initial?`): `object`
+> **createShortcodeRegistry**(`initial?`): [`ShortcodeRegistry`](../interfaces/ShortcodeRegistry.md)
 
-Defined in: [src/plugins/shortcodify.ts:354](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/shortcodify.ts#L354)
+Defined in: [src/plugins/shortcodify.ts:368](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L368)
 
 A small, reusable builder for a tag → handler map, so a shared set of
 shortcodes (e.g. your site's `[gallery]`, `[youtube]`, `[button]`) can be
@@ -23,63 +23,7 @@ assembled once and passed to both [renderShortcodes](renderShortcodes.md) and
 
 ## Returns
 
-### tags
-
-> **tags**: `Record`\<`string`, [`ShortcodeHandler`](../type-aliases/ShortcodeHandler.md)\>
-
-Live map of every tag registered so far — pass straight into `tags`.
-
-### has()
-
-> **has**(`tag`): `boolean`
-
-Whether a tag currently has a handler.
-
-#### Parameters
-
-##### tag
-
-`string`
-
-#### Returns
-
-`boolean`
-
-### register()
-
-> **register**(`tag`, `handler`): \{ tags: Record\<string, ShortcodeHandler\>; register(tag: string, handler: ShortcodeHandler): ...; unregister(tag: string): ...; has(tag: string): boolean; \}
-
-Registers (or overwrites) a single tag's handler. Chainable.
-
-#### Parameters
-
-##### tag
-
-`string`
-
-##### handler
-
-[`ShortcodeHandler`](../type-aliases/ShortcodeHandler.md)
-
-#### Returns
-
-\{ tags: Record\<string, ShortcodeHandler\>; register(tag: string, handler: ShortcodeHandler): ...; unregister(tag: string): ...; has(tag: string): boolean; \}
-
-### unregister()
-
-> **unregister**(`tag`): \{ tags: Record\<string, ShortcodeHandler\>; register(tag: string, handler: ShortcodeHandler): ...; unregister(tag: string): ...; has(tag: string): boolean; \}
-
-Removes a tag so it falls back to the `unknownTag` policy. Chainable.
-
-#### Parameters
-
-##### tag
-
-`string`
-
-#### Returns
-
-\{ tags: Record\<string, ShortcodeHandler\>; register(tag: string, handler: ShortcodeHandler): ...; unregister(tag: string): ...; has(tag: string): boolean; \}
+[`ShortcodeRegistry`](../interfaces/ShortcodeRegistry.md)
 
 ## Example
 

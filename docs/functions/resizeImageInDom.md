@@ -8,7 +8,7 @@
 
 > **resizeImageInDom**(`input`, `options?`): `void`
 
-Defined in: [src/plugins/resizeImage.ts:370](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/resizeImage.ts#L370)
+Defined in: [src/plugins/resizeImage.ts:370](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/resizeImage.ts#L370)
 
 Applies [resizeImage](resizeImage.md) to every matched element in place — `<img>`
 (`src` + `srcset`) or any element with an inline `background-image`.

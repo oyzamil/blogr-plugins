@@ -334,6 +334,20 @@ export function renderShortcodes(
 	return renderTree(tree, ctx, 0);
 }
 
+export interface ShortcodeRegistry {
+	/** Live map of every tag registered so far — pass straight into `tags`. */
+	tags: Record<string, ShortcodeHandler>;
+
+	/** Registers (or overwrites) a single tag's handler. Chainable. */
+	register(tag: string, handler: ShortcodeHandler): ShortcodeRegistry;
+
+	/** Removes a tag so it falls back to the `unknownTag` policy. Chainable. */
+	unregister(tag: string): ShortcodeRegistry;
+
+	/** Whether a tag currently has a handler. */
+	has(tag: string): boolean;
+}
+
 /**
  * A small, reusable builder for a tag → handler map, so a shared set of
  * shortcodes (e.g. your site's `[gallery]`, `[youtube]`, `[button]`) can be
@@ -353,7 +367,7 @@ export function renderShortcodes(
  */
 export function createShortcodeRegistry(
 	initial: Record<string, ShortcodeHandler> = {},
-) {
+): ShortcodeRegistry {
 	const tags: Record<string, ShortcodeHandler> = { ...initial };
 
 	const registry = {

@@ -6,7 +6,7 @@
 
 # Interface: WidgetInstance
 
-Defined in: [src/plugins/createWidget.ts:242](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L242)
+Defined in: [src/plugins/createWidget.ts:242](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L242)
 
 Returned by [createWidget](../functions/createWidget.md).
 
@@ -20,7 +20,7 @@ Returned by [createWidget](../functions/createWidget.md).
 
 > **destroy**(): `void`
 
-Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 
@@ -38,7 +38,7 @@ Removes listeners/observers and undoes DOM changes made by the plugin.
 
 > **refresh**(): `Promise`\<`void`\>
 
-Defined in: [src/plugins/createWidget.ts:244](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L244)
+Defined in: [src/plugins/createWidget.ts:244](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L244)
 
 Re-fetches from scratch, bypassing the local cache.
 
@@ -52,7 +52,7 @@ Re-fetches from scratch, bypassing the local cache.
 
 > **setQuery**(`query`): `Promise`\<`void`\>
 
-Defined in: [src/plugins/createWidget.ts:246](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L246)
+Defined in: [src/plugins/createWidget.ts:246](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L246)
 
 Updates the search query and re-fetches (or re-filters, per `deepSearch`).
 

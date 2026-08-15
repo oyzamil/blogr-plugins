@@ -44,6 +44,7 @@ export type {
 	ShortcodeAttributes,
 	ShortcodeAttributeValue,
 	ShortcodeHandler,
+	ShortcodeRegistry,
 	ShortcodifyDomOptions,
 	ShortcodifyOptions,
 	UnknownTagPolicy,

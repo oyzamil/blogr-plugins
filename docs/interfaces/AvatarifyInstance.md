@@ -6,7 +6,7 @@
 
 # Interface: AvatarifyInstance
 
-Defined in: [src/plugins/avatarify.ts:177](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/avatarify.ts#L177)
+Defined in: [src/plugins/avatarify.ts:177](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L177)
 
 Returned by [avatarify](../functions/avatarify.md).
 
@@ -20,7 +20,7 @@ Returned by [avatarify](../functions/avatarify.md).
 
 > **destroy**(): `void`
 
-Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 
@@ -38,7 +38,7 @@ Removes listeners/observers and undoes DOM changes made by the plugin.
 
 > **refresh**(): `void`
 
-Defined in: [src/plugins/avatarify.ts:179](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/avatarify.ts#L179)
+Defined in: [src/plugins/avatarify.ts:179](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L179)
 
 Forces an immediate load of every matched avatar, bypassing the debounce and the per-avatar in-view gate.
 

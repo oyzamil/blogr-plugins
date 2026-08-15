@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.1 - es | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.2 - es | M.Muzammil <https://muzammil.work/> | MIT License */
 //#region src/utils/dom.ts
 /**
 * Normalizes any supported input (selector string, Element, NodeList, array,
@@ -5113,12 +5113,11 @@ function tocify(input, options = {}) {
 		root.querySelectorAll("ul").forEach((ul) => {
 			if (ul.children.length === 0) ul.remove();
 		});
-		if (opts.title) {
+		if (opts.title) if (typeof opts.title === "function") target.insertAdjacentHTML("beforeend", opts.title());
+		else {
 			const title = document.createElement("h2");
-			title.className = "toc-title";
 			title.textContent = opts.title;
 			target.appendChild(title);
-			cleanups.push(() => title.remove());
 		}
 		target.appendChild(root);
 		cleanups.push(() => root.remove());

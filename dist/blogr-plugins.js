@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.1 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.2 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrPlugins = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -5066,12 +5066,11 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			root.querySelectorAll("ul").forEach((ul) => {
 				if (ul.children.length === 0) ul.remove();
 			});
-			if (opts.title) {
+			if (opts.title) if (typeof opts.title === "function") target.insertAdjacentHTML("beforeend", opts.title());
+			else {
 				const title = document.createElement("h2");
-				title.className = "toc-title";
 				title.textContent = opts.title;
 				target.appendChild(title);
-				cleanups.push(() => title.remove());
 			}
 			target.appendChild(root);
 			cleanups.push(() => root.remove());

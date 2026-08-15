@@ -26,6 +26,7 @@
 - [RelatifyOptions](interfaces/RelatifyOptions.md)
 - [ReplacifyOptions](interfaces/ReplacifyOptions.md)
 - [ResizeImageOptions](interfaces/ResizeImageOptions.md)
+- [ShortcodeRegistry](interfaces/ShortcodeRegistry.md)
 - [ShortcodifyDomOptions](interfaces/ShortcodifyDomOptions.md)
 - [ShortcodifyOptions](interfaces/ShortcodifyOptions.md)
 - [StackifyChangeDetail](interfaces/StackifyChangeDetail.md)

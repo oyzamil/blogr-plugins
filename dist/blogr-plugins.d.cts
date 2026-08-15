@@ -1140,6 +1140,16 @@ interface ShortcodifyDomOptions extends ShortcodifyOptions {
  * ```
  */
 declare function renderShortcodes(text: string, options: ShortcodifyOptions): string;
+interface ShortcodeRegistry {
+  /** Live map of every tag registered so far — pass straight into `tags`. */
+  tags: Record<string, ShortcodeHandler>;
+  /** Registers (or overwrites) a single tag's handler. Chainable. */
+  register(tag: string, handler: ShortcodeHandler): ShortcodeRegistry;
+  /** Removes a tag so it falls back to the `unknownTag` policy. Chainable. */
+  unregister(tag: string): ShortcodeRegistry;
+  /** Whether a tag currently has a handler. */
+  has(tag: string): boolean;
+}
 /**
  * A small, reusable builder for a tag → handler map, so a shared set of
  * shortcodes (e.g. your site's `[gallery]`, `[youtube]`, `[button]`) can be
@@ -1157,16 +1167,7 @@ declare function renderShortcodes(text: string, options: ShortcodifyOptions): st
  * shortcodify("#post-body", { tags: registry.tags });
  * ```
  */
-declare function createShortcodeRegistry(initial?: Record<string, ShortcodeHandler>): {
-  /** Live map of every tag registered so far — pass straight into `tags`. */
-  tags: Record<string, ShortcodeHandler>;
-  /** Registers (or overwrites) a single tag's handler. Chainable. */
-  register(tag: string, handler: ShortcodeHandler): /*elided*/ any;
-  /** Removes a tag so it falls back to the `unknownTag` policy. Chainable. */
-  unregister(tag: string): /*elided*/ any;
-  /** Whether a tag currently has a handler. */
-  has(tag: string): boolean;
-};
+declare function createShortcodeRegistry(initial?: Record<string, ShortcodeHandler>): ShortcodeRegistry;
 /**
  * A handful of ready-made handlers (`b`, `i`, `u`, `url`, `color`) you can
  * spread into your own tag map instead of writing the common ones by hand.
@@ -1437,7 +1438,7 @@ declare function stickify(input: ElementInput, options?: StickifyOptions): Plugi
 /** Configuration options for {@link tocify}. */
 interface TocifyOptions {
   /** Optional title rendered as an `<h2>` above the table of contents. */
-  title?: string;
+  title?: string | (() => string);
   /** Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`. */
   headings?: string;
   /** Root element to scan for headings. Defaults to the `input` element itself. */
@@ -1461,4 +1462,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodeRegistry, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };

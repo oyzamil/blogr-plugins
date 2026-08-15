@@ -6,7 +6,7 @@
 
 # Interface: CommentEntry
 
-Defined in: [src/plugins/createWidget.ts:56](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L56)
+Defined in: [src/plugins/createWidget.ts:56](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L56)
 
 A normalized comment — every field from the raw comment feed entry (id,
 url, author, post, inReplyTo, extended, etc.) is spread directly onto
@@ -36,7 +36,7 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:100
 
 > **content**: `string`
 
-Defined in: [src/plugins/createWidget.ts:61](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L61)
+Defined in: [src/plugins/createWidget.ts:61](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L61)
 
 ***
 
@@ -82,7 +82,7 @@ Id of the parent comment when this is a reply, else `null`.
 
 > **kind**: `"comments"`
 
-Defined in: [src/plugins/createWidget.ts:60](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L60)
+Defined in: [src/plugins/createWidget.ts:60](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L60)
 
 ***
 
@@ -124,7 +124,7 @@ The post this comment belongs to.
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:62](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L62)
+Defined in: [src/plugins/createWidget.ts:62](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L62)
 
 ***
 
@@ -156,7 +156,7 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:96
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:63](https://github.com/oyzamil/blogr-plugins/blob/b86752cbcef20fc3f5f43d7f67adfc078e4c9868/src/plugins/createWidget.ts#L63)
+Defined in: [src/plugins/createWidget.ts:63](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L63)
 
 ***
 
