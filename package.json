@@ -29,6 +29,7 @@
 		"./avatarify": "./dist/avatarify.js",
 		"./relatify": "./dist/relatify.js",
 		"./marqify": "./dist/marqify.js",
+		"./lazyAdsense": "./dist/lazyAdsense.js",
 		"./package.json": "./package.json"
 	},
 	"files": [

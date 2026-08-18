@@ -6,7 +6,7 @@
 
 # Interface: TocifyOptions
 
-Defined in: [src/plugins/tocify.ts:5](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/tocify.ts#L5)
+Defined in: [src/plugins/tocify.ts:5](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/tocify.ts#L5)
 
 Configuration options for [tocify](../functions/tocify.md).
 
@@ -16,7 +16,7 @@ Configuration options for [tocify](../functions/tocify.md).
 
 > `optional` **content?**: [`ElementInput`](../type-aliases/ElementInput.md)
 
-Defined in: [src/plugins/tocify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/tocify.ts#L11)
+Defined in: [src/plugins/tocify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/tocify.ts#L11)
 
 Root element to scan for headings. Defaults to the `input` element itself.
 
@@ -26,7 +26,7 @@ Root element to scan for headings. Defaults to the `input` element itself.
 
 > `optional` **headings?**: `string`
 
-Defined in: [src/plugins/tocify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/tocify.ts#L9)
+Defined in: [src/plugins/tocify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/tocify.ts#L9)
 
 Selector (relative to the content root) for headings to include. Default `"h1,h2,h3"`.
 
@@ -36,6 +36,6 @@ Selector (relative to the content root) for headings to include. Default `"h1,h2
 
 > `optional` **title?**: `string` \| (() => `string`)
 
-Defined in: [src/plugins/tocify.ts:7](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/tocify.ts#L7)
+Defined in: [src/plugins/tocify.ts:7](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/tocify.ts#L7)
 
 Optional title rendered as an `<h2>` above the table of contents.

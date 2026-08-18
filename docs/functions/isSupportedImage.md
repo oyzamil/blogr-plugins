@@ -8,7 +8,7 @@
 
 > **isSupportedImage**(`url`): `boolean`
 
-Defined in: [src/plugins/resizeImage.ts:219](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/resizeImage.ts#L219)
+Defined in: [src/plugins/resizeImage.ts:219](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/resizeImage.ts#L219)
 
 Checks whether a URL is a Blogger/Google-hosted image (old or new URL
 shape) or a YouTube video thumbnail that [resizeImage](resizeImage.md) can handle.

@@ -18,6 +18,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
+//#region src/utils/merge-options.ts
+/**
+	* Merges user-supplied options over a set of defaults, dropping any key
+	* whose value is explicitly `undefined` first.
+	*
+	* Plain `{ ...defaults, ...options }` lets `{ someOption: undefined }` (e.g.
+	* from a form field that's blank, or a variable that happens to be
+	* `undefined`) silently overwrite a real default instead of falling back to
+	* it — a common footgun. This closes that gap.
+	*
+	* @param defaultValues - The base/default option values.
+	* @param options - User-supplied options; `undefined`-valued keys are ignored.
+	* @returns A merged object with every default preserved unless the caller
+	* gave it an actual (non-`undefined`) value.
+	*/
+	function mergeOptions(defaultValues, options) {
+		const cleaned = {};
+		for (const key of Object.keys(options)) if (options[key] !== void 0) cleaned[key] = options[key];
+		return {
+			...defaultValues,
+			...cleaned
+		};
+	}
+
+//#endregion
 //#region src/plugins/stackify.ts
 	const defaults = {
 		offset: 20,
@@ -29,6 +54,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		easing: "ease",
 		direction: "forward",
 		orientation: void 0,
+		stackDirection: "top",
 		size: void 0,
 		pauseOnHover: true,
 		clickToActivate: true,
@@ -43,20 +69,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		marqueeSpeed: 60
 	};
 	/**
-	* Drops keys whose value is explicitly `undefined` before merging with
-	* defaults. Without this, `{ ...defaults, ...options }` lets a stray
-	* `someOption: undefined` in caller-built option objects (e.g. reading an
-	* empty form field with `Number(x) : undefined`) silently wipe out a
-	* valid default — that's what was making every card go `opacity: 0` on
-	* init, since `visibleCards` was arriving as `undefined` and
-	* `Math.min(undefined, n)` is `NaN`.
-	*/
-	function stripUndefined(obj) {
-		const out = {};
-		for (const key in obj) if (obj[key] !== void 0) out[key] = obj[key];
-		return out;
-	}
-	/**
 	* Mirrors relevant config onto `container.dataset` so CSS/JS outside the
 	* plugin can hook into current state (e.g. `[data-layout="marquee"]`).
 	* Called on init and re-applied on `destroy()` cleanup (removed there).
@@ -69,7 +81,10 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		container.dataset.draggable = String(opts.draggable);
 		container.dataset.clickToActivate = String(opts.clickToActivate);
 		container.dataset.pauseOnHover = String(opts.pauseOnHover);
-		if (opts.layout === "stack") container.dataset.peekWidth = opts.peekWidth;
+		if (opts.layout === "stack") {
+			container.dataset.peekWidth = opts.peekWidth;
+			container.dataset.stackDirection = opts.stackDirection ?? ((opts.orientation ?? "vertical") === "vertical" ? "top" : "left");
+		}
 	}
 	function clearDatasetOptions(container) {
 		delete container.dataset.layout;
@@ -80,6 +95,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		delete container.dataset.clickToActivate;
 		delete container.dataset.pauseOnHover;
 		delete container.dataset.peekWidth;
+		delete container.dataset.stackDirection;
 	}
 	/**
 	* Resolves `opts.size` against current layout. Flat shape (`height`/`width`
@@ -111,7 +127,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		const original = Array.from(container.children);
 		const gap = opts.offset;
 		const vertical = (opts.orientation ?? "vertical") === "vertical";
-		const posProp = vertical ? "top" : "left";
+		const stackDirection = opts.stackDirection ?? (vertical ? "top" : "left");
 		let visibleCount = Math.max(1, Math.min(opts.visibleCards, original.length));
 		let order = [...original];
 		let timer = null;
@@ -128,28 +144,36 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (!cardRestore.has(card)) cardRestore.set(card, card.style.cssText);
 			card.classList.add(opts.cardClass);
 			card.style.position = "absolute";
-			if (vertical) card.style.top = "0";
-			else {
-				card.style.top = "0";
-				card.style.bottom = "0";
-			}
-			card.style.transformOrigin = vertical ? "top center" : "center left";
-			card.style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			card.style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 		}
 		for (const card of original) setupCard(card);
 		function applyPositions() {
 			if (order.length === 0) return;
 			const n = order.length;
 			order.forEach((card, i) => {
+				const dir = stackDirection;
 				const pos = (n - 1 - i) * gap;
 				const scale = 1 - i * opts.scaleStep;
 				const peekDelta = opts.peekWidth === "expand" ? i * opts.peekWidthStep : opts.peekWidth === "shrink" ? -i * opts.peekWidthStep : 0;
 				const peekScale = Math.max(.1, 1 + peekDelta);
+				const mainAxisVertical = dir === "top" || dir === "bottom";
 				const transformParts = [];
 				if (scale !== 1) transformParts.push(`scale(${scale})`);
-				if (peekScale !== 1) transformParts.push(vertical ? `scaleX(${peekScale})` : `scaleY(${peekScale})`);
+				if (peekScale !== 1) transformParts.push(mainAxisVertical ? `scaleX(${peekScale})` : `scaleY(${peekScale})`);
+				card.style.top = "";
+				card.style.right = "";
+				card.style.bottom = "";
+				card.style.left = "";
+				if (mainAxisVertical) {
+					card.style.left = "0";
+					card.style.right = "0";
+				} else {
+					card.style.top = "0";
+					card.style.bottom = "0";
+				}
+				card.style[dir] = `${pos}px`;
+				card.style.transformOrigin = dir === "top" ? "top center" : dir === "bottom" ? "bottom center" : dir === "left" ? "center left" : "center right";
 				card.style.zIndex = String(n - i);
-				card.style[posProp] = `${pos}px`;
 				card.style.transform = transformParts.join(" ");
 				card.style.opacity = i < visibleCount ? "1" : "0";
 				card.style.pointerEvents = i === 0 ? "auto" : "none";
@@ -258,7 +282,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (!dragging) return;
 			dragging = false;
 			const d = coord(e) - dragStart;
-			order[0].style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			order[0].style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 			if (Math.abs(d) > DRAG_THRESHOLD_PX) {
 				d < 0 ? next() : prev();
 				justDragged = true;
@@ -304,7 +328,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			for (const card of order) card.style.transition = "none";
 			applyPositions();
 			container.offsetHeight;
-			for (const card of order) card.style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			for (const card of order) card.style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 			applyPositions();
 			if (!initialized && original.length > 0) {
 				initialized = true;
@@ -618,7 +642,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* Supports: data-layout, data-orientation, data-offset, data-scale-step,
 	* data-visible-cards, data-interval, data-duration, data-easing, data-direction,
 	* data-peek-width, data-peek-width-step, data-marquee-speed, data-autoplay,
-	* data-pause-on-hover, data-click-to-activate, data-draggable, data-start-index.
+	* data-pause-on-hover, data-click-to-activate, data-draggable, data-start-index,
+	* data-stack-direction.
 	*/
 	function readDataOptions(container) {
 		const ds = container.dataset;
@@ -633,6 +658,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		if (ds.easing) opts.easing = ds.easing;
 		if (ds.direction) opts.direction = ds.direction;
 		if (ds.peekWidth) opts.peekWidth = ds.peekWidth;
+		if (ds.stackDirection) opts.stackDirection = ds.stackDirection;
 		if (ds.peekWidthStep !== void 0) opts.peekWidthStep = Number(ds.peekWidthStep);
 		if (ds.marqueeSpeed !== void 0) opts.marqueeSpeed = Number(ds.marqueeSpeed);
 		if (ds.autoplay !== void 0) opts.autoplay = ds.autoplay === "true";
@@ -640,7 +666,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		if (ds.clickToActivate !== void 0) opts.clickToActivate = ds.clickToActivate === "true";
 		if (ds.draggable !== void 0) opts.draggable = ds.draggable === "true";
 		if (ds.startIndex !== void 0) opts.startIndex = Number(ds.startIndex);
-		return stripUndefined(opts);
+		return opts;
 	}
 	/**
 	* Turns a container's children into a peeking card stack — like a small
@@ -661,7 +687,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	*   data-layout="stack"
 	*   data-offset="20"
 	*   data-interval="4000"
-	*   data-duration="500">
+	*   data-duration="500"
+	*   data-stack-direction="right">
 	* 	<div class="card">...</div>
 	* 	<div class="card">...</div>
 	* 	<div class="card">...</div>
@@ -674,7 +701,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* const stack = stackify("#testimonials");
 	*
 	* // Or override specific options
-	* const stack2 = stackify("#other", { interval: 2000 });
+	* const stack2 = stackify("#other", { interval: 2000, stackDirection: "all" });
 	*
 	* stack.next(); // advance manually
 	* stack.destroy();
@@ -683,11 +710,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	function stackify(input, options) {
 		const engines = resolveElements(input).map((container) => {
 			const dataOpts = readDataOptions(container);
-			return createEngine(container, {
-				...defaults,
-				...dataOpts,
-				...stripUndefined(options || {})
-			});
+			return createEngine(container, mergeOptions(mergeOptions(defaults, dataOpts), options || {}));
 		}).filter((engine) => engine !== null);
 		return {
 			next() {

@@ -6,6 +6,7 @@ const logger = createLogger({
 function skReadOptions() {
 	return {
 		layout: document.getElementById("sk-layout").value,
+		stackDirection: document.getElementById("sk-stackDirection").value,
 		orientation: document.getElementById("sk-orientation").value,
 		offset: Number(document.getElementById("sk-offset").value),
 		scaleStep: Number(document.getElementById("sk-scaleStep").value),

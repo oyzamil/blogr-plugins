@@ -12,6 +12,7 @@
 
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** Configuration options for {@link stickify}. */
 export interface StickifyOptions {
@@ -56,6 +57,8 @@ interface SidebarState {
 	stickySidebar: HTMLElement;
 	container: HTMLElement;
 	onScroll: () => void;
+	scheduleOnScroll: () => void;
+	rafId: number | null;
 	resizeObserver: ResizeObserver;
 	previousScrollTop: number;
 	stickySidebarPaddingTop: number;
@@ -73,12 +76,15 @@ function getOffset(element: HTMLElement): { top: number; left: number } {
 	};
 }
 
-function getOuterWidth(element: HTMLElement): number {
-	const style = getComputedStyle(element);
+function getOuterWidth(
+	element: HTMLElement,
+	style?: CSSStyleDeclaration,
+): number {
+	const computed = style ?? getComputedStyle(element);
 	return (
 		element.getBoundingClientRect().width +
-		parseFloat(style.marginLeft) +
-		parseFloat(style.marginRight)
+		parseFloat(computed.marginLeft) +
+		parseFloat(computed.marginRight)
 	);
 }
 
@@ -131,7 +137,7 @@ export function stickify(
 	input: ElementInput,
 	options: StickifyOptions = {},
 ): PluginInstance {
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options);
 	opts.additionalMarginTop = Math.floor(opts.additionalMarginTop);
 	opts.additionalMarginBottom = Math.floor(opts.additionalMarginBottom);
 
@@ -221,6 +227,8 @@ export function stickify(
 				stickySidebar,
 				container,
 				onScroll: () => {},
+				scheduleOnScroll: () => {},
+				rafId: null,
 				resizeObserver: null as unknown as ResizeObserver,
 				previousScrollTop: 0,
 				stickySidebarPaddingTop,
@@ -240,10 +248,17 @@ export function stickify(
 					return;
 				}
 
+				// Cache computed styles once per handler run — reused below
+				// instead of re-querying getComputedStyle several times per tick.
+				const sidebarStyle = getComputedStyle(sidebar);
+				let stickySidebarStyle: CSSStyleDeclaration | null = null;
+				const getStickySidebarStyle = (): CSSStyleDeclaration =>
+					(stickySidebarStyle ??= getComputedStyle(stickySidebar!));
+
 				if (opts.disableOnResponsiveLayouts) {
 					const sidebarWidth =
-						getComputedStyle(sidebar).float === "none"
-							? getOuterWidth(sidebar)
+						sidebarStyle.float === "none"
+							? getOuterWidth(sidebar, sidebarStyle)
 							: sidebar.offsetWidth;
 					if (sidebarWidth + 50 > container.getBoundingClientRect().width) {
 						resetSidebar(state);
@@ -297,7 +312,7 @@ export function stickify(
 					const scrollTopDiff = state.previousScrollTop - scrollTop;
 
 					if (
-						getComputedStyle(stickySidebar).position === "fixed" &&
+						getStickySidebarStyle().position === "fixed" &&
 						opts.sidebarBehavior === "modern"
 					) {
 						top += scrollTopDiff;
@@ -348,12 +363,12 @@ export function stickify(
 						position: "fixed",
 						width: `${stickySidebar.getBoundingClientRect().width}px`,
 						transform: `translateY(${top}px)`,
-						left: `${getOffset(sidebar).left + parseFloat(getComputedStyle(sidebar).paddingLeft) - window.scrollX}px`,
+						left: `${getOffset(sidebar).left + parseFloat(sidebarStyle.paddingLeft) - window.scrollX}px`,
 						top: "0px",
 					});
 				} else if (position === "absolute") {
 					const css: Partial<CSSStyleDeclaration> = {};
-					if (getComputedStyle(stickySidebar).position !== "absolute") {
+					if (getStickySidebarStyle().position !== "absolute") {
 						css.position = "absolute";
 						css.transform = `translateY(${scrollTop + top - sidebarOffset.top - state.stickySidebarPaddingTop - state.stickySidebarPaddingBottom}px)`;
 						css.top = "0px";
@@ -372,11 +387,21 @@ export function stickify(
 				state.previousScrollTop = scrollTop;
 			};
 
-			state.onScroll();
-			document.addEventListener("scroll", state.onScroll);
-			window.addEventListener("resize", state.onScroll);
+			state.scheduleOnScroll = () => {
+				if (state.rafId !== null) return; // frame already queued, skip
+				state.rafId = requestAnimationFrame(() => {
+					state.rafId = null;
+					state.onScroll();
+				});
+			};
 
-			state.resizeObserver = new ResizeObserver(() => state.onScroll());
+			state.onScroll();
+			document.addEventListener("scroll", state.scheduleOnScroll, {
+				passive: true,
+			});
+			window.addEventListener("resize", state.scheduleOnScroll);
+
+			state.resizeObserver = new ResizeObserver(() => state.scheduleOnScroll());
 			state.resizeObserver.observe(stickySidebar);
 
 			states.push(state);
@@ -389,7 +414,7 @@ export function stickify(
 			// eslint-disable-next-line no-console
 			console.log("stickify: viewport is under minWidth, init delayed.");
 		}
-		document.addEventListener("scroll", tryDelayedInit);
+		document.addEventListener("scroll", tryDelayedInit, { passive: true });
 		window.addEventListener("resize", tryDelayedInit);
 	}
 
@@ -398,8 +423,9 @@ export function stickify(
 			document.removeEventListener("scroll", tryDelayedInit);
 			window.removeEventListener("resize", tryDelayedInit);
 			for (const state of states) {
-				document.removeEventListener("scroll", state.onScroll);
-				window.removeEventListener("resize", state.onScroll);
+				document.removeEventListener("scroll", state.scheduleOnScroll);
+				window.removeEventListener("resize", state.scheduleOnScroll);
+				if (state.rafId !== null) cancelAnimationFrame(state.rafId);
 				state.resizeObserver.disconnect();
 			}
 		},

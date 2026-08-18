@@ -6,7 +6,7 @@
 
 # Interface: AvatarSetDetail
 
-Defined in: [src/plugins/avatarify.ts:64](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L64)
+Defined in: [src/plugins/avatarify.ts:64](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L64)
 
 Detail passed to `onAvatarSet`.
 
@@ -20,7 +20,7 @@ Detail passed to `onAvatarSet`.
 
 > **avatarEl**: `Element`
 
-Defined in: [src/plugins/avatarify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L72)
+Defined in: [src/plugins/avatarify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L72)
 
 The element matched by `avatarSelector` that received the avatar.
 
@@ -30,7 +30,7 @@ The element matched by `avatarSelector` that received the avatar.
 
 > **url**: `string`
 
-Defined in: [src/plugins/avatarify.ts:68](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L68)
+Defined in: [src/plugins/avatarify.ts:68](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L68)
 
 The generated avatar URL that was applied.
 
@@ -40,7 +40,7 @@ The generated avatar URL that was applied.
 
 > **username**: `string`
 
-Defined in: [src/plugins/avatarify.ts:66](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L66)
+Defined in: [src/plugins/avatarify.ts:66](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L66)
 
 The username the avatar was generated for.
 
@@ -50,6 +50,6 @@ The username the avatar was generated for.
 
 > **usernameEl**: `Element`
 
-Defined in: [src/plugins/avatarify.ts:70](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L70)
+Defined in: [src/plugins/avatarify.ts:70](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L70)
 
 The element matched by `usernameSelector`.

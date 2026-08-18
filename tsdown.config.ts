@@ -20,6 +20,7 @@ const PLUGINS = [
 	"avatarify",
 	"relatify",
 	"marqify",
+	"adsenseLoader",
 ] as const;
 
 const BANNER = (format: string) =>

@@ -1,5 +1,6 @@
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** A single shortcode attribute value, auto-coerced from its raw text. */
 export type ShortcodeAttributeValue = string | number | boolean;
@@ -62,12 +63,14 @@ export interface ShortcodifyDomOptions extends ShortcodifyOptions {
 	allowHtml?: boolean;
 }
 
-const defaults: Required<
+type ResolvedShortcodifyOptions = Required<
 	Pick<
 		ShortcodifyOptions,
 		"openTag" | "closeTag" | "unknownTag" | "recursive" | "maxDepth"
 	>
-> = {
+>;
+
+const defaults: ResolvedShortcodifyOptions = {
 	openTag: "[",
 	closeTag: "]",
 	unknownTag: "keep",
@@ -320,7 +323,8 @@ export function renderShortcodes(
 	text: string,
 	options: ShortcodifyOptions,
 ): string {
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options) as ResolvedShortcodifyOptions &
+		Pick<ShortcodifyOptions, "tags" | "onError">;
 	const ctx: RenderContext = {
 		tags: opts.tags,
 		unknownTag: opts.unknownTag,

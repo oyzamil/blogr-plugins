@@ -1,5 +1,6 @@
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** Configuration options for {@link lazify}. */
 export interface LazifyOptions {
@@ -175,7 +176,7 @@ export function lazify(
 	input: ElementInput,
 	options: LazifyOptions = {},
 ): PluginInstance {
-	const opts: ResolvedOptions = { ...defaults, ...options };
+	const opts: ResolvedOptions = mergeOptions(defaults, options);
 	const onLoadCb = options.onLoad;
 	const onErrorCb = options.onError;
 	const elements = resolveElements(input);

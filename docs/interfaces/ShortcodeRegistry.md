@@ -6,7 +6,7 @@
 
 # Interface: ShortcodeRegistry
 
-Defined in: [src/plugins/shortcodify.ts:337](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L337)
+Defined in: [src/plugins/shortcodify.ts:337](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L337)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [src/plugins/shortcodify.ts:337](https://github.com/oyzamil/blogr-pl
 
 > **tags**: `Record`\<`string`, [`ShortcodeHandler`](../type-aliases/ShortcodeHandler.md)\>
 
-Defined in: [src/plugins/shortcodify.ts:339](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L339)
+Defined in: [src/plugins/shortcodify.ts:339](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L339)
 
 Live map of every tag registered so far — pass straight into `tags`.
 
@@ -24,7 +24,7 @@ Live map of every tag registered so far — pass straight into `tags`.
 
 > **has**(`tag`): `boolean`
 
-Defined in: [src/plugins/shortcodify.ts:348](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L348)
+Defined in: [src/plugins/shortcodify.ts:348](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L348)
 
 Whether a tag currently has a handler.
 
@@ -44,7 +44,7 @@ Whether a tag currently has a handler.
 
 > **register**(`tag`, `handler`): `ShortcodeRegistry`
 
-Defined in: [src/plugins/shortcodify.ts:342](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L342)
+Defined in: [src/plugins/shortcodify.ts:342](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L342)
 
 Registers (or overwrites) a single tag's handler. Chainable.
 
@@ -68,7 +68,7 @@ Registers (or overwrites) a single tag's handler. Chainable.
 
 > **unregister**(`tag`): `ShortcodeRegistry`
 
-Defined in: [src/plugins/shortcodify.ts:345](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/shortcodify.ts#L345)
+Defined in: [src/plugins/shortcodify.ts:345](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L345)
 
 Removes a tag so it falls back to the `unknownTag` policy. Chainable.
 

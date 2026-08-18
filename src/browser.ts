@@ -1,4 +1,9 @@
 import {
+	type AdsenseLoaderInstance,
+	type AdsenseLoaderOptions,
+	adsenseLoader,
+} from "./plugins/adsenseLoader";
+import {
 	type AvatarifyConfig,
 	type AvatarifyInstance,
 	type AvatarSetDetail,
@@ -99,6 +104,8 @@ if (hasJQuery()) {
 }
 
 export type {
+	AdsenseLoaderInstance,
+	AdsenseLoaderOptions,
 	AvatarifyConfig,
 	AvatarifyInstance,
 	AvatarSetDetail,
@@ -122,6 +129,7 @@ export type {
 };
 
 export {
+	adsenseLoader,
 	avatarify,
 	cookify,
 	createShortcodeRegistry,

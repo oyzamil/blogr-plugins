@@ -1,5 +1,6 @@
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** Configuration options for {@link tocify}. */
 export interface TocifyOptions {
@@ -11,7 +12,10 @@ export interface TocifyOptions {
 	content?: ElementInput;
 }
 
-const defaults: Required<Pick<TocifyOptions, "headings">> = {
+type ResolvedTocifyOptions = Required<Pick<TocifyOptions, "headings">> &
+	Pick<TocifyOptions, "title" | "content">;
+
+const defaults: ResolvedTocifyOptions = {
 	headings: "h1,h2,h3",
 };
 
@@ -46,7 +50,7 @@ export function tocify(
 	input: ElementInput,
 	options: TocifyOptions = {},
 ): PluginInstance {
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options);
 	const targets = resolveElements(input) as HTMLElement[];
 	const cleanups: Array<() => void> = [];
 

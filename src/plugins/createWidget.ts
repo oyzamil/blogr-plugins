@@ -2,6 +2,7 @@ import { type Author, Blogr, type Comment, type Pager, type Post } from "blogr";
 
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 import { type ResizeImageOptions, resizeImage } from "./resizeImage";
 
 /** What data the widget lists — one flag covers both feed and shape. */
@@ -282,13 +283,13 @@ const defaults = {
 		`<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () =>
 		`<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-	template: (entry: WidgetEntry) =>
+	template: (entry: WidgetEntry, _i: number) =>
 		entry.kind === "authors" || entry.kind === "labels"
 			? `<div><h2>${entry.name}</h2></div>`
 			: entry.kind === "comments"
 				? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>`
 				: `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-	entryClass: () => "",
+	entryClass: (_entry: WidgetEntry, _index: number) => "",
 };
 
 const MONTHS_LONG = [
@@ -464,7 +465,8 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		};
 	}
 
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options) as typeof defaults &
+		CreateWidgetOptions;
 	const container = resolveElements(opts.containerSelector)[0] as
 		| HTMLElement
 		| undefined;

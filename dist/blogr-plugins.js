@@ -2,22 +2,6 @@
 var BlogrPlugins = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-//#region src/utils/dom.ts
-/**
-	* Normalizes any supported input (selector string, Element, NodeList, array,
-	* or jQuery collection) into a plain array of Elements.
-	*
-	* @param input - Selector string, Element, element list, or jQuery object.
-	* @returns Array of matched elements. Empty if nothing matched.
-	*/
-	function resolveElements(input) {
-		if (typeof input === "string") return Array.from(document.querySelectorAll(input));
-		if (input instanceof Element) return [input];
-		if (input == null) return [];
-		return Array.from(input);
-	}
-
-//#endregion
 //#region src/utils/merge-options.ts
 /**
 	* Merges user-supplied options over a set of defaults, dropping any key
@@ -40,6 +24,302 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			...defaultValues,
 			...cleaned
 		};
+	}
+
+//#endregion
+//#region src/plugins/adsenseLoader.ts
+	const defaults$12 = {
+		rootMargin: "200px",
+		threshold: 0,
+		observeMutations: true,
+		mobileBreakpoint: "(max-width: 767px)",
+		removeOnUnfilled: true
+	};
+	const ADSENSE_SCRIPT_SRC = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+	const PENDING_CLASS = "adsbygoogle";
+	const LOADED_CLASS = "adsense--loaded";
+	const UNFILLED_CLASS = "adsense--unfilled";
+	const AD_FILL_ATTR = "data-ad-status";
+	const UNFILLED = "unfilled";
+	let adsenseScriptPromise = null;
+	let pushLock = Promise.resolve();
+	function withPushLock(fn) {
+		const run = pushLock.then(fn, fn);
+		pushLock = run.then(() => void 0, () => void 0);
+		return run;
+	}
+	function ensureAdsenseScript() {
+		if (adsenseScriptPromise) return adsenseScriptPromise;
+		const promise = document.querySelector(`script[src^="${ADSENSE_SCRIPT_SRC}"]`) ? Promise.resolve() : new Promise((resolve, reject) => {
+			const script = document.createElement("script");
+			script.async = true;
+			script.crossOrigin = "anonymous";
+			script.src = ADSENSE_SCRIPT_SRC;
+			script.addEventListener("load", () => resolve());
+			script.addEventListener("error", () => reject(/* @__PURE__ */ new Error(`adsenseLoader: failed to load ${ADSENSE_SCRIPT_SRC}`)));
+			document.head.appendChild(script);
+		});
+		adsenseScriptPromise = promise;
+		return promise;
+	}
+	/**
+	* Parses a `data-mobile-size` / `data-pc-size` attribute value into a list
+	* of sizes. Tolerant of the loose `"['250x250', '300x600']"` format shown
+	* in the docs (single quotes, not real JSON) — just pulls every
+	* `HEIGHTxWIDTH` pair out with a regex rather than requiring valid JSON.
+	* Each entry is `heightxwidth`, e.g. `"250x250"` — height first, width
+	* second (matches the plugin's own {@link AdSize}, not the more common
+	* width-first convention, so double check against the site's markup).
+	*/
+	function parseAdSizes(raw) {
+		if (!raw) return [];
+		return (raw.match(/(\d+)\s*x\s*(\d+)/gi) ?? []).map((pair) => {
+			const [height, width] = pair.split(/x/i).map((n) => parseInt(n, 10));
+			return {
+				height,
+				width
+			};
+		});
+	}
+	/**
+	* Picks the first size in `sizes` that fits within `availableWidth`,
+	* falling back to the last (assumed smallest) entry if none fit — so a
+	* wrapper always ends up with *some* explicit size rather than none.
+	*/
+	function pickBestSize(sizes, availableWidth) {
+		if (sizes.length === 0) return null;
+		for (const size of sizes) if (size.width <= availableWidth) return size;
+		return sizes[sizes.length - 1];
+	}
+	function applySize$1(wrapper, size) {
+		wrapper.style.width = `${size.width}px`;
+		wrapper.style.height = `${size.height}px`;
+	}
+	/**
+	* Resolves and applies `data-mobile-size` / `data-pc-size` for `wrapper`,
+	* based on the current `mobileBreakpoint` match and the wrapper's
+	* available width. No-ops (leaves the wrapper's own CSS in control) if
+	* neither attribute is present.
+	*/
+	function applyResponsiveSize(wrapper, mobileBreakpoint) {
+		const isMobile = window.matchMedia(mobileBreakpoint).matches;
+		const sizes = parseAdSizes(wrapper.getAttribute(isMobile ? "data-mobile-size" : "data-pc-size"));
+		if (sizes.length === 0) return;
+		const best = pickBestSize(sizes, wrapper.parentElement?.clientWidth || window.innerWidth);
+		if (best) applySize$1(wrapper, best);
+	}
+	/**
+	* Waits until Google sets the real fill outcome on `ins`
+	* (`data-ad-status="filled"` / `"unfilled"`) rather than assuming push()
+	* claimed the slot the instant it returns — push() only schedules the
+	* claim. Falls back to a timeout so a stuck ad can't deadlock the queue.
+	*/
+	function waitForFillStatus(ins, timeoutMs = 4e3) {
+		return new Promise((resolve) => {
+			const current = ins.getAttribute(AD_FILL_ATTR);
+			if (current) {
+				resolve(current);
+				return;
+			}
+			let done = false;
+			const finish = (value) => {
+				if (done) return;
+				done = true;
+				observer.disconnect();
+				clearTimeout(timer);
+				resolve(value);
+			};
+			const observer = new MutationObserver(() => {
+				const value = ins.getAttribute(AD_FILL_ATTR);
+				if (value) finish(value);
+			});
+			observer.observe(ins, {
+				attributes: true,
+				attributeFilter: [AD_FILL_ATTR]
+			});
+			const timer = setTimeout(() => finish(null), timeoutMs);
+		});
+	}
+	/**
+	* Lazy-loads AdSense units wrapped in a container div — `<div
+	* class="adsense"><ins class="adsbygoogle" ...></ins></div>` — right as
+	* each one is about to enter the viewport, using `IntersectionObserver`
+	* instead of scroll/resize polling.
+	*
+	* Also supports responsive sizing: give a wrapper `data-mobile-size`
+	* and/or `data-pc-size` listing candidate sizes as `heightxwidth` pairs
+	* (height first), and the plugin picks the best-fitting one for the
+	* current breakpoint/width and applies it to the wrapper directly —
+	* before the ad loads, so it never resizes an already-filled ad (see the
+	* policy note below).
+	*
+	* ```html
+	* <div class="adsense"
+	* 	data-mobile-size="['50x320', '100x320']"
+	* 	data-pc-size="['90x728', '250x300']">
+	* 	<ins class="adsbygoogle"
+	* 		data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+	* 		data-ad-slot="9964452094"></ins>
+	* </div>
+	* ```
+	*
+	* > **On ad refresh:** AdSense's publisher policy does not permit
+	* > programmatically refreshing an already-served ad. This plugin
+	* > resizes a wrapper's own CSS box before its ad loads — it never
+	* > touches, resizes, or reloads an ad that has already filled.
+	*
+	* @param input - Selector, element(s), or jQuery collection for the
+	* `.adsense`-style wrapper(s) to lazy-load.
+	* @param options - {@link AdsenseLoaderOptions}
+	* @returns An {@link AdsenseLoaderInstance} — `destroy()` disconnects
+	* every observer and restores any wrapper that never filled to its
+	* original markup (filled ads are left exactly as AdSense rendered them).
+	*
+	* @example
+	* ```ts
+	* import { adsenseLoader } from "blogr-plugins";
+	*
+	* adsenseLoader(".adsense", {
+	* 	rootMargin: "200px",
+	* 	onFilled: (wrapper) => wrapper.classList.add("adsense--loaded"),
+	* 	onUnfilled: (wrapper) => console.log("no fill for", wrapper),
+	* });
+	* ```
+	*/
+	function adsenseLoader(input, options = {}) {
+		const opts = mergeOptions(defaults$12, options);
+		const container = options.container ?? document.body;
+		let destroyed = false;
+		const seen = /* @__PURE__ */ new WeakSet();
+		const states = /* @__PURE__ */ new Map();
+		function findIns(wrapper) {
+			return wrapper.querySelector("ins");
+		}
+		const intersectionObserver = new IntersectionObserver((entries) => {
+			for (const entry of entries) {
+				if (!entry.isIntersecting) continue;
+				const wrapper = entry.target;
+				intersectionObserver.unobserve(wrapper);
+				load(wrapper);
+			}
+		}, {
+			rootMargin: opts.rootMargin,
+			threshold: opts.threshold
+		});
+		async function load(wrapper) {
+			if (destroyed) return;
+			const ins = findIns(wrapper);
+			if (!ins) return;
+			try {
+				options.onLoad?.(wrapper);
+				await ensureAdsenseScript();
+				if (destroyed) return;
+				if (await withPushLock(async () => {
+					ins.classList.add(PENDING_CLASS);
+					const w = window;
+					w.adsbygoogle = w.adsbygoogle || [];
+					w.adsbygoogle.push({});
+					return waitForFillStatus(ins);
+				}) === UNFILLED) {
+					handleUnfilled(wrapper);
+					return;
+				}
+				wrapper.classList.add(LOADED_CLASS);
+				options.onFilled?.(wrapper);
+			} catch {
+				handleUnfilled(wrapper);
+			}
+		}
+		function handleUnfilled(wrapper) {
+			wrapper.classList.add(UNFILLED_CLASS);
+			options.onUnfilled?.(wrapper);
+			if (opts.removeOnUnfilled) {
+				states.delete(wrapper);
+				wrapper.remove();
+			}
+		}
+		function track(el) {
+			if (seen.has(el)) return;
+			seen.add(el);
+			const wrapper = el;
+			states.set(wrapper, { originalHTML: wrapper.innerHTML });
+			applyResponsiveSize(wrapper, opts.mobileBreakpoint);
+			intersectionObserver.observe(wrapper);
+		}
+		function scan() {
+			for (const el of container.querySelectorAll(".adsense")) track(el);
+		}
+		scan();
+		let mutationObserver = null;
+		if (opts.observeMutations) {
+			let debounceTimer = null;
+			mutationObserver = new MutationObserver(() => {
+				if (debounceTimer) clearTimeout(debounceTimer);
+				debounceTimer = setTimeout(() => {
+					debounceTimer = null;
+					scan();
+				}, 100);
+			});
+			mutationObserver.observe(container, {
+				childList: true,
+				subtree: true
+			});
+		}
+		let resizeTO = null;
+		function onResize() {
+			if (destroyed) return;
+			if (resizeTO) clearTimeout(resizeTO);
+			resizeTO = setTimeout(() => {
+				resizeTO = null;
+				for (const [wrapper, state] of states) {
+					if (!wrapper.classList.contains(LOADED_CLASS)) continue;
+					const oldWidth = parseInt(wrapper.style.width) || 0;
+					const oldHeight = parseInt(wrapper.style.height) || 0;
+					applyResponsiveSize(wrapper, opts.mobileBreakpoint);
+					const newWidth = parseInt(wrapper.style.width) || 0;
+					const newHeight = parseInt(wrapper.style.height) || 0;
+					if (oldWidth === newWidth && oldHeight === newHeight) continue;
+					intersectionObserver.unobserve(wrapper);
+					wrapper.innerHTML = state.originalHTML;
+					wrapper.classList.remove(LOADED_CLASS, UNFILLED_CLASS);
+					applyResponsiveSize(wrapper, opts.mobileBreakpoint);
+					Promise.resolve().then(() => load(wrapper));
+				}
+			}, 250);
+		}
+		window.addEventListener("resize", onResize);
+		window.addEventListener("orientationchange", onResize);
+		return { destroy() {
+			destroyed = true;
+			intersectionObserver.disconnect();
+			mutationObserver?.disconnect();
+			if (resizeTO) clearTimeout(resizeTO);
+			window.removeEventListener("resize", onResize);
+			window.removeEventListener("orientationchange", onResize);
+			for (const [wrapper, state] of states) {
+				wrapper.innerHTML = state.originalHTML;
+				wrapper.classList.remove(LOADED_CLASS, UNFILLED_CLASS);
+				wrapper.style.removeProperty("width");
+				wrapper.style.removeProperty("height");
+			}
+			states.clear();
+		} };
+	}
+
+//#endregion
+//#region src/utils/dom.ts
+/**
+	* Normalizes any supported input (selector string, Element, NodeList, array,
+	* or jQuery collection) into a plain array of Elements.
+	*
+	* @param input - Selector string, Element, element list, or jQuery object.
+	* @returns Array of matched elements. Empty if nothing matched.
+	*/
+	function resolveElements(input) {
+		if (typeof input === "string") return Array.from(document.querySelectorAll(input));
+		if (input instanceof Element) return [input];
+		if (input == null) return [];
+		return Array.from(input);
 	}
 
 //#endregion
@@ -2247,8 +2527,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		loading: (status) => `<div class="blogr-widget-loading" style="text-align:center;width:100%"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
 		error: (errorMsg) => `<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 		empty: () => `<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-		template: (entry) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-		entryClass: () => ""
+		template: (entry, _i) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
+		entryClass: (_entry, _index) => ""
 	};
 	const MONTHS_LONG = [
 		"January",
@@ -2397,10 +2677,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 				}
 			};
 		}
-		const opts = {
-			...defaults$9,
-			...options
-		};
+		const opts = mergeOptions(defaults$9, options);
 		const container = resolveElements(opts.containerSelector)[0];
 		if (!container) throw new Error("createWidget: containerSelector matched no element.");
 		const target = container;
@@ -2907,10 +3184,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function lazify(input, options = {}) {
-		const opts = {
-			...defaults$8,
-			...options
-		};
+		const opts = mergeOptions(defaults$8, options);
 		const onLoadCb = options.onLoad;
 		const onErrorCb = options.onError;
 		const elements = resolveElements(input);
@@ -3391,10 +3665,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		chevronText: "<"
 	};
 	function menuify(input, options = {}) {
-		const opts = {
-			...defaults$6,
-			...options
-		};
+		const opts = mergeOptions(defaults$6, options);
 		const lists = resolveElements(input);
 		const undoFns = [];
 		for (const list of lists) {
@@ -3716,10 +3987,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function replacify(input, search, replacement, options = {}) {
-		const opts = {
-			...defaults$4,
-			...options
-		};
+		const opts = mergeOptions(defaults$4, options);
 		const elements = resolveElements(input);
 		const undoFns = [];
 		for (const el of elements) {
@@ -3929,10 +4197,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function renderShortcodes(text, options) {
-		const opts = {
-			...defaults$3,
-			...options
-		};
+		const opts = mergeOptions(defaults$3, options);
 		const ctx = {
 			tags: opts.tags,
 			unknownTag: opts.unknownTag,
@@ -4087,6 +4352,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		easing: "ease",
 		direction: "forward",
 		orientation: void 0,
+		stackDirection: "top",
 		size: void 0,
 		pauseOnHover: true,
 		clickToActivate: true,
@@ -4101,20 +4367,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		marqueeSpeed: 60
 	};
 	/**
-	* Drops keys whose value is explicitly `undefined` before merging with
-	* defaults. Without this, `{ ...defaults, ...options }` lets a stray
-	* `someOption: undefined` in caller-built option objects (e.g. reading an
-	* empty form field with `Number(x) : undefined`) silently wipe out a
-	* valid default — that's what was making every card go `opacity: 0` on
-	* init, since `visibleCards` was arriving as `undefined` and
-	* `Math.min(undefined, n)` is `NaN`.
-	*/
-	function stripUndefined(obj) {
-		const out = {};
-		for (const key in obj) if (obj[key] !== void 0) out[key] = obj[key];
-		return out;
-	}
-	/**
 	* Mirrors relevant config onto `container.dataset` so CSS/JS outside the
 	* plugin can hook into current state (e.g. `[data-layout="marquee"]`).
 	* Called on init and re-applied on `destroy()` cleanup (removed there).
@@ -4127,7 +4379,10 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		container.dataset.draggable = String(opts.draggable);
 		container.dataset.clickToActivate = String(opts.clickToActivate);
 		container.dataset.pauseOnHover = String(opts.pauseOnHover);
-		if (opts.layout === "stack") container.dataset.peekWidth = opts.peekWidth;
+		if (opts.layout === "stack") {
+			container.dataset.peekWidth = opts.peekWidth;
+			container.dataset.stackDirection = opts.stackDirection ?? ((opts.orientation ?? "vertical") === "vertical" ? "top" : "left");
+		}
 	}
 	function clearDatasetOptions(container) {
 		delete container.dataset.layout;
@@ -4138,6 +4393,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		delete container.dataset.clickToActivate;
 		delete container.dataset.pauseOnHover;
 		delete container.dataset.peekWidth;
+		delete container.dataset.stackDirection;
 	}
 	/**
 	* Resolves `opts.size` against current layout. Flat shape (`height`/`width`
@@ -4169,7 +4425,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		const original = Array.from(container.children);
 		const gap = opts.offset;
 		const vertical = (opts.orientation ?? "vertical") === "vertical";
-		const posProp = vertical ? "top" : "left";
+		const stackDirection = opts.stackDirection ?? (vertical ? "top" : "left");
 		let visibleCount = Math.max(1, Math.min(opts.visibleCards, original.length));
 		let order = [...original];
 		let timer = null;
@@ -4186,28 +4442,36 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (!cardRestore.has(card)) cardRestore.set(card, card.style.cssText);
 			card.classList.add(opts.cardClass);
 			card.style.position = "absolute";
-			if (vertical) card.style.top = "0";
-			else {
-				card.style.top = "0";
-				card.style.bottom = "0";
-			}
-			card.style.transformOrigin = vertical ? "top center" : "center left";
-			card.style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			card.style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 		}
 		for (const card of original) setupCard(card);
 		function applyPositions() {
 			if (order.length === 0) return;
 			const n = order.length;
 			order.forEach((card, i) => {
+				const dir = stackDirection;
 				const pos = (n - 1 - i) * gap;
 				const scale = 1 - i * opts.scaleStep;
 				const peekDelta = opts.peekWidth === "expand" ? i * opts.peekWidthStep : opts.peekWidth === "shrink" ? -i * opts.peekWidthStep : 0;
 				const peekScale = Math.max(.1, 1 + peekDelta);
+				const mainAxisVertical = dir === "top" || dir === "bottom";
 				const transformParts = [];
 				if (scale !== 1) transformParts.push(`scale(${scale})`);
-				if (peekScale !== 1) transformParts.push(vertical ? `scaleX(${peekScale})` : `scaleY(${peekScale})`);
+				if (peekScale !== 1) transformParts.push(mainAxisVertical ? `scaleX(${peekScale})` : `scaleY(${peekScale})`);
+				card.style.top = "";
+				card.style.right = "";
+				card.style.bottom = "";
+				card.style.left = "";
+				if (mainAxisVertical) {
+					card.style.left = "0";
+					card.style.right = "0";
+				} else {
+					card.style.top = "0";
+					card.style.bottom = "0";
+				}
+				card.style[dir] = `${pos}px`;
+				card.style.transformOrigin = dir === "top" ? "top center" : dir === "bottom" ? "bottom center" : dir === "left" ? "center left" : "center right";
 				card.style.zIndex = String(n - i);
-				card.style[posProp] = `${pos}px`;
 				card.style.transform = transformParts.join(" ");
 				card.style.opacity = i < visibleCount ? "1" : "0";
 				card.style.pointerEvents = i === 0 ? "auto" : "none";
@@ -4316,7 +4580,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (!dragging) return;
 			dragging = false;
 			const d = coord(e) - dragStart;
-			order[0].style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			order[0].style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 			if (Math.abs(d) > DRAG_THRESHOLD_PX) {
 				d < 0 ? next() : prev();
 				justDragged = true;
@@ -4362,7 +4626,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			for (const card of order) card.style.transition = "none";
 			applyPositions();
 			container.offsetHeight;
-			for (const card of order) card.style.transition = `${posProp} ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
+			for (const card of order) card.style.transition = `top ${opts.duration}ms ${opts.easing}, right ${opts.duration}ms ${opts.easing}, bottom ${opts.duration}ms ${opts.easing}, left ${opts.duration}ms ${opts.easing}, transform ${opts.duration}ms ${opts.easing}, opacity ${opts.duration}ms ${opts.easing}`;
 			applyPositions();
 			if (!initialized && original.length > 0) {
 				initialized = true;
@@ -4676,7 +4940,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* Supports: data-layout, data-orientation, data-offset, data-scale-step,
 	* data-visible-cards, data-interval, data-duration, data-easing, data-direction,
 	* data-peek-width, data-peek-width-step, data-marquee-speed, data-autoplay,
-	* data-pause-on-hover, data-click-to-activate, data-draggable, data-start-index.
+	* data-pause-on-hover, data-click-to-activate, data-draggable, data-start-index,
+	* data-stack-direction.
 	*/
 	function readDataOptions(container) {
 		const ds = container.dataset;
@@ -4691,6 +4956,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		if (ds.easing) opts.easing = ds.easing;
 		if (ds.direction) opts.direction = ds.direction;
 		if (ds.peekWidth) opts.peekWidth = ds.peekWidth;
+		if (ds.stackDirection) opts.stackDirection = ds.stackDirection;
 		if (ds.peekWidthStep !== void 0) opts.peekWidthStep = Number(ds.peekWidthStep);
 		if (ds.marqueeSpeed !== void 0) opts.marqueeSpeed = Number(ds.marqueeSpeed);
 		if (ds.autoplay !== void 0) opts.autoplay = ds.autoplay === "true";
@@ -4698,7 +4964,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		if (ds.clickToActivate !== void 0) opts.clickToActivate = ds.clickToActivate === "true";
 		if (ds.draggable !== void 0) opts.draggable = ds.draggable === "true";
 		if (ds.startIndex !== void 0) opts.startIndex = Number(ds.startIndex);
-		return stripUndefined(opts);
+		return opts;
 	}
 	/**
 	* Turns a container's children into a peeking card stack — like a small
@@ -4719,7 +4985,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	*   data-layout="stack"
 	*   data-offset="20"
 	*   data-interval="4000"
-	*   data-duration="500">
+	*   data-duration="500"
+	*   data-stack-direction="right">
 	* 	<div class="card">...</div>
 	* 	<div class="card">...</div>
 	* 	<div class="card">...</div>
@@ -4732,7 +4999,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* const stack = stackify("#testimonials");
 	*
 	* // Or override specific options
-	* const stack2 = stackify("#other", { interval: 2000 });
+	* const stack2 = stackify("#other", { interval: 2000, stackDirection: "all" });
 	*
 	* stack.next(); // advance manually
 	* stack.destroy();
@@ -4741,11 +5008,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	function stackify(input, options) {
 		const engines = resolveElements(input).map((container) => {
 			const dataOpts = readDataOptions(container);
-			return createEngine(container, {
-				...defaults$2,
-				...dataOpts,
-				...stripUndefined(options || {})
-			});
+			return createEngine(container, mergeOptions(mergeOptions(defaults$2, dataOpts), options || {}));
 		}).filter((engine) => engine !== null);
 		return {
 			next() {
@@ -4803,9 +5066,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			left: rect.left + window.scrollX - document.documentElement.clientLeft
 		};
 	}
-	function getOuterWidth(element) {
-		const style = getComputedStyle(element);
-		return element.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+	function getOuterWidth(element, style) {
+		const computed = style ?? getComputedStyle(element);
+		return element.getBoundingClientRect().width + parseFloat(computed.marginLeft) + parseFloat(computed.marginRight);
 	}
 	function isVisible(element) {
 		return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
@@ -4843,10 +5106,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function stickify(input, options = {}) {
-		const opts = {
-			...defaults$1,
-			...options
-		};
+		const opts = mergeOptions(defaults$1, options);
 		opts.additionalMarginTop = Math.floor(opts.additionalMarginTop);
 		opts.additionalMarginBottom = Math.floor(opts.additionalMarginBottom);
 		const elements = resolveElements(input);
@@ -4903,6 +5163,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 					stickySidebar,
 					container,
 					onScroll: () => {},
+					scheduleOnScroll: () => {},
+					rafId: null,
 					resizeObserver: null,
 					previousScrollTop: 0,
 					stickySidebarPaddingTop,
@@ -4918,8 +5180,11 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						resetSidebar(state);
 						return;
 					}
+					const sidebarStyle = getComputedStyle(sidebar);
+					let stickySidebarStyle = null;
+					const getStickySidebarStyle = () => stickySidebarStyle ?? (stickySidebarStyle = getComputedStyle(stickySidebar));
 					if (opts.disableOnResponsiveLayouts) {
-						if ((getComputedStyle(sidebar).float === "none" ? getOuterWidth(sidebar) : sidebar.offsetWidth) + 50 > container.getBoundingClientRect().width) {
+						if ((sidebarStyle.float === "none" ? getOuterWidth(sidebar, sidebarStyle) : sidebar.offsetWidth) + 50 > container.getBoundingClientRect().width) {
 							resetSidebar(state);
 							return;
 						}
@@ -4941,7 +5206,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						const staticLimitBottom = containerBottom - scrollTop - state.paddingBottom - state.marginBottom;
 						top = getOffset(stickySidebar).top - scrollTop;
 						const scrollTopDiff = state.previousScrollTop - scrollTop;
-						if (getComputedStyle(stickySidebar).position === "fixed" && opts.sidebarBehavior === "modern") top += scrollTopDiff;
+						if (getStickySidebarStyle().position === "fixed" && opts.sidebarBehavior === "modern") top += scrollTopDiff;
 						if (opts.sidebarBehavior === "stick-to-top") top = opts.additionalMarginTop;
 						if (opts.sidebarBehavior === "stick-to-bottom") top = windowOffsetBottom - stickySidebar.offsetHeight;
 						if (scrollTopDiff > 0) top = Math.min(top, windowOffsetTop);
@@ -4958,12 +5223,12 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						position: "fixed",
 						width: `${stickySidebar.getBoundingClientRect().width}px`,
 						transform: `translateY(${top}px)`,
-						left: `${getOffset(sidebar).left + parseFloat(getComputedStyle(sidebar).paddingLeft) - window.scrollX}px`,
+						left: `${getOffset(sidebar).left + parseFloat(sidebarStyle.paddingLeft) - window.scrollX}px`,
 						top: "0px"
 					});
 					else if (position === "absolute") {
 						const css = {};
-						if (getComputedStyle(stickySidebar).position !== "absolute") {
+						if (getStickySidebarStyle().position !== "absolute") {
 							css.position = "absolute";
 							css.transform = `translateY(${scrollTop + top - sidebarOffset.top - state.stickySidebarPaddingTop - state.stickySidebarPaddingBottom}px)`;
 							css.top = "0px";
@@ -4975,25 +5240,33 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 					if (position !== "static" && opts.updateSidebarHeight) sidebar.style.minHeight = `${stickySidebar.offsetHeight + getOffset(stickySidebar).top - sidebarOffset.top + state.paddingBottom}px`;
 					state.previousScrollTop = scrollTop;
 				};
+				state.scheduleOnScroll = () => {
+					if (state.rafId !== null) return;
+					state.rafId = requestAnimationFrame(() => {
+						state.rafId = null;
+						state.onScroll();
+					});
+				};
 				state.onScroll();
-				document.addEventListener("scroll", state.onScroll);
-				window.addEventListener("resize", state.onScroll);
-				state.resizeObserver = new ResizeObserver(() => state.onScroll());
+				document.addEventListener("scroll", state.scheduleOnScroll, { passive: true });
+				window.addEventListener("resize", state.scheduleOnScroll);
+				state.resizeObserver = new ResizeObserver(() => state.scheduleOnScroll());
 				state.resizeObserver.observe(stickySidebar);
 				states.push(state);
 			}
 		}
 		if (!tryInit()) {
 			if (opts.verbose) console.log("stickify: viewport is under minWidth, init delayed.");
-			document.addEventListener("scroll", tryDelayedInit);
+			document.addEventListener("scroll", tryDelayedInit, { passive: true });
 			window.addEventListener("resize", tryDelayedInit);
 		}
 		return { destroy() {
 			document.removeEventListener("scroll", tryDelayedInit);
 			window.removeEventListener("resize", tryDelayedInit);
 			for (const state of states) {
-				document.removeEventListener("scroll", state.onScroll);
-				window.removeEventListener("resize", state.onScroll);
+				document.removeEventListener("scroll", state.scheduleOnScroll);
+				window.removeEventListener("resize", state.scheduleOnScroll);
+				if (state.rafId !== null) cancelAnimationFrame(state.rafId);
 				state.resizeObserver.disconnect();
 			}
 		} };
@@ -5027,10 +5300,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function tocify(input, options = {}) {
-		const opts = {
-			...defaults,
-			...options
-		};
+		const opts = mergeOptions(defaults, options);
 		const targets = resolveElements(input);
 		const cleanups = [];
 		for (const target of targets) {
@@ -5135,6 +5405,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	if (hasJQuery()) registerJQueryPlugins(window.jQuery);
 
 //#endregion
+exports.adsenseLoader = adsenseLoader;
 exports.avatarify = avatarify;
 exports.cookify = cookify;
 exports.createShortcodeRegistry = createShortcodeRegistry;

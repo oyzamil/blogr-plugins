@@ -18,6 +18,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
+//#region src/utils/merge-options.ts
+/**
+	* Merges user-supplied options over a set of defaults, dropping any key
+	* whose value is explicitly `undefined` first.
+	*
+	* Plain `{ ...defaults, ...options }` lets `{ someOption: undefined }` (e.g.
+	* from a form field that's blank, or a variable that happens to be
+	* `undefined`) silently overwrite a real default instead of falling back to
+	* it — a common footgun. This closes that gap.
+	*
+	* @param defaultValues - The base/default option values.
+	* @param options - User-supplied options; `undefined`-valued keys are ignored.
+	* @returns A merged object with every default preserved unless the caller
+	* gave it an actual (non-`undefined`) value.
+	*/
+	function mergeOptions(defaultValues, options) {
+		const cleaned = {};
+		for (const key of Object.keys(options)) if (options[key] !== void 0) cleaned[key] = options[key];
+		return {
+			...defaultValues,
+			...cleaned
+		};
+	}
+
+//#endregion
 //#region src/plugins/menuify.ts
 	const defaults = {
 		nestingPrefix: "_",
@@ -26,10 +51,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		chevronText: "<"
 	};
 	function menuify(input, options = {}) {
-		const opts = {
-			...defaults,
-			...options
-		};
+		const opts = mergeOptions(defaults, options);
 		const lists = resolveElements(input);
 		const undoFns = [];
 		for (const list of lists) {

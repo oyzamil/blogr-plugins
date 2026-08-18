@@ -8,7 +8,7 @@
 
 > **AvatarStyle** = `"adventurer"` \| `"adventurer-neutral"` \| `"avataaars"` \| `"avataaars-neutral"` \| `"big-ears"` \| `"big-ears-neutral"` \| `"big-smile"` \| `"blobs"` \| `"bottts"` \| `"bottts-neutral"` \| `"clay"` \| `"constellation"` \| `"critters"` \| `"croodles"` \| `"croodles-neutral"` \| `"disco"` \| `"dylan"` \| `"fun-emoji"` \| `"glass"` \| `"glyphs"` \| `"icons"` \| `"identicon"` \| `"initial-face"` \| `"initials"` \| `"landscape"` \| `"loops"` \| `"lorelei"` \| `"lorelei-neutral"` \| `"micah"` \| `"miniavs"` \| `"moods"` \| `"notionists"` \| `"notionists-neutral"` \| `"open-peeps"` \| `"personas"` \| `"pixel-art"` \| `"pixel-art-neutral"` \| `"pixelbot"` \| `"planets"` \| `"rings"` \| `"shape-grid"` \| `"shapes"` \| `"sprouts"` \| `"squircles"` \| `"stripes"` \| `"thumbs"` \| `"toon-head"` \| `"triangles"` \| `"waves"` \| `"weave"`
 
-Defined in: [src/plugins/avatarify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/avatarify.ts#L11)
+Defined in: [src/plugins/avatarify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L11)
 
 Any [DiceBear](https://www.dicebear.com/styles) style name (`"thumbs"`,
 `"bottts"`, `"initials"`, `"identicon"`, ...). Kept as a plain `string`

@@ -8,7 +8,7 @@
 
 > **resizeImage**(`url`, `options?`): `string`
 
-Defined in: [src/plugins/resizeImage.ts:256](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/resizeImage.ts#L256)
+Defined in: [src/plugins/resizeImage.ts:256](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/resizeImage.ts#L256)
 
 Builds a resized/transformed URL for a Blogger/Google-hosted image.
 Unsupported URLs are returned unchanged rather than throwing, so it's

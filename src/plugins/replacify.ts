@@ -1,5 +1,6 @@
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** Configuration options for {@link replacify}. */
 export interface ReplacifyOptions {
@@ -34,7 +35,7 @@ export function replacify(
 	replacement: string,
 	options: ReplacifyOptions = {},
 ): PluginInstance {
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options);
 	const elements = resolveElements(input);
 	const undoFns: Array<() => void> = [];
 

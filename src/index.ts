@@ -1,4 +1,8 @@
 export type {
+	AdsenseLoaderInstance,
+	AdsenseLoaderOptions,
+} from "./plugins/adsenseLoader";
+export type {
 	AvatarifyConfig,
 	AvatarifyInstance,
 	AvatarSetDetail,
@@ -62,6 +66,7 @@ export type { StickifyOptions } from "./plugins/stickify";
 export type { TocifyOptions } from "./plugins/tocify";
 export type { ElementInput, PluginInstance } from "./types";
 
+export { adsenseLoader } from "./plugins/adsenseLoader";
 export { avatarify } from "./plugins/avatarify";
 export { cookify } from "./plugins/cookify";
 export { createWidget } from "./plugins/createWidget";

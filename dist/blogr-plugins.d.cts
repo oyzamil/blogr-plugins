@@ -13,6 +13,93 @@ interface PluginInstance {
   destroy(): void;
 }
 //#endregion
+//#region src/plugins/adsenseLoader.d.ts
+/** Configuration for {@link adsenseLoader}. */
+interface AdsenseLoaderOptions {
+  /**
+   * Start loading this many pixels before the wrapper enters the
+   * viewport. Default `"200px"`.
+   */
+  rootMargin?: string;
+  /** `IntersectionObserver` threshold. Default `0`. */
+  threshold?: number | number[];
+  /** Watch for wrapper elements inserted after init (e.g. infinite-scroll posts). Default `true`. */
+  observeMutations?: boolean;
+  /** Root element to scan/observe within. Default `document.body`. */
+  container?: Element | Document;
+  /**
+   * Media query that decides which of `data-mobile-size` /
+   * `data-pc-size` a wrapper resolves to. Default
+   * `"(max-width: 767px)"`.
+   */
+  mobileBreakpoint?: string;
+  /**
+   * If the ad comes back unfilled or fails to load, remove the wrapper
+   * from the DOM entirely (matching the old plugin's behavior) rather
+   * than leaving a dead, empty slot. Default `true`.
+   */
+  removeOnUnfilled?: boolean;
+  /** Called right before a wrapper's ad starts loading. */
+  onLoad?: (wrapper: HTMLElement) => void;
+  /** Called once a wrapper's ad has actually filled. */
+  onFilled?: (wrapper: HTMLElement) => void;
+  /**
+   * Called when a wrapper's ad comes back unfilled or fails to load —
+   * right before it's removed (if `removeOnUnfilled` is on). Use this
+   * for a fallback instead of relying on the (about to be gone) wrapper.
+   */
+  onUnfilled?: (wrapper: HTMLElement) => void;
+}
+/** Returned by {@link adsenseLoader}. */
+type AdsenseLoaderInstance = PluginInstance;
+/**
+ * Lazy-loads AdSense units wrapped in a container div — `<div
+ * class="adsense"><ins class="adsbygoogle" ...></ins></div>` — right as
+ * each one is about to enter the viewport, using `IntersectionObserver`
+ * instead of scroll/resize polling.
+ *
+ * Also supports responsive sizing: give a wrapper `data-mobile-size`
+ * and/or `data-pc-size` listing candidate sizes as `heightxwidth` pairs
+ * (height first), and the plugin picks the best-fitting one for the
+ * current breakpoint/width and applies it to the wrapper directly —
+ * before the ad loads, so it never resizes an already-filled ad (see the
+ * policy note below).
+ *
+ * ```html
+ * <div class="adsense"
+ * 	data-mobile-size="['50x320', '100x320']"
+ * 	data-pc-size="['90x728', '250x300']">
+ * 	<ins class="adsbygoogle"
+ * 		data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+ * 		data-ad-slot="9964452094"></ins>
+ * </div>
+ * ```
+ *
+ * > **On ad refresh:** AdSense's publisher policy does not permit
+ * > programmatically refreshing an already-served ad. This plugin
+ * > resizes a wrapper's own CSS box before its ad loads — it never
+ * > touches, resizes, or reloads an ad that has already filled.
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * `.adsense`-style wrapper(s) to lazy-load.
+ * @param options - {@link AdsenseLoaderOptions}
+ * @returns An {@link AdsenseLoaderInstance} — `destroy()` disconnects
+ * every observer and restores any wrapper that never filled to its
+ * original markup (filled ads are left exactly as AdSense rendered them).
+ *
+ * @example
+ * ```ts
+ * import { adsenseLoader } from "blogr-plugins";
+ *
+ * adsenseLoader(".adsense", {
+ * 	rootMargin: "200px",
+ * 	onFilled: (wrapper) => wrapper.classList.add("adsense--loaded"),
+ * 	onUnfilled: (wrapper) => console.log("no fill for", wrapper),
+ * });
+ * ```
+ */
+declare function adsenseLoader(input: ElementInput, options?: AdsenseLoaderOptions): AdsenseLoaderInstance;
+//#endregion
 //#region src/plugins/avatarify.d.ts
 /**
  * Any [DiceBear](https://www.dicebear.com/styles) style name (`"thumbs"`,
@@ -1215,9 +1302,11 @@ declare function shortcodify(input: ElementInput, options: ShortcodifyDomOptions
 //#endregion
 //#region src/plugins/stackify.d.ts
 /** Which way the auto-cycle rotates the stack. */
-type StackDirection = 'forward' | 'backward';
+type StackDirection = "forward" | "backward";
 /** Which axis a layout peeks/scrolls along, and which axis dragging works on. */
-type StackOrientation = 'vertical' | 'horizontal';
+type StackOrientation = "vertical" | "horizontal";
+/** Which side peeking cards trail toward, in `"stack"` layout. */
+type StackPeekDirection = "top" | "bottom" | "left" | "right";
 /** Container size override. Number -> px, string used as-is. */
 interface StackifySize {
   height?: number | string;
@@ -1278,6 +1367,12 @@ interface StackifyOptions {
    * `layout: "stack"`, `"horizontal"` for `layout: "marquee"`.
    */
   orientation?: StackOrientation;
+  /**
+   * `"stack"` layout only. Which side the peeking cards trail toward.
+   *  Default: `"top"` for vertical {@link orientation},
+   * `"left"` for horizontal.
+   */
+  stackDirection?: StackPeekDirection;
   /** Pause the auto-cycle timer while the pointer is over the stack, resuming on pointer-leave. Default `true`. */
   pauseOnHover?: boolean;
   /** Clicking a non-front card brings it to the front. Default `true`. */
@@ -1302,14 +1397,14 @@ interface StackifyOptions {
    * {@link orientation}) that scrolls continuously (speed set by
    * {@link marqueeSpeed}), like a ticker.
    */
-  layout?: 'stack' | 'marquee';
+  layout?: "stack" | "marquee";
   /**
    * `"stack"` layout only. Whether cards behind the front one grow
    * (`"expand"`) or shrink (`"shrink"`) in cross-axis size relative to
    * it, for a fanned-out peek effect. `"none"` keeps every card the
    * same size. Default `"none"`.
    */
-  peekWidth?: 'expand' | 'shrink' | 'none';
+  peekWidth?: "expand" | "shrink" | "none";
   /** Size change, as a fraction per card, applied when {@link peekWidth} is set. Default `0.05`. */
   peekWidthStep?: number;
   /** `"marquee"` layout only. Scroll speed in px/second. Default `60`. */
@@ -1366,7 +1461,8 @@ interface StackifyInstance extends PluginInstance {
  *   data-layout="stack"
  *   data-offset="20"
  *   data-interval="4000"
- *   data-duration="500">
+ *   data-duration="500"
+ *   data-stack-direction="right">
  * 	<div class="card">...</div>
  * 	<div class="card">...</div>
  * 	<div class="card">...</div>
@@ -1379,7 +1475,7 @@ interface StackifyInstance extends PluginInstance {
  * const stack = stackify("#testimonials");
  *
  * // Or override specific options
- * const stack2 = stackify("#other", { interval: 2000 });
+ * const stack2 = stackify("#other", { interval: 2000, stackDirection: "all" });
  *
  * stack.next(); // advance manually
  * stack.destroy();
@@ -1462,4 +1558,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodeRegistry, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+export { type AdsenseLoaderInstance, type AdsenseLoaderOptions, type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodeRegistry, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, adsenseLoader, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };

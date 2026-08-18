@@ -8,7 +8,7 @@
 
 > **createWidget**(`options`): [`WidgetInstance`](../interfaces/WidgetInstance.md)
 
-Defined in: [src/plugins/createWidget.ts:437](https://github.com/oyzamil/blogr-plugins/blob/a92ff5e65bb0bdfd281fc9eabcd591cb092e5a70/src/plugins/createWidget.ts#L437)
+Defined in: [src/plugins/createWidget.ts:437](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L437)
 
 Builds and mounts a fully self-contained Blogger listing widget — related
 posts, a recent-posts sidebar, random picks, a comment stream, or a page

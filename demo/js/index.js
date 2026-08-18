@@ -178,7 +178,7 @@ updateYouTube();
 // containerSelector "body" so the sidebar has the full page height to
 // stick within — its own parent (<aside>) is only as tall as itself.
 BlogrPlugins.stickify("#sidebar", {
-	additionalMarginTop: 10,
+	additionalMarginTop: 70,
 	sidebarBehavior: "modern",
 });
 // menuify adds keyboard/touch behavior on top of the CSS hover

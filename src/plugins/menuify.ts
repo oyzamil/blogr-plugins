@@ -1,5 +1,6 @@
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
 
 /** Configuration options for {@link menuify}. */
 export interface MenuifyOptions {
@@ -24,7 +25,7 @@ export function menuify(
 	input: ElementInput,
 	options: MenuifyOptions = {},
 ): PluginInstance {
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options);
 	const lists = resolveElements(input) as HTMLElement[];
 	const undoFns: Array<() => void> = [];
 

@@ -18,6 +18,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
+//#region src/utils/merge-options.ts
+/**
+	* Merges user-supplied options over a set of defaults, dropping any key
+	* whose value is explicitly `undefined` first.
+	*
+	* Plain `{ ...defaults, ...options }` lets `{ someOption: undefined }` (e.g.
+	* from a form field that's blank, or a variable that happens to be
+	* `undefined`) silently overwrite a real default instead of falling back to
+	* it — a common footgun. This closes that gap.
+	*
+	* @param defaultValues - The base/default option values.
+	* @param options - User-supplied options; `undefined`-valued keys are ignored.
+	* @returns A merged object with every default preserved unless the caller
+	* gave it an actual (non-`undefined`) value.
+	*/
+	function mergeOptions(defaultValues, options) {
+		const cleaned = {};
+		for (const key of Object.keys(options)) if (options[key] !== void 0) cleaned[key] = options[key];
+		return {
+			...defaultValues,
+			...cleaned
+		};
+	}
+
+//#endregion
 //#region src/plugins/stickify.ts
 /*!
 	* Sticky-sidebar engine adapted from Theia Sticky Sidebar v2.0.0
@@ -48,9 +73,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			left: rect.left + window.scrollX - document.documentElement.clientLeft
 		};
 	}
-	function getOuterWidth(element) {
-		const style = getComputedStyle(element);
-		return element.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+	function getOuterWidth(element, style) {
+		const computed = style ?? getComputedStyle(element);
+		return element.getBoundingClientRect().width + parseFloat(computed.marginLeft) + parseFloat(computed.marginRight);
 	}
 	function isVisible(element) {
 		return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
@@ -88,10 +113,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function stickify(input, options = {}) {
-		const opts = {
-			...defaults,
-			...options
-		};
+		const opts = mergeOptions(defaults, options);
 		opts.additionalMarginTop = Math.floor(opts.additionalMarginTop);
 		opts.additionalMarginBottom = Math.floor(opts.additionalMarginBottom);
 		const elements = resolveElements(input);
@@ -148,6 +170,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 					stickySidebar,
 					container,
 					onScroll: () => {},
+					scheduleOnScroll: () => {},
+					rafId: null,
 					resizeObserver: null,
 					previousScrollTop: 0,
 					stickySidebarPaddingTop,
@@ -163,8 +187,11 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						resetSidebar(state);
 						return;
 					}
+					const sidebarStyle = getComputedStyle(sidebar);
+					let stickySidebarStyle = null;
+					const getStickySidebarStyle = () => stickySidebarStyle ?? (stickySidebarStyle = getComputedStyle(stickySidebar));
 					if (opts.disableOnResponsiveLayouts) {
-						if ((getComputedStyle(sidebar).float === "none" ? getOuterWidth(sidebar) : sidebar.offsetWidth) + 50 > container.getBoundingClientRect().width) {
+						if ((sidebarStyle.float === "none" ? getOuterWidth(sidebar, sidebarStyle) : sidebar.offsetWidth) + 50 > container.getBoundingClientRect().width) {
 							resetSidebar(state);
 							return;
 						}
@@ -186,7 +213,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						const staticLimitBottom = containerBottom - scrollTop - state.paddingBottom - state.marginBottom;
 						top = getOffset(stickySidebar).top - scrollTop;
 						const scrollTopDiff = state.previousScrollTop - scrollTop;
-						if (getComputedStyle(stickySidebar).position === "fixed" && opts.sidebarBehavior === "modern") top += scrollTopDiff;
+						if (getStickySidebarStyle().position === "fixed" && opts.sidebarBehavior === "modern") top += scrollTopDiff;
 						if (opts.sidebarBehavior === "stick-to-top") top = opts.additionalMarginTop;
 						if (opts.sidebarBehavior === "stick-to-bottom") top = windowOffsetBottom - stickySidebar.offsetHeight;
 						if (scrollTopDiff > 0) top = Math.min(top, windowOffsetTop);
@@ -203,12 +230,12 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 						position: "fixed",
 						width: `${stickySidebar.getBoundingClientRect().width}px`,
 						transform: `translateY(${top}px)`,
-						left: `${getOffset(sidebar).left + parseFloat(getComputedStyle(sidebar).paddingLeft) - window.scrollX}px`,
+						left: `${getOffset(sidebar).left + parseFloat(sidebarStyle.paddingLeft) - window.scrollX}px`,
 						top: "0px"
 					});
 					else if (position === "absolute") {
 						const css = {};
-						if (getComputedStyle(stickySidebar).position !== "absolute") {
+						if (getStickySidebarStyle().position !== "absolute") {
 							css.position = "absolute";
 							css.transform = `translateY(${scrollTop + top - sidebarOffset.top - state.stickySidebarPaddingTop - state.stickySidebarPaddingBottom}px)`;
 							css.top = "0px";
@@ -220,25 +247,33 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 					if (position !== "static" && opts.updateSidebarHeight) sidebar.style.minHeight = `${stickySidebar.offsetHeight + getOffset(stickySidebar).top - sidebarOffset.top + state.paddingBottom}px`;
 					state.previousScrollTop = scrollTop;
 				};
+				state.scheduleOnScroll = () => {
+					if (state.rafId !== null) return;
+					state.rafId = requestAnimationFrame(() => {
+						state.rafId = null;
+						state.onScroll();
+					});
+				};
 				state.onScroll();
-				document.addEventListener("scroll", state.onScroll);
-				window.addEventListener("resize", state.onScroll);
-				state.resizeObserver = new ResizeObserver(() => state.onScroll());
+				document.addEventListener("scroll", state.scheduleOnScroll, { passive: true });
+				window.addEventListener("resize", state.scheduleOnScroll);
+				state.resizeObserver = new ResizeObserver(() => state.scheduleOnScroll());
 				state.resizeObserver.observe(stickySidebar);
 				states.push(state);
 			}
 		}
 		if (!tryInit()) {
 			if (opts.verbose) console.log("stickify: viewport is under minWidth, init delayed.");
-			document.addEventListener("scroll", tryDelayedInit);
+			document.addEventListener("scroll", tryDelayedInit, { passive: true });
 			window.addEventListener("resize", tryDelayedInit);
 		}
 		return { destroy() {
 			document.removeEventListener("scroll", tryDelayedInit);
 			window.removeEventListener("resize", tryDelayedInit);
 			for (const state of states) {
-				document.removeEventListener("scroll", state.onScroll);
-				window.removeEventListener("resize", state.onScroll);
+				document.removeEventListener("scroll", state.scheduleOnScroll);
+				window.removeEventListener("resize", state.scheduleOnScroll);
+				if (state.rafId !== null) cancelAnimationFrame(state.rafId);
 				state.resizeObserver.disconnect();
 			}
 		} };
