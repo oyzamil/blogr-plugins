@@ -8,6 +8,6 @@
 
 > **ShortcodeAttributes** = `Record`\<`string`, [`ShortcodeAttributeValue`](ShortcodeAttributeValue.md)\>
 
-Defined in: [src/plugins/shortcodify.ts:8](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L8)
+Defined in: [src/plugins/shortcodify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L9)
 
 Parsed attributes for one shortcode occurrence.

@@ -6,7 +6,7 @@
 
 # Interface: AvatarSuccessDetail
 
-Defined in: [src/plugins/avatarify.ts:76](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L76)
+Defined in: [src/plugins/avatarify.ts:76](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L76)
 
 Detail passed to `onSuccess`.
 
@@ -20,7 +20,7 @@ Detail passed to `onSuccess`.
 
 > **avatarEl**: `Element`
 
-Defined in: [src/plugins/avatarify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L72)
+Defined in: [src/plugins/avatarify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L72)
 
 The element matched by `avatarSelector` that received the avatar.
 
@@ -34,7 +34,7 @@ The element matched by `avatarSelector` that received the avatar.
 
 > **id**: `string`
 
-Defined in: [src/plugins/avatarify.ts:80](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L80)
+Defined in: [src/plugins/avatarify.ts:80](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L80)
 
 Stable id for this avatar: `avatarEl.id` if the element has one, else `"avatar-{index}"`.
 
@@ -44,7 +44,7 @@ Stable id for this avatar: `avatarEl.id` if the element has one, else `"avatar-{
 
 > **index**: `number`
 
-Defined in: [src/plugins/avatarify.ts:78](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L78)
+Defined in: [src/plugins/avatarify.ts:78](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L78)
 
 Increments once per avatar that actually finishes loading, in load order — use to log/track individual images.
 
@@ -54,7 +54,7 @@ Increments once per avatar that actually finishes loading, in load order — use
 
 > **url**: `string`
 
-Defined in: [src/plugins/avatarify.ts:68](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L68)
+Defined in: [src/plugins/avatarify.ts:68](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L68)
 
 The generated avatar URL that was applied.
 
@@ -68,7 +68,7 @@ The generated avatar URL that was applied.
 
 > **username**: `string`
 
-Defined in: [src/plugins/avatarify.ts:66](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L66)
+Defined in: [src/plugins/avatarify.ts:66](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L66)
 
 The username the avatar was generated for.
 
@@ -82,7 +82,7 @@ The username the avatar was generated for.
 
 > **usernameEl**: `Element`
 
-Defined in: [src/plugins/avatarify.ts:70](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/avatarify.ts#L70)
+Defined in: [src/plugins/avatarify.ts:70](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/avatarify.ts#L70)
 
 The element matched by `usernameSelector`.
 

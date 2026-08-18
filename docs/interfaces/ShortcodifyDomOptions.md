@@ -6,7 +6,7 @@
 
 # Interface: ShortcodifyDomOptions
 
-Defined in: [src/plugins/shortcodify.ts:57](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L57)
+Defined in: [src/plugins/shortcodify.ts:58](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L58)
 
 Extra options for the DOM-facing [shortcodify](../functions/shortcodify.md).
 
@@ -20,7 +20,7 @@ Extra options for the DOM-facing [shortcodify](../functions/shortcodify.md).
 
 > `optional` **allowHtml?**: `boolean`
 
-Defined in: [src/plugins/shortcodify.ts:62](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L62)
+Defined in: [src/plugins/shortcodify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L63)
 
 When a rendered result contains markup, parse it as HTML instead of
 inserting it as literal text. Default `false`.
@@ -31,7 +31,7 @@ inserting it as literal text. Default `false`.
 
 > `optional` **closeTag?**: `string`
 
-Defined in: [src/plugins/shortcodify.ts:35](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L35)
+Defined in: [src/plugins/shortcodify.ts:36](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L36)
 
 Closing delimiter. Default `"]"`.
 
@@ -45,7 +45,7 @@ Closing delimiter. Default `"]"`.
 
 > `optional` **maxDepth?**: `number`
 
-Defined in: [src/plugins/shortcodify.ts:51](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L51)
+Defined in: [src/plugins/shortcodify.ts:52](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L52)
 
 Safety cap on recursive re-render passes. Default `5`.
 
@@ -59,7 +59,7 @@ Safety cap on recursive re-render passes. Default `5`.
 
 > `optional` **onError?**: (`error`, `tag`) => `void`
 
-Defined in: [src/plugins/shortcodify.ts:53](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L53)
+Defined in: [src/plugins/shortcodify.ts:54](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L54)
 
 Called if a handler throws; the offending tag renders as empty string.
 
@@ -87,7 +87,7 @@ Called if a handler throws; the offending tag renders as empty string.
 
 > `optional` **openTag?**: `string`
 
-Defined in: [src/plugins/shortcodify.ts:33](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L33)
+Defined in: [src/plugins/shortcodify.ts:34](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L34)
 
 Opening delimiter. Default `"["`.
 
@@ -101,7 +101,7 @@ Opening delimiter. Default `"["`.
 
 > `optional` **recursive?**: `boolean`
 
-Defined in: [src/plugins/shortcodify.ts:49](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L49)
+Defined in: [src/plugins/shortcodify.ts:50](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L50)
 
 Re-render a handler's output for further shortcodes it may itself
 contain (e.g. a `[quote]` handler that wraps its content in
@@ -118,7 +118,7 @@ Default `true`.
 
 > **tags**: `Record`\<`string`, [`ShortcodeHandler`](../type-aliases/ShortcodeHandler.md)\>
 
-Defined in: [src/plugins/shortcodify.ts:31](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L31)
+Defined in: [src/plugins/shortcodify.ts:32](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L32)
 
 Map of tag name → [ShortcodeHandler](../type-aliases/ShortcodeHandler.md).
 
@@ -132,7 +132,7 @@ Map of tag name → [ShortcodeHandler](../type-aliases/ShortcodeHandler.md).
 
 > `optional` **unknownTag?**: [`UnknownTagPolicy`](../type-aliases/UnknownTagPolicy.md)
 
-Defined in: [src/plugins/shortcodify.ts:42](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L42)
+Defined in: [src/plugins/shortcodify.ts:43](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L43)
 
 What happens to a recognized-shaped tag with no matching handler:
 `"keep"` reproduces the original bracket text untouched, `"strip"`

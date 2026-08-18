@@ -6,7 +6,7 @@
 
 # Interface: StackifyOptions
 
-Defined in: [src/plugins/stackify.ts:35](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L35)
+Defined in: [src/plugins/stackify.ts:39](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L39)
 
 Configuration options for [stackify](../functions/stackify.md).
 
@@ -16,7 +16,7 @@ Configuration options for [stackify](../functions/stackify.md).
 
 > `optional` **activeClass?**: `string`
 
-Defined in: [src/plugins/stackify.ts:86](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L86)
+Defined in: [src/plugins/stackify.ts:96](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L96)
 
 Class toggled on whichever card is currently in front. Default `"stackify-active"`.
 
@@ -26,7 +26,7 @@ Class toggled on whichever card is currently in front. Default `"stackify-active
 
 > `optional` **autoplay?**: `boolean`
 
-Defined in: [src/plugins/stackify.ts:59](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L59)
+Defined in: [src/plugins/stackify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L63)
 
 Whether the auto-cycle timer starts immediately. Default `true`.
 
@@ -36,7 +36,7 @@ Whether the auto-cycle timer starts immediately. Default `true`.
 
 > `optional` **cardClass?**: `string`
 
-Defined in: [src/plugins/stackify.ts:88](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L88)
+Defined in: [src/plugins/stackify.ts:98](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L98)
 
 Class added to every card. Default `"stackify-card"`.
 
@@ -46,7 +46,7 @@ Class added to every card. Default `"stackify-card"`.
 
 > `optional` **clickToActivate?**: `boolean`
 
-Defined in: [src/plugins/stackify.ts:76](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L76)
+Defined in: [src/plugins/stackify.ts:86](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L86)
 
 Clicking a non-front card brings it to the front. Default `true`.
 
@@ -56,7 +56,7 @@ Clicking a non-front card brings it to the front. Default `true`.
 
 > `optional` **direction?**: [`StackDirection`](../type-aliases/StackDirection.md)
 
-Defined in: [src/plugins/stackify.ts:65](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L65)
+Defined in: [src/plugins/stackify.ts:69](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L69)
 
 `"forward"` sends the front card to the back; `"backward"` brings the back card to the front. Applies to the auto-cycle timer. Default `"forward"`.
 
@@ -66,7 +66,7 @@ Defined in: [src/plugins/stackify.ts:65](https://github.com/oyzamil/blogr-plugin
 
 > `optional` **draggable?**: `boolean`
 
-Defined in: [src/plugins/stackify.ts:82](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L82)
+Defined in: [src/plugins/stackify.ts:92](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L92)
 
 Lets the front card be dragged/swiped to advance/go back — along
 whichever axis [orientation](#orientation) sets (top/bottom for vertical,
@@ -78,7 +78,7 @@ left/right for horizontal). Default `false`.
 
 > `optional` **duration?**: `number`
 
-Defined in: [src/plugins/stackify.ts:61](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L61)
+Defined in: [src/plugins/stackify.ts:65](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L65)
 
 Transition duration, in ms, for a card moving between stack positions. Default `500`.
 
@@ -88,7 +88,7 @@ Transition duration, in ms, for a card moving between stack positions. Default `
 
 > `optional` **easing?**: `string`
 
-Defined in: [src/plugins/stackify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L63)
+Defined in: [src/plugins/stackify.ts:67](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L67)
 
 CSS timing function for that transition. Default `"ease"`.
 
@@ -98,7 +98,7 @@ CSS timing function for that transition. Default `"ease"`.
 
 > `optional` **interval?**: `number`
 
-Defined in: [src/plugins/stackify.ts:57](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L57)
+Defined in: [src/plugins/stackify.ts:61](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L61)
 
 Milliseconds between automatic cycles. `0` disables the timer (still cyclable via `next()`/`prev()`/`goTo()`). Default `3000`.
 
@@ -108,7 +108,7 @@ Milliseconds between automatic cycles. `0` disables the timer (still cyclable vi
 
 > `optional` **layout?**: `"marquee"` \| `"stack"`
 
-Defined in: [src/plugins/stackify.ts:97](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L97)
+Defined in: [src/plugins/stackify.ts:107](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L107)
 
 Stack layout: `"stack"` is the peeking-card-deck effect (default).
 `"marquee"` lays cards out in a row (or column, see
@@ -121,7 +121,7 @@ Stack layout: `"stack"` is the peeking-card-deck effect (default).
 
 > `optional` **marqueeSpeed?**: `number`
 
-Defined in: [src/plugins/stackify.ts:108](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L108)
+Defined in: [src/plugins/stackify.ts:118](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L118)
 
 `"marquee"` layout only. Scroll speed in px/second. Default `60`.
 
@@ -131,7 +131,7 @@ Defined in: [src/plugins/stackify.ts:108](https://github.com/oyzamil/blogr-plugi
 
 > `optional` **offset?**: `number`
 
-Defined in: [src/plugins/stackify.ts:42](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L42)
+Defined in: [src/plugins/stackify.ts:46](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L46)
 
 Gap in px between cards. In `"stack"` layout this is how far a card
 peeks past the one in front of it. In `"marquee"` layout it's the
@@ -144,7 +144,7 @@ layouts read it. Default `20`.
 
 > `optional` **onAfterChange?**: (`detail`) => `void`
 
-Defined in: [src/plugins/stackify.ts:125](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L125)
+Defined in: [src/plugins/stackify.ts:135](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L135)
 
 Called once a cycle's transition has finished.
 
@@ -164,7 +164,7 @@ Called once a cycle's transition has finished.
 
 > `optional` **onBeforeChange?**: (`detail`) => `void`
 
-Defined in: [src/plugins/stackify.ts:123](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L123)
+Defined in: [src/plugins/stackify.ts:133](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L133)
 
 Called right before a cycle starts (right as the transition begins).
 
@@ -184,7 +184,7 @@ Called right before a cycle starts (right as the transition begins).
 
 > `optional` **orientation?**: [`StackOrientation`](../type-aliases/StackOrientation.md)
 
-Defined in: [src/plugins/stackify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L72)
+Defined in: [src/plugins/stackify.ts:76](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L76)
 
 Which axis the layout runs on, and which axis dragging works on.
 `"vertical"` peeks/drags top-to-bottom, `"horizontal"`
@@ -197,7 +197,7 @@ peeks/drags left-to-right. Default: `"vertical"` for
 
 > `optional` **pauseOnHover?**: `boolean`
 
-Defined in: [src/plugins/stackify.ts:74](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L74)
+Defined in: [src/plugins/stackify.ts:84](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L84)
 
 Pause the auto-cycle timer while the pointer is over the stack, resuming on pointer-leave. Default `true`.
 
@@ -207,7 +207,7 @@ Pause the auto-cycle timer while the pointer is over the stack, resuming on poin
 
 > `optional` **peekWidth?**: `"none"` \| `"expand"` \| `"shrink"`
 
-Defined in: [src/plugins/stackify.ts:104](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L104)
+Defined in: [src/plugins/stackify.ts:114](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L114)
 
 `"stack"` layout only. Whether cards behind the front one grow
 (`"expand"`) or shrink (`"shrink"`) in cross-axis size relative to
@@ -220,7 +220,7 @@ same size. Default `"none"`.
 
 > `optional` **peekWidthStep?**: `number`
 
-Defined in: [src/plugins/stackify.ts:106](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L106)
+Defined in: [src/plugins/stackify.ts:116](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L116)
 
 Size change, as a fraction per card, applied when [peekWidth](#peekwidth) is set. Default `0.05`.
 
@@ -230,7 +230,7 @@ Size change, as a fraction per card, applied when [peekWidth](#peekwidth) is set
 
 > `optional` **scaleStep?**: `number`
 
-Defined in: [src/plugins/stackify.ts:49](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L49)
+Defined in: [src/plugins/stackify.ts:53](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L53)
 
 Shrinks each card behind the front one by this fraction (e.g. `0.05`
 = each card 5% smaller than the one in front of it) for a subtle
@@ -243,7 +243,7 @@ peeking stack. Default `0`.
 
 > `optional` **size?**: [`StackifySize`](StackifySize.md) \| [`StackifySizeByLayout`](StackifySizeByLayout.md)
 
-Defined in: [src/plugins/stackify.ts:121](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L121)
+Defined in: [src/plugins/stackify.ts:131](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L131)
 
 Container height/width — purely opt-in. Plugin never measures
 cards or auto-calcs a size; whichever axis you don't give stays
@@ -262,9 +262,21 @@ Two shapes:
 
 > `optional` **stackClass?**: `string`
 
-Defined in: [src/plugins/stackify.ts:90](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L90)
+Defined in: [src/plugins/stackify.ts:100](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L100)
 
 Class added to the container. Default `"stackify-stack"`.
+
+***
+
+### stackDirection?
+
+> `optional` **stackDirection?**: [`StackPeekDirection`](../type-aliases/StackPeekDirection.md)
+
+Defined in: [src/plugins/stackify.ts:82](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L82)
+
+`"stack"` layout only. Which side the peeking cards trail toward.
+ Default: `"top"` for vertical [orientation](#orientation),
+`"left"` for horizontal.
 
 ***
 
@@ -272,7 +284,7 @@ Class added to the container. Default `"stackify-stack"`.
 
 > `optional` **startIndex?**: `number`
 
-Defined in: [src/plugins/stackify.ts:84](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L84)
+Defined in: [src/plugins/stackify.ts:94](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L94)
 
 Original index of the card that starts in front. Default `0`.
 
@@ -282,7 +294,7 @@ Original index of the card that starts in front. Default `0`.
 
 > `optional` **visibleCards?**: `number`
 
-Defined in: [src/plugins/stackify.ts:55](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stackify.ts#L55)
+Defined in: [src/plugins/stackify.ts:59](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L59)
 
 How many cards (counting the front one) stay visible at once; any
 further back are faded to `opacity: 0` (still present, just hidden)

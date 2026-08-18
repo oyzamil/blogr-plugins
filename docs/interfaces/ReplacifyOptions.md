@@ -6,7 +6,7 @@
 
 # Interface: ReplacifyOptions
 
-Defined in: [src/plugins/replacify.ts:5](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/replacify.ts#L5)
+Defined in: [src/plugins/replacify.ts:6](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/replacify.ts#L6)
 
 Configuration options for [replacify](../functions/replacify.md).
 
@@ -16,6 +16,6 @@ Configuration options for [replacify](../functions/replacify.md).
 
 > `optional` **allowHtml?**: `boolean`
 
-Defined in: [src/plugins/replacify.ts:7](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/replacify.ts#L7)
+Defined in: [src/plugins/replacify.ts:8](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/replacify.ts#L8)
 
 When true, replacement may contain HTML and will be parsed as markup. Default `false`.

@@ -8,7 +8,7 @@
 
 > **shortcodify**(`input`, `options`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/shortcodify.ts:448](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/shortcodify.ts#L448)
+Defined in: [src/plugins/shortcodify.ts:452](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L452)
 
 DOM-facing version of [renderShortcodes](renderShortcodes.md): scans the text nodes
 inside the given element(s) for shortcodes and replaces each match with

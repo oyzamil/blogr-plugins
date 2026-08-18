@@ -6,7 +6,7 @@
 
 # Interface: LabelEntry
 
-Defined in: [src/plugins/createWidget.ts:77](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L77)
+Defined in: [src/plugins/createWidget.ts:78](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L78)
 
 A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link.
 
@@ -16,7 +16,7 @@ A normalized label — Blogger's `labels()` returns bare strings, so this is jus
 
 > **id**: `string`
 
-Defined in: [src/plugins/createWidget.ts:79](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L79)
+Defined in: [src/plugins/createWidget.ts:80](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L80)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/plugins/createWidget.ts:79](https://github.com/oyzamil/blogr-pl
 
 > **kind**: `"labels"`
 
-Defined in: [src/plugins/createWidget.ts:78](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L78)
+Defined in: [src/plugins/createWidget.ts:79](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L79)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/plugins/createWidget.ts:78](https://github.com/oyzamil/blogr-pl
 
 > **name**: `string`
 
-Defined in: [src/plugins/createWidget.ts:80](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L80)
+Defined in: [src/plugins/createWidget.ts:81](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L81)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/plugins/createWidget.ts:80](https://github.com/oyzamil/blogr-pl
 
 > **raw**: `string`
 
-Defined in: [src/plugins/createWidget.ts:82](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L82)
+Defined in: [src/plugins/createWidget.ts:83](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L83)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/plugins/createWidget.ts:82](https://github.com/oyzamil/blogr-pl
 
 > **url**: `string`
 
-Defined in: [src/plugins/createWidget.ts:81](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/createWidget.ts#L81)
+Defined in: [src/plugins/createWidget.ts:82](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L82)

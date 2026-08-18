@@ -6,7 +6,7 @@
 
 # Interface: RelatedPost
 
-Defined in: [src/plugins/relatify.ts:14](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L14)
+Defined in: [src/plugins/relatify.ts:14](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L14)
 
 A single related post handed to `template` and the lifecycle hooks —
 mirrors `createWidget`'s `WidgetEntry` shape for familiarity.
@@ -17,7 +17,7 @@ mirrors `createWidget`'s `WidgetEntry` shape for familiarity.
 
 > **author**: `string`
 
-Defined in: [src/plugins/relatify.ts:22](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L22)
+Defined in: [src/plugins/relatify.ts:22](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L22)
 
 Author display name, or `""` if unavailable.
 
@@ -27,7 +27,7 @@ Author display name, or `""` if unavailable.
 
 > **content**: `string`
 
-Defined in: [src/plugins/relatify.ts:28](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L28)
+Defined in: [src/plugins/relatify.ts:28](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L28)
 
 Plain-text summary (Blogger's own summary field, HTML stripped).
 
@@ -37,7 +37,7 @@ Plain-text summary (Blogger's own summary field, HTML stripped).
 
 > **id**: `string`
 
-Defined in: [src/plugins/relatify.ts:16](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L16)
+Defined in: [src/plugins/relatify.ts:16](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L16)
 
 Post id, as reported by Blogger.
 
@@ -47,7 +47,7 @@ Post id, as reported by Blogger.
 
 > **labels**: `string`[]
 
-Defined in: [src/plugins/relatify.ts:26](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L26)
+Defined in: [src/plugins/relatify.ts:26](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L26)
 
 Labels on the post.
 
@@ -57,7 +57,7 @@ Labels on the post.
 
 > **published**: `string`
 
-Defined in: [src/plugins/relatify.ts:24](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L24)
+Defined in: [src/plugins/relatify.ts:24](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L24)
 
 Publish date (ISO string, as reported by Blogger).
 
@@ -67,7 +67,7 @@ Publish date (ISO string, as reported by Blogger).
 
 > **raw**: `Post`
 
-Defined in: [src/plugins/relatify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L30)
+Defined in: [src/plugins/relatify.ts:30](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L30)
 
 The original SDK `Post` object, for anything not exposed above.
 
@@ -77,7 +77,7 @@ The original SDK `Post` object, for anything not exposed above.
 
 > **title**: `string`
 
-Defined in: [src/plugins/relatify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L18)
+Defined in: [src/plugins/relatify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L18)
 
 Post title.
 
@@ -87,6 +87,6 @@ Post title.
 
 > **url**: `string`
 
-Defined in: [src/plugins/relatify.ts:20](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/relatify.ts#L20)
+Defined in: [src/plugins/relatify.ts:20](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/relatify.ts#L20)
 
 Canonical URL of the post.

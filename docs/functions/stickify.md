@@ -8,7 +8,7 @@
 
 > **stickify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/stickify.ts:130](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/stickify.ts#L130)
+Defined in: [src/plugins/stickify.ts:136](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stickify.ts#L136)
 
 Makes a sidebar stick to the viewport while scrolling, clamped to its
 container so it never overflows past the container's bottom edge. Full

@@ -6,6 +6,7 @@
 
 ## Interfaces
 
+- [AdsenseLoaderOptions](interfaces/AdsenseLoaderOptions.md)
 - [AuthorEntry](interfaces/AuthorEntry.md)
 - [AvatarifyConfig](interfaces/AvatarifyConfig.md)
 - [AvatarifyInstance](interfaces/AvatarifyInstance.md)
@@ -17,7 +18,6 @@
 - [CreateWidgetOptions](interfaces/CreateWidgetOptions.md)
 - [LabelEntry](interfaces/LabelEntry.md)
 - [LazifyOptions](interfaces/LazifyOptions.md)
-- [LazyAdsenseOptions](interfaces/LazyAdsenseOptions.md)
 - [MarqifyInstance](interfaces/MarqifyInstance.md)
 - [MarqifyOptions](interfaces/MarqifyOptions.md)
 - [MenuifyOptions](interfaces/MenuifyOptions.md)
@@ -41,10 +41,9 @@
 
 ## Type Aliases
 
+- [AdsenseLoaderInstance](type-aliases/AdsenseLoaderInstance.md)
 - [AvatarStyle](type-aliases/AvatarStyle.md)
 - [ElementInput](type-aliases/ElementInput.md)
-- [LazyAdsenseInstance](type-aliases/LazyAdsenseInstance.md)
-- [LazyAdsenseType](type-aliases/LazyAdsenseType.md)
 - [MarqifyDirection](type-aliases/MarqifyDirection.md)
 - [MarqifyMarqueeDirection](type-aliases/MarqifyMarqueeDirection.md)
 - [MarqifySpeed](type-aliases/MarqifySpeed.md)
@@ -55,6 +54,7 @@
 - [ShortcodeHandler](type-aliases/ShortcodeHandler.md)
 - [StackDirection](type-aliases/StackDirection.md)
 - [StackOrientation](type-aliases/StackOrientation.md)
+- [StackPeekDirection](type-aliases/StackPeekDirection.md)
 - [UnknownTagPolicy](type-aliases/UnknownTagPolicy.md)
 - [WidgetEntry](type-aliases/WidgetEntry.md)
 - [WidgetOrderBy](type-aliases/WidgetOrderBy.md)
@@ -71,12 +71,12 @@
 
 ## Functions
 
+- [adsenseLoader](functions/adsenseLoader.md)
 - [avatarify](functions/avatarify.md)
 - [createShortcodeRegistry](functions/createShortcodeRegistry.md)
 - [createWidget](functions/createWidget.md)
 - [isSupportedImage](functions/isSupportedImage.md)
 - [lazify](functions/lazify.md)
-- [lazyAdsense](functions/lazyAdsense.md)
 - [marqify](functions/marqify.md)
 - [menuify](functions/menuify.md)
 - [relatify](functions/relatify.md)

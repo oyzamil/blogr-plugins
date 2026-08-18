@@ -61,6 +61,7 @@ export type {
 	StackifySize,
 	StackifySizeByLayout,
 	StackOrientation,
+	StackPeekDirection,
 } from "./plugins/stackify";
 export type { StickifyOptions } from "./plugins/stickify";
 export type { TocifyOptions } from "./plugins/tocify";

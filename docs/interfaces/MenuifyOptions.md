@@ -6,7 +6,7 @@
 
 # Interface: MenuifyOptions
 
-Defined in: [src/plugins/menuify.ts:5](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L5)
+Defined in: [src/plugins/menuify.ts:6](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L6)
 
 Configuration options for [menuify](../functions/menuify.md).
 
@@ -16,7 +16,7 @@ Configuration options for [menuify](../functions/menuify.md).
 
 > `optional` **chevronText?**: `string`
 
-Defined in: [src/plugins/menuify.ts:13](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L13)
+Defined in: [src/plugins/menuify.ts:14](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L14)
 
 Chevron element text. Default `"<"`.
 
@@ -26,7 +26,7 @@ Chevron element text. Default `"<"`.
 
 > `optional` **hasSubClass?**: `string`
 
-Defined in: [src/plugins/menuify.ts:11](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L11)
+Defined in: [src/plugins/menuify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L12)
 
 Class applied to `<li>` items that received a submenu. Default `"has-sub"`.
 
@@ -36,7 +36,7 @@ Class applied to `<li>` items that received a submenu. Default `"has-sub"`.
 
 > `optional` **nestingPrefix?**: `string`
 
-Defined in: [src/plugins/menuify.ts:7](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L7)
+Defined in: [src/plugins/menuify.ts:8](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L8)
 
 Prefix marking a link as belonging to the previous item's submenu. Default `"_"`.
 
@@ -46,6 +46,6 @@ Prefix marking a link as belonging to the previous item's submenu. Default `"_"`
 
 > `optional` **submenuClass?**: `string`
 
-Defined in: [src/plugins/menuify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L9)
+Defined in: [src/plugins/menuify.ts:10](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L10)
 
 Class applied to generated `<ul>` submenus. Default `"sub-menu"`.

@@ -8,7 +8,7 @@
 
 > **menuify**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/menuify.ts:23](https://github.com/oyzamil/blogr-plugins/blob/89c47a5392ebf2cd8b3a12bff3d2821cc0aae46d/src/plugins/menuify.ts#L23)
+Defined in: [src/plugins/menuify.ts:24](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/menuify.ts#L24)
 
 ## Parameters
 
