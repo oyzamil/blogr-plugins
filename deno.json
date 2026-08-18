@@ -1,1 +1,8 @@
-{ "imports": { "blogr": "jsr:@oyzamil/blogr" } }
+{
+	"name": "@oyzamil/blogr-plugins",
+	"version": "0.0.3",
+	"exports": "./src/index.ts",
+	"imports": {
+		"blogr": "jsr:@oyzamil/blogr"
+	}
+}
