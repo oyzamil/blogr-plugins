@@ -54,7 +54,7 @@ vi.mock("blogr", () => {
 			return null;
 		}
 	}
-	return { Blogr: MockBlogr };
+	return { Blogr: MockBlogr, default: MockBlogr };
 });
 
 const { createWidget } = await import("../src/plugins/createWidget.js");

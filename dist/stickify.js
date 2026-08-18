@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.2 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.3 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrStickify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });

@@ -35,6 +35,11 @@ export type {
 } from "./plugins/marqify";
 export type { MenuifyOptions } from "./plugins/menuify";
 export type {
+	ReadMeterFormat,
+	ReadMeterInstance,
+	ReadMeterOptions,
+} from "./plugins/readMeter";
+export type {
 	RelatedPost,
 	RelatifyOptions,
 	RelatifyRelevance,
@@ -74,6 +79,7 @@ export { createWidget } from "./plugins/createWidget";
 export { lazify } from "./plugins/lazify";
 export { marqify } from "./plugins/marqify";
 export { menuify } from "./plugins/menuify";
+export { readMeter } from "./plugins/readMeter";
 export { relatify } from "./plugins/relatify";
 export { replacify } from "./plugins/replacify";
 export {

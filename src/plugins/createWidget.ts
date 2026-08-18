@@ -1,8 +1,7 @@
-import { type Author, Blogr, type Comment, type Pager, type Post } from "blogr";
+import Blogr, { type Author, type Comment, type Pager, type Post } from "blogr";
 
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
-import { mergeOptions } from "../utils/merge-options";
 import { type ResizeImageOptions, resizeImage } from "./resizeImage";
 
 /** What data the widget lists — one flag covers both feed and shape. */
@@ -283,13 +282,13 @@ const defaults = {
 		`<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () =>
 		`<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-	template: (entry: WidgetEntry, _i: number) =>
+	template: (entry: WidgetEntry) =>
 		entry.kind === "authors" || entry.kind === "labels"
 			? `<div><h2>${entry.name}</h2></div>`
 			: entry.kind === "comments"
 				? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>`
 				: `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-	entryClass: (_entry: WidgetEntry, _index: number) => "",
+	entryClass: () => "",
 };
 
 const MONTHS_LONG = [
@@ -440,7 +439,7 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	if (typeof Blogr === "undefined") {
 		console.warn(
 			"[blogr-widget] Blogr SDK not found. Please add it via CDN: " +
-				'<script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"></script> ' +
+				'<script src="https://cdn.jsdelivr.net/npm/blogr"></script> ' +
 				"or install via npm: npm install blogr",
 		);
 		// Return a minimal instance that shows an error message
@@ -451,7 +450,7 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 					<p><strong>Blogr SDK not loaded.</strong></p>
 					<p>Please include the Blogr library:</p>
 					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
-						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr"&gt;&lt;/script&gt;
 					</code>
 				</div>
 			`;
@@ -465,8 +464,7 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		};
 	}
 
-	const opts = mergeOptions(defaults, options) as typeof defaults &
-		CreateWidgetOptions;
+	const opts = { ...defaults, ...options };
 	const container = resolveElements(opts.containerSelector)[0] as
 		| HTMLElement
 		| undefined;
@@ -483,6 +481,9 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 			? opts.containerSelector
 			: "widget");
 
+	// Existing "typeof Blogr === undefined" guard above already returns
+	// before this point when Blogr isn't available, so no second check
+	// is needed here.
 	const blog = new Blogr(opts.blogUrl, { jsonp: opts.jsonp });
 
 	if (opts.cache) blog.cache.enable({ ttlMs: opts.cacheTTL * 1000 });

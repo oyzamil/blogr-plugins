@@ -8,6 +8,6 @@
 
 > **WidgetType** = `"posts"` \| `"pages"` \| `"comments"` \| `"authors"` \| `"labels"`
 
-Defined in: [src/plugins/createWidget.ts:9](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L9)
+Defined in: [src/plugins/createWidget.ts:8](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L8)
 
 What data the widget lists — one flag covers both feed and shape.

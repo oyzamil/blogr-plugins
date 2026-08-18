@@ -6,7 +6,7 @@
 
 # Interface: CreateWidgetOptions
 
-Defined in: [src/plugins/createWidget.ts:100](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L100)
+Defined in: [src/plugins/createWidget.ts:99](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L99)
 
 Configuration for [createWidget](../functions/createWidget.md).
 
@@ -16,7 +16,7 @@ Configuration for [createWidget](../functions/createWidget.md).
 
 > `optional` **afterFetch?**: (`entries`) => `void` \| `Promise`\<`void`\>
 
-Defined in: [src/plugins/createWidget.ts:220](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L220)
+Defined in: [src/plugins/createWidget.ts:219](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L219)
 
 Called with the normalized batch right after a successful fetch, before rendering. May be async.
 
@@ -36,7 +36,7 @@ Called with the normalized batch right after a successful fetch, before renderin
 
 > `optional` **afterRender?**: (`element`, `entry`) => `void`
 
-Defined in: [src/plugins/createWidget.ts:224](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L224)
+Defined in: [src/plugins/createWidget.ts:223](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L223)
 
 Called after an entry's element has been inserted into the DOM.
 
@@ -60,7 +60,7 @@ Called after an entry's element has been inserted into the DOM.
 
 > `optional` **beforeFetch?**: () => `void` \| `Promise`\<`void`\>
 
-Defined in: [src/plugins/createWidget.ts:218](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L218)
+Defined in: [src/plugins/createWidget.ts:217](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L217)
 
 Called right before each network fetch. May be async.
 
@@ -74,7 +74,7 @@ Called right before each network fetch. May be async.
 
 > `optional` **beforeRender?**: (`entry`) => `void`
 
-Defined in: [src/plugins/createWidget.ts:222](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L222)
+Defined in: [src/plugins/createWidget.ts:221](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L221)
 
 Called for each entry right before it's rendered.
 
@@ -94,7 +94,7 @@ Called for each entry right before it's rendered.
 
 > **blogUrl**: `string`
 
-Defined in: [src/plugins/createWidget.ts:125](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L125)
+Defined in: [src/plugins/createWidget.ts:124](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L124)
 
 URL (or numeric id) of the Blogger blog to read from. **Required.**
 
@@ -104,7 +104,7 @@ URL (or numeric id) of the Blogger blog to read from. **Required.**
 
 > `optional` **cache?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:207](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L207)
+Defined in: [src/plugins/createWidget.ts:206](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L206)
 
 Persist fetched entries in `localStorage` (keyed by `cacheKey`) so a
 fresh page load can skip the network entirely within `cacheTTL`.
@@ -118,7 +118,7 @@ Default `false`.
 
 > `optional` **cacheKey?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:209](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L209)
+Defined in: [src/plugins/createWidget.ts:208](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L208)
 
 Cache key. Defaults to `containerSelector` (as a string) or `"widget"`.
 
@@ -128,7 +128,7 @@ Cache key. Defaults to `containerSelector` (as a string) or `"widget"`.
 
 > `optional` **cacheTTL?**: `number`
 
-Defined in: [src/plugins/createWidget.ts:211](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L211)
+Defined in: [src/plugins/createWidget.ts:210](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L210)
 
 How long a cached batch stays valid, in seconds. Default `3600` (1 hour).
 
@@ -138,7 +138,7 @@ How long a cached batch stays valid, in seconds. Default `3600` (1 hour).
 
 > **containerSelector**: [`ElementInput`](../type-aliases/ElementInput.md)
 
-Defined in: [src/plugins/createWidget.ts:123](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L123)
+Defined in: [src/plugins/createWidget.ts:122](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L122)
 
 Where the widget mounts and renders. **Required.**
 
@@ -148,7 +148,7 @@ Where the widget mounts and renders. **Required.**
 
 > `optional` **currentPostId?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:164](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L164)
+Defined in: [src/plugins/createWidget.ts:163](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L163)
 
 Id of the post the widget is shown alongside — required for `related`
 and `excludeCurrent` to do anything. Not part of the original spec's
@@ -162,7 +162,7 @@ query param when omitted, or does nothing if that can't be found.
 
 > `optional` **dateFormat?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:145](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L145)
+Defined in: [src/plugins/createWidget.ts:144](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L144)
 
 Token-based date format applied to `published`/`updated`. Supports
 `yyyy yy MMMM MMM MM M dd d EEEE EEE HH hh mm ss a`. Default
@@ -174,7 +174,7 @@ Token-based date format applied to `published`/`updated`. Supports
 
 > `optional` **deepSearch?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:139](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L139)
+Defined in: [src/plugins/createWidget.ts:138](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L138)
 
 `true`: every `setQuery()`/query change re-fetches from the network.
 `false`: fetches a broader buffer once, then filters/searches inside
@@ -186,7 +186,7 @@ it client-side without any further network requests. Default `false`.
 
 > `optional` **empty?**: () => `string`
 
-Defined in: [src/plugins/createWidget.ts:235](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L235)
+Defined in: [src/plugins/createWidget.ts:234](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L234)
 
 Renders the empty state.
 
@@ -200,7 +200,7 @@ Renders the empty state.
 
 > `optional` **entryClass?**: (`entry`, `index`) => `string`
 
-Defined in: [src/plugins/createWidget.ts:239](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L239)
+Defined in: [src/plugins/createWidget.ts:238](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L238)
 
 Extra class name(s) for an entry's wrapper element.
 
@@ -224,7 +224,7 @@ Extra class name(s) for an entry's wrapper element.
 
 > `optional` **error?**: (`errorMsg`) => `string`
 
-Defined in: [src/plugins/createWidget.ts:233](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L233)
+Defined in: [src/plugins/createWidget.ts:232](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L232)
 
 Renders the error state.
 
@@ -244,7 +244,7 @@ Renders the error state.
 
 > `optional` **excludeCurrent?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:156](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L156)
+Defined in: [src/plugins/createWidget.ts:155](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L155)
 
 Drop `currentPostId` from the results. Default `false`.
 
@@ -254,7 +254,7 @@ Drop `currentPostId` from the results. Default `false`.
 
 > `optional` **fallbackImage?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:175](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L175)
+Defined in: [src/plugins/createWidget.ts:174](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L174)
 
 Shown when an entry has no image of its own. Defaults to a small built-in placeholder.
 
@@ -264,7 +264,7 @@ Shown when an entry has no image of its own. Defaults to a small built-in placeh
 
 > `optional` **infiniteScroll?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:183](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L183)
+Defined in: [src/plugins/createWidget.ts:182](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L182)
 
 Auto-load more entries via `IntersectionObserver` as the user scrolls near the end. Default `false`.
 
@@ -274,7 +274,7 @@ Auto-load more entries via `IntersectionObserver` as the user scrolls near the e
 
 > `optional` **jsonp?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:102](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L102)
+Defined in: [src/plugins/createWidget.ts:101](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L101)
 
 Enable JSONP transport (browser-only).
 
@@ -290,7 +290,7 @@ true
 
 > `optional` **loading?**: (`status`) => `string`
 
-Defined in: [src/plugins/createWidget.ts:231](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L231)
+Defined in: [src/plugins/createWidget.ts:230](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L230)
 
 Renders the loading state. `status` is a short human-readable phase, e.g. `"Loading posts..."`.
 
@@ -310,7 +310,7 @@ Renders the loading state. `status` is a short human-readable phase, e.g. `"Load
 
 > `optional` **loadMore?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:185](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L185)
+Defined in: [src/plugins/createWidget.ts:184](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L184)
 
 Render a "load more" button. Can be combined with `infiniteScroll`. Default `false`.
 
@@ -320,7 +320,7 @@ Render a "load more" button. Can be combined with `infiniteScroll`. Default `fal
 
 > `optional` **loadMoreText?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:187](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L187)
+Defined in: [src/plugins/createWidget.ts:186](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L186)
 
 Label for the load-more button. Default `"Load more"`.
 
@@ -330,7 +330,7 @@ Label for the load-more button. Default `"Load more"`.
 
 > `optional` **maxVisibleItems?**: `number`
 
-Defined in: [src/plugins/createWidget.ts:189](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L189)
+Defined in: [src/plugins/createWidget.ts:188](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L188)
 
 Entries fetched/shown per batch. Default `6`.
 
@@ -340,7 +340,7 @@ Entries fetched/shown per batch. Default `6`.
 
 > `optional` **onEmpty?**: () => `void`
 
-Defined in: [src/plugins/createWidget.ts:228](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L228)
+Defined in: [src/plugins/createWidget.ts:227](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L227)
 
 Called whenever there are zero entries to show (initial load or after filtering).
 
@@ -354,7 +354,7 @@ Called whenever there are zero entries to show (initial load or after filtering)
 
 > `optional` **onError?**: (`err`) => `void`
 
-Defined in: [src/plugins/createWidget.ts:226](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L226)
+Defined in: [src/plugins/createWidget.ts:225](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L225)
 
 Called when a fetch or render step throws.
 
@@ -374,7 +374,7 @@ Called when a fetch or render step throws.
 
 > `optional` **orderBy?**: [`WidgetOrderBy`](../type-aliases/WidgetOrderBy.md)
 
-Defined in: [src/plugins/createWidget.ts:129](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L129)
+Defined in: [src/plugins/createWidget.ts:128](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L128)
 
 Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`.
 labels?: string[];
@@ -386,7 +386,7 @@ labels?: string[];
 
 > `optional` **query?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:133](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L133)
+Defined in: [src/plugins/createWidget.ts:132](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L132)
 
 Search query. Combine with `deepSearch` to control how it's applied.
 
@@ -396,7 +396,7 @@ Search query. Combine with `deepSearch` to control how it's applied.
 
 > `optional` **random?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:154](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L154)
+Defined in: [src/plugins/createWidget.ts:153](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L153)
 
 Shuffle the final rendered order (independent of `source`). Default `false`.
 
@@ -406,7 +406,7 @@ Shuffle the final rendered order (independent of `source`). Default `false`.
 
 > `optional` **related?**: `boolean`
 
-Defined in: [src/plugins/createWidget.ts:152](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L152)
+Defined in: [src/plugins/createWidget.ts:151](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L151)
 
 Only include entries that share at least one label with the post
 identified by `currentPostId`. Requires `currentPostId`. Default `false`.
@@ -417,7 +417,7 @@ identified by `currentPostId`. Requires `currentPostId`. Default `false`.
 
 > `optional` **rootMargin?**: `string`
 
-Defined in: [src/plugins/createWidget.ts:197](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L197)
+Defined in: [src/plugins/createWidget.ts:196](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L196)
 
 `rootMargin` for the `IntersectionObserver`s used both to defer the
 widget's first fetch until its container nears the viewport, and to
@@ -429,7 +429,7 @@ trigger `infiniteScroll`. Default `"0px"`.
 
 > `optional` **sort?**: [`WidgetSort`](../type-aliases/WidgetSort.md)
 
-Defined in: [src/plugins/createWidget.ts:131](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L131)
+Defined in: [src/plugins/createWidget.ts:130](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L130)
 
 Direction to show entries in. Default `"desc"`.
 
@@ -439,7 +439,7 @@ Direction to show entries in. Default `"desc"`.
 
 > `optional` **source?**: [`WidgetSourceType`](../type-aliases/WidgetSourceType.md)
 
-Defined in: [src/plugins/createWidget.ts:121](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L121)
+Defined in: [src/plugins/createWidget.ts:120](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L120)
 
 How the initial batch is sourced: `"recent"` lists newest-first,
 `"random"` samples random entries. Only applies to `type: "posts"`.
@@ -451,7 +451,7 @@ Default `"recent"`.
 
 > `optional` **summaryLength?**: `number`
 
-Defined in: [src/plugins/createWidget.ts:179](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L179)
+Defined in: [src/plugins/createWidget.ts:178](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L178)
 
 Max characters of plain-text summary kept in `entry.content`. `0` disables truncation. Default `120`.
 
@@ -461,7 +461,7 @@ Max characters of plain-text summary kept in `entry.content`. `0` disables trunc
 
 > `optional` **template?**: (`entry`, `i`) => `string`
 
-Defined in: [src/plugins/createWidget.ts:237](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L237)
+Defined in: [src/plugins/createWidget.ts:236](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L236)
 
 Renders one entry. `i` is its index in the currently rendered batch.
 
@@ -485,7 +485,7 @@ Renders one entry. `i` is its index in the currently rendered batch.
 
 > `optional` **thumbnail?**: `false` \| `"default"` \| [`ResizeImageOptions`](ResizeImageOptions.md)
 
-Defined in: [src/plugins/createWidget.ts:173](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L173)
+Defined in: [src/plugins/createWidget.ts:172](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L172)
 
 `"default"` resizes each entry's own/extracted thumbnail with
 [resizeImage](../functions/resizeImage.md)'s defaults. Pass a [ResizeImageOptions](ResizeImageOptions.md)
@@ -498,7 +498,7 @@ thumbnails entirely (skips extraction and rendering). Default `"default"`.
 
 > `optional` **transformers?**: [`WidgetTransformer`](../type-aliases/WidgetTransformer.md)[]
 
-Defined in: [src/plugins/createWidget.ts:214](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L214)
+Defined in: [src/plugins/createWidget.ts:213](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L213)
 
 Applied to every entry, in order, right after normalization.
 
@@ -508,7 +508,7 @@ Applied to every entry, in order, right after normalization.
 
 > `optional` **type?**: [`WidgetType`](../type-aliases/WidgetType.md)
 
-Defined in: [src/plugins/createWidget.ts:115](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L115)
+Defined in: [src/plugins/createWidget.ts:114](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L114)
 
 What the widget lists.
 - "posts": Blog posts (default)

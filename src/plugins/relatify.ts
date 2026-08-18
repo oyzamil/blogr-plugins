@@ -1,8 +1,9 @@
-import { Blogr, type Post } from "blogr";
+import Blogr, { type Post } from "blogr";
 
-import { type ElementInput, type PluginInstance } from "../types.js";
-import { resolveElements } from "../utils/dom.js";
-import { mergeOptions } from "../utils/merge-options.js";
+import { type ElementInput, type PluginInstance } from "../types";
+import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
+import { requireBlogr } from "../utils/require-blogr";
 
 /** How candidate posts are picked once fetched. */
 export type RelatifyRelevance = "strict" | "default";
@@ -307,6 +308,7 @@ function createEngine(container: HTMLElement, opts: ResolvedOptions): Engine {
 		(label) => !opts.excludeLabels.includes(label),
 	);
 	const currentUrl = normalizeUrl(opts.currentUrl ?? detectCurrentUrl());
+	requireBlogr(Blogr, "relatify");
 	const blog = new Blogr(opts.blogUrl ?? location.origin, {
 		jsonp: opts.jsonp,
 	});

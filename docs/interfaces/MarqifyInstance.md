@@ -6,7 +6,7 @@
 
 # Interface: MarqifyInstance
 
-Defined in: [src/plugins/marqify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/marqify.ts#L63)
+Defined in: [src/plugins/marqify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/marqify.ts#L63)
 
 What [marqify](../functions/marqify.md) returns. `next()` / `previous()` are no-ops when `type` is `"marquee"`.
 
@@ -20,7 +20,7 @@ What [marqify](../functions/marqify.md) returns. `next()` / `previous()` are no-
 
 > **destroy**(): `void`
 
-Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 
@@ -38,7 +38,7 @@ Removes listeners/observers and undoes DOM changes made by the plugin.
 
 > **next**(): `void`
 
-Defined in: [src/plugins/marqify.ts:65](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/marqify.ts#L65)
+Defined in: [src/plugins/marqify.ts:65](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/marqify.ts#L65)
 
 Slide to the next item. Ticker only — no-op for `"marquee"`.
 
@@ -52,7 +52,7 @@ Slide to the next item. Ticker only — no-op for `"marquee"`.
 
 > **previous**(): `void`
 
-Defined in: [src/plugins/marqify.ts:67](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/marqify.ts#L67)
+Defined in: [src/plugins/marqify.ts:67](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/marqify.ts#L67)
 
 Slide to the previous item. Ticker only — no-op for `"marquee"`.
 

@@ -30,7 +30,7 @@ vi.mock("blogr", () => {
 			return makePager(items.slice(0, options.limit ?? 25), 10);
 		}
 	}
-	return { Blogr: MockBlogr };
+	return { Blogr: MockBlogr, default: MockBlogr };
 });
 
 const { relatify } = await import("../src/plugins/relatify.js");

@@ -1,3 +1,5 @@
+// import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
+
 const logger = createLogger({
 	containerSelector: "#stackify-logs",
 	scrollable: true,

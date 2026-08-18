@@ -13,6 +13,7 @@ class MockIntersectionObserver implements IntersectionObserver {
 
 	readonly root = null;
 	readonly rootMargin: string;
+	readonly scrollMargin: string;
 	readonly thresholds: ReadonlyArray<number> = [0];
 	observed = new Set<Element>();
 
@@ -21,6 +22,7 @@ class MockIntersectionObserver implements IntersectionObserver {
 		options?: IntersectionObserverInit,
 	) {
 		this.rootMargin = (options?.rootMargin as string) ?? "0px";
+		this.scrollMargin = (options?.rootMargin as string) ?? "0px";
 		MockIntersectionObserver.instances.push(this);
 	}
 

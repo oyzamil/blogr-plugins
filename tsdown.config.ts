@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { type OutputOptions } from "rolldown";
 import { defineConfig, type UserConfig } from "tsdown";
 
@@ -13,18 +14,26 @@ const PLUGINS = [
 	"tocify",
 	"replacify",
 	"cookify",
-	"resizeImage",
 	"shortcodify",
-	"createWidget",
 	"stackify",
 	"avatarify",
 	"relatify",
 	"marqify",
+	"resizeImage",
+	"createWidget",
 	"adsenseLoader",
+	"readMeter",
 ] as const;
 
 const BANNER = (format: string) =>
 	`/*! ${pkg.name} v${pkg.version} - ${format} | M.Muzammil <https://muzammil.work/> | MIT License */`;
+
+// IIFE builds only: resolves `import Blogr from "blogr"` to a small shim
+// that reads `globalThis.Blogr` defensively, instead of leaving `blogr`
+// external. See src/utils/blogr-global.ts for why.
+const BLOGR_BROWSER_SHIM = fileURLToPath(
+	new URL("./src/utils/blogr-global.ts", import.meta.url),
+);
 
 const applyOutputOptions = (
 	options: OutputOptions,
@@ -33,19 +42,9 @@ const applyOutputOptions = (
 	entryFileName?: string,
 ) => {
 	options.banner = BANNER(format);
-
-	options.comments = {
-		legal: true,
-	};
-
-	if (globalName) {
-		options.name = globalName;
-	}
-
-	if (entryFileName) {
-		options.entryFileNames = entryFileName;
-	}
-
+	options.comments = { legal: true };
+	if (globalName) options.name = globalName;
+	if (entryFileName) options.entryFileNames = entryFileName;
 	return options;
 };
 
@@ -58,25 +57,16 @@ const shared: UserConfig = {
 	},
 };
 
+// Main package build (ESM + CJS + types)
 const packageBuild = (minify: boolean): UserConfig => ({
 	...shared,
 	entry: {
-		[pkg.name]: "src/index.ts",
+		"blogr-plugins": "src/index.ts",
 	},
 	format: ["esm", "cjs"],
 	dts: !minify,
 	clean: !minify,
 	minify,
-	outputOptions(options, format) {
-		applyOutputOptions(options, format);
-
-		// options.entryFileNames =
-		// 	format === "cjs"
-		// 		? `${pkg.name}${minify ? ".min" : ""}.cjs`
-		// 		: `${pkg.name}${minify ? ".min" : ""}.mjs`;
-
-		return options;
-	},
 	outExtensions({ format }) {
 		return {
 			js: minify
@@ -89,12 +79,17 @@ const packageBuild = (minify: boolean): UserConfig => ({
 			...(minify
 				? {}
 				: {
-						dts: format === "es" ? ".ts" : ".cts",
+						dts: format === "es" ? ".d.ts" : ".d.cts",
 					}),
 		};
 	},
+	outputOptions(options, format) {
+		applyOutputOptions(options, format);
+		return options;
+	},
 });
 
+// Browser IIFE builds (for <script> tags)
 const browserBuild = (
 	entry: string,
 	fileName: string,
@@ -102,13 +97,19 @@ const browserBuild = (
 	minify: boolean,
 ): UserConfig => ({
 	...shared,
-	entry: {
-		[fileName]: entry,
-	},
+	entry: { [fileName]: entry },
 	format: ["iife"],
 	dts: false,
 	clean: false,
 	minify,
+	// "blogr" is external for the npm package build (shared.external), but
+	// IIFE builds must resolve it locally so the alias below can redirect
+	// it to the shim — override both the deprecated `external` (passed
+	// straight to rolldown) and the peerDependency auto-detection that
+	// `deps.alwaysBundle` bypasses. Only relatify/createWidget actually
+	// import "blogr"; this is a no-op for every other plugin's browser build.
+	deps: { alwaysBundle: ["blogr"] },
+	alias: { blogr: BLOGR_BROWSER_SHIM },
 	outputOptions(options, format) {
 		return applyOutputOptions(
 			options,
@@ -123,12 +124,13 @@ export default defineConfig([
 	packageBuild(false),
 	packageBuild(true),
 
+	// All plugins in one IIFE
 	browserBuild("src/browser.ts", pkg.name, "BlogrPlugins", false),
 	browserBuild("src/browser.ts", pkg.name, "BlogrPlugins", true),
 
+	// Individual plugin IIFE builds
 	...PLUGINS.flatMap((plugin) => {
 		const globalName = `Blogr${plugin[0].toUpperCase()}${plugin.slice(1)}`;
-
 		return [
 			browserBuild(`src/browser/${plugin}.ts`, plugin, globalName, false),
 			browserBuild(`src/browser/${plugin}.ts`, plugin, globalName, true),

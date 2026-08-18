@@ -92,7 +92,10 @@
 	</section>
 	<div class="relative z-1 overflow-hidden py-8 text-center border-y">
 		<div class="space-y-4">
-			<h2 class="text-xl font-medium tracking-wider uppercase">Blogs</h2>
+			<div class="flex gap-2 justify-center items-center">
+				<h2 class="text-xl font-medium tracking-wider uppercase">Blogs</h2>
+				<div class="readTime"></div>
+			</div>
 			<p class="text-muted-foreground text-base">Boost your efficiency with an AI agent that eliminates manual
 				work and streamlines your operations.</p>
 		</div>
@@ -891,7 +894,7 @@ createWidget({
 			</div>
 		</div>
 	</footer>
-
+	<script src="https://cdn.jsdelivr.net/npm/blogr"></script>
 	<script src="../dist/blogr-plugins.min.js"></script>
 	<script>
 		// import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";

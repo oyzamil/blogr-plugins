@@ -1,23 +1,23 @@
 {
 	"name": "blogr-plugins",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Typed, modular Blogr plugin kit — sticky sidebar, menu, lazy-load, TOC, text-replace and cookie utils. Works standalone or as jQuery plugins.",
 	"type": "module",
 	"main": "./dist/blogr-plugins.cjs",
-	"module": "./dist/blogr-plugins.mjs",
-	"types": "./dist/blogr-plugins.d.mts",
+	"module": "./dist/blogr-plugins.esm.js",
+	"types": "./dist/blogr-plugins.d.ts",
+	"typings": "./dist/blogr-plugins.d.ts",
 	"unpkg": "./dist/blogr-plugins.min.js",
 	"jsdelivr": "./dist/blogr-plugins.min.js",
 	"exports": {
 		".": {
-			"types": "./dist/blogr-plugins.d.mts",
-			"import": "./dist/blogr-plugins.mjs",
+			"types": "./dist/blogr-plugins.d.ts",
+			"import": "./dist/blogr-plugins.esm.js",
 			"require": "./dist/blogr-plugins.cjs"
 		},
 		"./iife": "./dist/blogr-plugins.js",
 		"./iife.min": "./dist/blogr-plugins.min.js",
 		"./stickify": "./dist/stickify.js",
-		"./stackify": "./dist/stackify.js",
 		"./menuify": "./dist/menuify.js",
 		"./lazify": "./dist/lazify.js",
 		"./tocify": "./dist/tocify.js",
@@ -26,10 +26,11 @@
 		"./resizeImage": "./dist/resizeImage.js",
 		"./shortcodify": "./dist/shortcodify.js",
 		"./createWidget": "./dist/createWidget.js",
+		"./stackify": "./dist/stackify.js",
 		"./avatarify": "./dist/avatarify.js",
 		"./relatify": "./dist/relatify.js",
 		"./marqify": "./dist/marqify.js",
-		"./lazyAdsense": "./dist/lazyAdsense.js",
+		"./adsenseLoader": "./dist/adsenseLoader.js",
 		"./package.json": "./package.json"
 	},
 	"files": [
@@ -74,7 +75,12 @@
 		"unrun": "^0.3.1",
 		"vitest": "^4.1.10"
 	},
-	"dependencies": {
-		"blogr": "^0.0.1"
+	"peerDependencies": {
+		"blogr": "^0.0.2"
+	},
+	"peerDependenciesMeta": {
+		"blogr": {
+			"optional": true
+		}
 	}
 }

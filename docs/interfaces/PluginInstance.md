@@ -6,7 +6,7 @@
 
 # Interface: PluginInstance
 
-Defined in: [src/types.ts:16](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/types.ts#L16)
+Defined in: [src/types.ts:16](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/types.ts#L16)
 
 Common shape returned by every plugin instance so callers always have a
 predictable way to tear a plugin down.
@@ -16,6 +16,7 @@ predictable way to tear a plugin down.
 - [`AvatarifyInstance`](AvatarifyInstance.md)
 - [`WidgetInstance`](WidgetInstance.md)
 - [`MarqifyInstance`](MarqifyInstance.md)
+- [`ReadMeterInstance`](ReadMeterInstance.md)
 - [`StackifyInstance`](StackifyInstance.md)
 
 ## Methods
@@ -24,7 +25,7 @@ predictable way to tear a plugin down.
 
 > **destroy**(): `void`
 
-Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 

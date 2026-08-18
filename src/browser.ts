@@ -25,6 +25,11 @@ import {
 } from "./plugins/marqify";
 import { type MenuifyOptions, menuify } from "./plugins/menuify";
 import {
+	type ReadMeterInstance,
+	type ReadMeterOptions,
+	readMeter,
+} from "./plugins/readMeter";
+import {
 	type RelatedPost,
 	type RelatifyOptions,
 	relatify,
@@ -115,6 +120,8 @@ export type {
 	MarqifyOptions,
 	MenuifyOptions,
 	PluginInstance,
+	ReadMeterInstance,
+	ReadMeterOptions,
 	RelatedPost,
 	RelatifyOptions,
 	ReplacifyOptions,
@@ -139,6 +146,7 @@ export {
 	lazify,
 	marqify,
 	menuify,
+	readMeter,
 	relatify,
 	renderShortcodes,
 	replacify,

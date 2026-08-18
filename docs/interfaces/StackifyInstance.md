@@ -6,7 +6,7 @@
 
 # Interface: StackifyInstance
 
-Defined in: [src/plugins/stackify.ts:139](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L139)
+Defined in: [src/plugins/stackify.ts:139](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L139)
 
 Returned by [stackify](../functions/stackify.md).
 
@@ -20,7 +20,7 @@ Returned by [stackify](../functions/stackify.md).
 
 > **destroy**(): `void`
 
-Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/types.ts#L18)
 
 Removes listeners/observers and undoes DOM changes made by the plugin.
 
@@ -38,7 +38,7 @@ Removes listeners/observers and undoes DOM changes made by the plugin.
 
 > **getActiveIndex**(): `number`[]
 
-Defined in: [src/plugins/stackify.ts:151](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L151)
+Defined in: [src/plugins/stackify.ts:151](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L151)
 
 Original index of the card currently in front, per matched stack (usually one).
 
@@ -52,7 +52,7 @@ Original index of the card currently in front, per matched stack (usually one).
 
 > **goTo**(`originalIndex`): `void`
 
-Defined in: [src/plugins/stackify.ts:145](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L145)
+Defined in: [src/plugins/stackify.ts:145](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L145)
 
 Brings the card at `originalIndex` (its position in the initial DOM order) to the front.
 
@@ -72,7 +72,7 @@ Brings the card at `originalIndex` (its position in the initial DOM order) to th
 
 > **next**(): `void`
 
-Defined in: [src/plugins/stackify.ts:141](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L141)
+Defined in: [src/plugins/stackify.ts:141](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L141)
 
 Sends the current front card to the back; the next one becomes front.
 
@@ -86,7 +86,7 @@ Sends the current front card to the back; the next one becomes front.
 
 > **pause**(): `void`
 
-Defined in: [src/plugins/stackify.ts:149](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L149)
+Defined in: [src/plugins/stackify.ts:149](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L149)
 
 Pauses the auto-cycle timer.
 
@@ -100,7 +100,7 @@ Pauses the auto-cycle timer.
 
 > **play**(): `void`
 
-Defined in: [src/plugins/stackify.ts:147](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L147)
+Defined in: [src/plugins/stackify.ts:147](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L147)
 
 Resumes the auto-cycle timer.
 
@@ -114,7 +114,7 @@ Resumes the auto-cycle timer.
 
 > **prev**(): `void`
 
-Defined in: [src/plugins/stackify.ts:143](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/stackify.ts#L143)
+Defined in: [src/plugins/stackify.ts:143](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L143)
 
 Brings the back-most card to the front.
 

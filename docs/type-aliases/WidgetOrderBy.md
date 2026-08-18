@@ -8,6 +8,6 @@
 
 > **WidgetOrderBy** = `"published"` \| `"updated"`
 
-Defined in: [src/plugins/createWidget.ts:20](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/createWidget.ts#L20)
+Defined in: [src/plugins/createWidget.ts:19](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L19)
 
 Feed field a widget's entries are ordered by.

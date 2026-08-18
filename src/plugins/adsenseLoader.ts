@@ -60,9 +60,6 @@ const ADSENSE_SCRIPT_SRC =
 const PENDING_CLASS = "adsbygoogle";
 const LOADED_CLASS = "adsense--loaded";
 const UNFILLED_CLASS = "adsense--unfilled";
-// Set by Google once it's finished processing a push() — "done" regardless
-// of outcome. Different from AD_FILL_ATTR below.
-const AD_STATUS_ATTR = "data-adsbygoogle-status";
 // The actual outcome Google writes once processing settles: "filled" or
 // "unfilled".
 const AD_FILL_ATTR = "data-ad-status";
@@ -373,11 +370,11 @@ export function adsenseLoader(
 				// Only reload if wrapper is loaded (filled)
 				if (!wrapper.classList.contains(LOADED_CLASS)) continue;
 				// Store old inline dimensions before recomputing
-				const oldWidth = parseInt(wrapper.style.width) || 0;
-				const oldHeight = parseInt(wrapper.style.height) || 0;
+				const oldWidth = parseInt(wrapper.style.width, 10) || 0;
+				const oldHeight = parseInt(wrapper.style.height, 10) || 0;
 				applyResponsiveSize(wrapper, opts.mobileBreakpoint);
-				const newWidth = parseInt(wrapper.style.width) || 0;
-				const newHeight = parseInt(wrapper.style.height) || 0;
+				const newWidth = parseInt(wrapper.style.width, 10) || 0;
+				const newHeight = parseInt(wrapper.style.height, 10) || 0;
 				if (oldWidth === newWidth && oldHeight === newHeight) continue;
 
 				// Size changed – reload the ad

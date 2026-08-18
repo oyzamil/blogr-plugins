@@ -1,4 +1,4 @@
-import type { ElementInput } from "../types.js";
+import { type ElementInput } from "../types.js";
 
 /**
  * Normalizes any supported input (selector string, Element, NodeList, array,

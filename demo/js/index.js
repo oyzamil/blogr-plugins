@@ -1,3 +1,5 @@
+// import * as BlogrPlugins from "../../dist/blogr-plugins.esm.js";
+
 const logger = createLogger();
 
 function diffHighlight(before, after) {
@@ -199,6 +201,10 @@ document.addEventListener("click", (e) => {
 			.querySelectorAll("#menu-nav li.open")
 			.forEach((li) => li.classList.remove("open"));
 	}
+});
+BlogrPlugins.readMeter("main", {
+	format: "text",
+	appendTo: ".readTime",
 });
 
 BlogrPlugins.tocify("#toc", {

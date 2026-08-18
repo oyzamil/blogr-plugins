@@ -8,7 +8,7 @@
 
 > **marqify**(`input`, `options?`): [`MarqifyInstance`](../interfaces/MarqifyInstance.md)
 
-Defined in: [src/plugins/marqify.ts:538](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/marqify.ts#L538)
+Defined in: [src/plugins/marqify.ts:538](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/marqify.ts#L538)
 
 Turns a container's children into an infinitely-scrolling CSS marquee —
 logos, card rows, testimonial strips, anything you'd otherwise reach for

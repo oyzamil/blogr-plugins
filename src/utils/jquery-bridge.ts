@@ -1,4 +1,4 @@
-import type { PluginInstance } from "../types.js";
+import { type PluginInstance } from "../types.js";
 
 /**
  * Registers one jQuery plugin method (`$.fn[name]`) that wraps a Blogr

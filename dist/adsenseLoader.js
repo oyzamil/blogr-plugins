@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.2 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.3 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrAdsenseLoader = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -273,11 +273,11 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 				resizeTO = null;
 				for (const [wrapper, state] of states) {
 					if (!wrapper.classList.contains(LOADED_CLASS)) continue;
-					const oldWidth = parseInt(wrapper.style.width) || 0;
-					const oldHeight = parseInt(wrapper.style.height) || 0;
+					const oldWidth = parseInt(wrapper.style.width, 10) || 0;
+					const oldHeight = parseInt(wrapper.style.height, 10) || 0;
 					applyResponsiveSize(wrapper, opts.mobileBreakpoint);
-					const newWidth = parseInt(wrapper.style.width) || 0;
-					const newHeight = parseInt(wrapper.style.height) || 0;
+					const newWidth = parseInt(wrapper.style.width, 10) || 0;
+					const newHeight = parseInt(wrapper.style.height, 10) || 0;
 					if (oldWidth === newWidth && oldHeight === newHeight) continue;
 					intersectionObserver.unobserve(wrapper);
 					wrapper.innerHTML = state.originalHTML;

@@ -8,7 +8,7 @@
 
 > **createShortcodeRegistry**(`initial?`): [`ShortcodeRegistry`](../interfaces/ShortcodeRegistry.md)
 
-Defined in: [src/plugins/shortcodify.ts:372](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/shortcodify.ts#L372)
+Defined in: [src/plugins/shortcodify.ts:372](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/shortcodify.ts#L372)
 
 A small, reusable builder for a tag → handler map, so a shared set of
 shortcodes (e.g. your site's `[gallery]`, `[youtube]`, `[button]`) can be

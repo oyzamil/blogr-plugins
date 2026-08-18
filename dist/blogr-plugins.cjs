@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.2 - cjs | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.3 - cjs | M.Muzammil <https://muzammil.work/> | MIT License */
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 //#region src/utils/merge-options.ts
 /**
@@ -26,7 +26,7 @@ function mergeOptions(defaultValues, options) {
 
 //#endregion
 //#region src/plugins/adsenseLoader.ts
-const defaults$12 = {
+const defaults$13 = {
 	rootMargin: "200px",
 	threshold: 0,
 	observeMutations: true,
@@ -185,7 +185,7 @@ function waitForFillStatus(ins, timeoutMs = 4e3) {
 * ```
 */
 function adsenseLoader(input, options = {}) {
-	const opts = mergeOptions(defaults$12, options);
+	const opts = mergeOptions(defaults$13, options);
 	const container = options.container ?? document.body;
 	let destroyed = false;
 	const seen = /* @__PURE__ */ new WeakSet();
@@ -271,11 +271,11 @@ function adsenseLoader(input, options = {}) {
 			resizeTO = null;
 			for (const [wrapper, state] of states) {
 				if (!wrapper.classList.contains(LOADED_CLASS)) continue;
-				const oldWidth = parseInt(wrapper.style.width) || 0;
-				const oldHeight = parseInt(wrapper.style.height) || 0;
+				const oldWidth = parseInt(wrapper.style.width, 10) || 0;
+				const oldHeight = parseInt(wrapper.style.height, 10) || 0;
 				applyResponsiveSize(wrapper, opts.mobileBreakpoint);
-				const newWidth = parseInt(wrapper.style.width) || 0;
-				const newHeight = parseInt(wrapper.style.height) || 0;
+				const newWidth = parseInt(wrapper.style.width, 10) || 0;
+				const newHeight = parseInt(wrapper.style.height, 10) || 0;
 				if (oldWidth === newWidth && oldHeight === newHeight) continue;
 				intersectionObserver.unobserve(wrapper);
 				wrapper.innerHTML = state.originalHTML;
@@ -322,7 +322,7 @@ function resolveElements(input) {
 
 //#endregion
 //#region src/plugins/avatarify.ts
-const defaults$11 = {
+const defaults$12 = {
 	timestampSelector: "",
 	timestampAttribute: "",
 	setRandomAvatarForAll: false,
@@ -581,7 +581,7 @@ function createEngine$2(container, opts, counter) {
 * ```
 */
 function avatarify(config) {
-	const opts = mergeOptions(defaults$11, config);
+	const opts = mergeOptions(defaults$12, config);
 	opts.usernameSelector = config.usernameSelector;
 	opts.commentSelector = config.commentSelector;
 	opts.avatarSelector = config.avatarSelector;
@@ -2338,7 +2338,7 @@ const FORMAT_PARAMS = [
 const FLIP_PARAMS = ["fh", "fv"];
 /** Prefixes that crop the image into a circle or square; mutually exclusive. */
 const CROP_PARAMS = ["cc", "ci"];
-const defaults$10 = {
+const defaults$11 = {
 	height: 360,
 	width: 640,
 	format: "webp",
@@ -2410,7 +2410,7 @@ function resizeYouTubeThumbnail(match, options) {
 	const protocol = match[1] ?? "https:";
 	const videoId = match[3];
 	const query = match[4] ?? "";
-	return `${protocol}//i.ytimg.com/vi_webp/${videoId}/${options.ytThumbnail ?? defaults$10.ytThumbnail}.webp${query}`;
+	return `${protocol}//i.ytimg.com/vi_webp/${videoId}/${options.ytThumbnail ?? defaults$11.ytThumbnail}.webp${query}`;
 }
 /**
 * Checks whether a URL is a Blogger/Google-hosted image (old or new URL
@@ -2473,13 +2473,13 @@ function resizeImage(url, options = {}) {
 	params.delete("s");
 	params.set("w", {
 		kind: "num",
-		value: options.width ?? defaults$10.width
+		value: options.width ?? defaults$11.width
 	});
 	params.set("h", {
 		kind: "num",
-		value: options.height ?? defaults$10.height
+		value: options.height ?? defaults$11.height
 	});
-	const format = options.format ?? defaults$10.format;
+	const format = options.format ?? defaults$11.format;
 	if (format === "jpeg") setExclusive(params, FORMAT_PARAMS, "rj");
 	else if (format === "png") setExclusive(params, FORMAT_PARAMS, "rp");
 	else if (format === "webp") setExclusive(params, FORMAT_PARAMS, "rw");
@@ -2548,7 +2548,7 @@ function resizeImageInDom(input, options = {}) {
 
 //#endregion
 //#region src/plugins/createWidget.ts
-const defaults$9 = {
+const defaults$10 = {
 	jsonp: true,
 	type: "posts",
 	source: "recent",
@@ -2575,8 +2575,8 @@ const defaults$9 = {
 	loading: (status) => `<div class="blogr-widget-loading" style="text-align:center;width:100%"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
 	error: (errorMsg) => `<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () => `<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-	template: (entry, _i) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-	entryClass: (_entry, _index) => ""
+	template: (entry) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
+	entryClass: () => ""
 };
 const MONTHS_LONG = [
 	"January",
@@ -2706,14 +2706,14 @@ function detectCurrentPostId() {
 */
 function createWidget(options) {
 	if (typeof Blogr === "undefined") {
-		console.warn("[blogr-widget] Blogr SDK not found. Please add it via CDN: <script src=\"https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js\"><\/script> or install via npm: npm install blogr");
+		console.warn("[blogr-widget] Blogr SDK not found. Please add it via CDN: <script src=\"https://cdn.jsdelivr.net/npm/blogr\"><\/script> or install via npm: npm install blogr");
 		const container = resolveElements(options.containerSelector)?.[0];
 		if (container) container.innerHTML = `
 				<div class="blogr-widget-error" style="padding: 1rem; background: #fee; border: 1px solid #fcc; color: #c00; border-radius: 4px;">
 					<p><strong>Blogr SDK not loaded.</strong></p>
 					<p>Please include the Blogr library:</p>
 					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
-						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr"&gt;&lt;/script&gt;
 					</code>
 				</div>
 			`;
@@ -2725,7 +2725,10 @@ function createWidget(options) {
 			}
 		};
 	}
-	const opts = mergeOptions(defaults$9, options);
+	const opts = {
+		...defaults$10,
+		...options
+	};
 	const container = resolveElements(opts.containerSelector)[0];
 	if (!container) throw new Error("createWidget: containerSelector matched no element.");
 	const target = container;
@@ -3125,7 +3128,7 @@ function createWidget(options) {
 
 //#endregion
 //#region src/plugins/lazify.ts
-const defaults$8 = {
+const defaults$9 = {
 	attribute: "data-src",
 	posterAttribute: "data-poster",
 	bgImageAttribute: "data-bg-image",
@@ -3232,7 +3235,7 @@ function loadBackgroundImage(el, url, onDone) {
 * ```
 */
 function lazify(input, options = {}) {
-	const opts = mergeOptions(defaults$8, options);
+	const opts = mergeOptions(defaults$9, options);
 	const onLoadCb = options.onLoad;
 	const onErrorCb = options.onError;
 	const elements = resolveElements(input);
@@ -3304,7 +3307,7 @@ const TICKER_DURATION_MAP = {
 	medium: 500,
 	fast: 300
 };
-const defaults$7 = {
+const defaults$8 = {
 	type: "marquee",
 	direction: "left",
 	delayBeforeStart: 0,
@@ -3683,7 +3686,7 @@ function createTickerEngine(container, opts) {
 */
 function marqify(input, options = {}) {
 	injectStyles();
-	const opts = mergeOptions(defaults$7, options);
+	const opts = mergeOptions(defaults$8, options);
 	if (opts.type === "marquee" && opts.direction !== "left" && opts.direction !== "right") {
 		console.warn(`marqify: direction "${opts.direction}" is only valid for type: "ticker" — falling back to "left" for this marquee.`);
 		opts.direction = "left";
@@ -3706,14 +3709,14 @@ function marqify(input, options = {}) {
 
 //#endregion
 //#region src/plugins/menuify.ts
-const defaults$6 = {
+const defaults$7 = {
 	nestingPrefix: "_",
 	submenuClass: "sub-menu",
 	hasSubClass: "has-sub",
 	chevronText: "<"
 };
 function menuify(input, options = {}) {
-	const opts = mergeOptions(defaults$6, options);
+	const opts = mergeOptions(defaults$7, options);
 	const lists = resolveElements(input);
 	const undoFns = [];
 	for (const list of lists) {
@@ -3782,6 +3785,208 @@ function menuify(input, options = {}) {
 	return { destroy() {
 		for (const undo of undoFns) undo();
 	} };
+}
+
+//#endregion
+//#region src/plugins/readMeter.ts
+const defaults$6 = {
+	includeElements: [],
+	excludeElements: [],
+	wordsPerMinute: 200,
+	includeImages: false,
+	imageTimeSeconds: 10,
+	includeCode: false,
+	codeWordsPerMinute: 100,
+	format: "minutes",
+	template: (time) => `Read time: ${time}`,
+	appendTo: null,
+	updateOnResize: false,
+	debounceMs: 250
+};
+const BADGE_CLASS = "readmeter";
+const CODE_SELECTOR = "pre, code";
+/** Counts words via whitespace splitting — same technique used across the plugin suite. */
+function countWords$1(text) {
+	const trimmed = text.trim();
+	if (!trimmed) return 0;
+	return trimmed.split(/\s+/).length;
+}
+/**
+* Splits `contentEl`'s text into "plain" text and "code" text (the
+* concatenated text of every `<pre>`/`<code>` descendant), without
+* mutating the live DOM — works off a detached clone.
+*/
+function splitPlainAndCode(contentEl) {
+	const clone = contentEl.cloneNode(true);
+	const codeEls = Array.from(clone.querySelectorAll(CODE_SELECTOR));
+	const codeText = codeEls.map((el) => el.textContent ?? "").join(" ");
+	for (const el of codeEls) el.remove();
+	return {
+		plainText: clone.textContent ?? "",
+		codeText
+	};
+}
+/**
+* Resolves which elements inside `target` contribute to the read-time
+* calculation for `includeElements`: every descendant matching any of the
+* given selectors (deduplicated), or `target` itself if the list is
+* empty or none of the selectors match anything inside it.
+*/
+function resolveIncludedRoots(target, includeElements) {
+	if (includeElements.length === 0) return [target];
+	const matched = /* @__PURE__ */ new Set();
+	for (const sel of includeElements) for (const el of target.querySelectorAll(sel)) matched.add(el);
+	return matched.size > 0 ? Array.from(matched) : [target];
+}
+/**
+* Builds a detached container holding clones of every element
+* `includeElements` resolves to (or a clone of `target` itself if that
+* list is empty/unmatched), with every `excludeElements` match removed
+* from within it. Never touches the live DOM.
+*/
+function buildMeasurementRoot(target, includeElements, excludeElements) {
+	const roots = resolveIncludedRoots(target, includeElements);
+	const container = document.createElement("div");
+	for (const root of roots) {
+		if (container.childNodes.length > 0) container.appendChild(document.createTextNode(" "));
+		container.appendChild(root.cloneNode(true));
+	}
+	for (const sel of excludeElements) for (const el of Array.from(container.querySelectorAll(sel))) el.remove();
+	return container;
+}
+function formatTime(minutes, format) {
+	if (format === "minutes+seconds") {
+		const totalSeconds = Math.round(minutes * 60);
+		return `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+	}
+	const whole = Math.max(1, Math.ceil(minutes));
+	return format === "text" ? `${whole} minute read` : String(whole);
+}
+function calculate(contentEl, opts) {
+	const { plainText, codeText } = opts.includeCode ? splitPlainAndCode(contentEl) : {
+		plainText: contentEl.textContent ?? "",
+		codeText: ""
+	};
+	const plainWords = countWords$1(plainText);
+	const codeWords = opts.includeCode ? countWords$1(codeText) : 0;
+	const textMinutes = plainWords / opts.wordsPerMinute;
+	const codeMinutes = opts.includeCode ? codeWords / opts.codeWordsPerMinute : 0;
+	const imageMinutes = (opts.includeImages ? contentEl.querySelectorAll("img").length : 0) * opts.imageTimeSeconds / 60;
+	const minutes = textMinutes + codeMinutes + imageMinutes;
+	return {
+		minutes,
+		timeString: formatTime(minutes, opts.format)
+	};
+}
+/**
+* Estimates reading time for one or more content blocks — word count
+* (optionally splitting out code blocks at a slower reading speed) plus
+* optional flat per-image time — and renders it as a small badge, e.g.
+* `"Read time: 5"`.
+*
+* @param input - Selector, element(s), or jQuery collection for the
+* container(s) to analyze. By default the whole container's text is
+* measured; use `options.includeElements`/`options.excludeElements` to
+* narrow that down to specific children.
+* @param options - {@link ReadMeterOptions}
+* @returns A {@link ReadMeterInstance} — `refresh()` to force an
+* immediate recalculation, `destroy()` to remove any inserted badges and
+* stop listening for resize.
+*
+* @example
+* ```ts
+* import { readMeter } from "blogr-plugins";
+*
+* readMeter(".post", {
+* 	includeElements: ["article"],
+* 	excludeElements: [".share-buttons", ".author-bio"],
+* 	wordsPerMinute: 200,
+* 	includeImages: true,
+* 	format: "text",
+* 	appendTo: ".post-meta",
+* });
+* ```
+*/
+function readMeter(input, options = {}) {
+	const opts = mergeOptions(defaults$6, options);
+	const targets = resolveElements(input);
+	const badges = /* @__PURE__ */ new Map();
+	let resizeTimer = null;
+	let destroyed = false;
+	function resolveAppendTarget(target) {
+		if (opts.appendTo == null) return null;
+		if (typeof opts.appendTo === "string") return target.querySelector(opts.appendTo) ?? document.querySelector(opts.appendTo);
+		return opts.appendTo;
+	}
+	function renderBadge(target, timeString) {
+		const mount = resolveAppendTarget(target);
+		if (!mount) return;
+		let badge = badges.get(target);
+		if (!badge) {
+			badge = document.createElement("span");
+			badge.className = BADGE_CLASS;
+			badges.set(target, badge);
+		}
+		if (badge.parentElement !== mount) mount.appendChild(badge);
+		badge.innerHTML = opts.template(timeString);
+	}
+	function runOne(target) {
+		const { minutes, timeString } = calculate(buildMeasurementRoot(target, opts.includeElements, opts.excludeElements), opts);
+		renderBadge(target, timeString);
+		options.onUpdate?.(timeString, minutes);
+	}
+	function runAll() {
+		for (const target of targets) runOne(target);
+	}
+	runAll();
+	function onResize() {
+		if (destroyed) return;
+		if (resizeTimer) clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(() => {
+			resizeTimer = null;
+			runAll();
+		}, opts.debounceMs);
+	}
+	if (opts.updateOnResize) window.addEventListener("resize", onResize);
+	return {
+		refresh() {
+			if (!destroyed) runAll();
+		},
+		destroy() {
+			destroyed = true;
+			if (resizeTimer) clearTimeout(resizeTimer);
+			if (opts.updateOnResize) window.removeEventListener("resize", onResize);
+			for (const badge of badges.values()) badge.remove();
+			badges.clear();
+		}
+	};
+}
+
+//#endregion
+//#region src/utils/require-blogr.ts
+/**
+* `blogr` is an external peer dependency for plugins that talk to the feed
+* API (currently {@link relatify} and {@link createWidget}) — it's no
+* longer bundled into their output, so it must be resolvable at runtime:
+*
+* - npm / ESM / CJS consumers get it from their own module graph
+*   (`npm install blogr`); a missing install fails at import time with
+*   Node/the bundler's own "Cannot find module" error.
+* - IIFE / browser consumers have no module system, so the external import
+*   is mapped to a `Blogr` global instead. If that script tag is missing
+*   or loaded in the wrong order, the import silently resolves to
+*   `undefined` rather than throwing — this check is what catches that
+*   case with an actionable message instead of a cryptic
+*   "Blogr is not a constructor" deep inside the plugin.
+*
+* @param ctor - The imported (or global-mapped) `Blogr` binding.
+* @param pluginName - Name of the calling plugin, used in the error message.
+* @throws If `ctor` isn't a usable constructor.
+*/
+function requireBlogr(ctor, pluginName) {
+	if (typeof ctor === "function") return;
+	throw new Error(`[blogr-plugins] ${pluginName}() requires the "blogr" package, but it wasn't found.\n  - npm / ESM / CJS: npm install blogr\n  - Browser / IIFE: load it as a separate script BEFORE this one:
+      <script src="https://cdn.jsdelivr.net/npm/blogr"><\/script>`);
 }
 
 //#endregion
@@ -3906,6 +4111,7 @@ function createEngine$1(container, opts) {
 	const insertAfterSelector = Array.isArray(opts.insertAfter) ? opts.insertAfter.join(", ") : opts.insertAfter;
 	const searchLabels = (opts.labels ?? []).filter((label) => !opts.excludeLabels.includes(label));
 	const currentUrl = normalizeUrl(opts.currentUrl ?? detectCurrentUrl());
+	requireBlogr(Blogr, "relatify");
 	const blog = new Blogr(opts.blogUrl ?? location.origin, { jsonp: opts.jsonp });
 	async function run() {
 		opts.beforeFetch();
@@ -5409,6 +5615,7 @@ exports.isSupportedImage = isSupportedImage;
 exports.lazify = lazify;
 exports.marqify = marqify;
 exports.menuify = menuify;
+exports.readMeter = readMeter;
 exports.relatify = relatify;
 exports.renderShortcodes = renderShortcodes;
 exports.replacify = replacify;

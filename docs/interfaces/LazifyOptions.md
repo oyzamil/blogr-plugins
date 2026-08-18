@@ -6,7 +6,7 @@
 
 # Interface: LazifyOptions
 
-Defined in: [src/plugins/lazify.ts:6](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L6)
+Defined in: [src/plugins/lazify.ts:6](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L6)
 
 Configuration options for [lazify](../functions/lazify.md).
 
@@ -16,7 +16,7 @@ Configuration options for [lazify](../functions/lazify.md).
 
 > `optional` **attribute?**: `string`
 
-Defined in: [src/plugins/lazify.ts:8](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L8)
+Defined in: [src/plugins/lazify.ts:8](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L8)
 
 Attribute holding the real media URL. Default `"data-src"`.
 
@@ -26,7 +26,7 @@ Attribute holding the real media URL. Default `"data-src"`.
 
 > `optional` **bgImageAttribute?**: `string`
 
-Defined in: [src/plugins/lazify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L12)
+Defined in: [src/plugins/lazify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L12)
 
 Attribute holding a CSS background-image URL. Applies to any element. Default `"data-bg-image"`.
 
@@ -36,7 +36,7 @@ Attribute holding a CSS background-image URL. Applies to any element. Default `"
 
 > `optional` **errorClass?**: `string`
 
-Defined in: [src/plugins/lazify.ts:16](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L16)
+Defined in: [src/plugins/lazify.ts:16](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L16)
 
 Class added if an element fails to load. Default `"lazy-ify-error"`.
 
@@ -46,7 +46,7 @@ Class added if an element fails to load. Default `"lazy-ify-error"`.
 
 > `optional` **loadedClass?**: `string`
 
-Defined in: [src/plugins/lazify.ts:14](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L14)
+Defined in: [src/plugins/lazify.ts:14](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L14)
 
 Class added once an element has finished loading. Default `"lazy-ify"`.
 
@@ -56,7 +56,7 @@ Class added once an element has finished loading. Default `"lazy-ify"`.
 
 > `optional` **onError?**: (`el`, `event`) => `void`
 
-Defined in: [src/plugins/lazify.ts:29](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L29)
+Defined in: [src/plugins/lazify.ts:29](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L29)
 
 Called if an element's real media fails to load.
 
@@ -80,7 +80,7 @@ Called if an element's real media fails to load.
 
 > `optional` **onLoad?**: (`el`) => `void`
 
-Defined in: [src/plugins/lazify.ts:27](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L27)
+Defined in: [src/plugins/lazify.ts:27](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L27)
 
 Called after each element finishes loading successfully.
 
@@ -100,7 +100,7 @@ Called after each element finishes loading successfully.
 
 > `optional` **placeholder?**: `string` \| `false`
 
-Defined in: [src/plugins/lazify.ts:25](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L25)
+Defined in: [src/plugins/lazify.ts:25](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L25)
 
 URL applied immediately (before intersection) so there's no broken-image
 flash while waiting to load. Set to `false` to disable. Applied to
@@ -113,7 +113,7 @@ skipped for `<iframe>`. Default is a 1x1 transparent gif.
 
 > `optional` **posterAttribute?**: `string`
 
-Defined in: [src/plugins/lazify.ts:10](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L10)
+Defined in: [src/plugins/lazify.ts:10](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L10)
 
 Attribute holding a `<video>`'s poster image URL. Default `"data-poster"`.
 
@@ -123,6 +123,6 @@ Attribute holding a `<video>`'s poster image URL. Default `"data-poster"`.
 
 > `optional` **rootMargin?**: `string`
 
-Defined in: [src/plugins/lazify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/1b47abfb765f6fb33bbfc0cf6bdf277243f434b5/src/plugins/lazify.ts#L18)
+Defined in: [src/plugins/lazify.ts:18](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/lazify.ts#L18)
 
 Root margin passed to the underlying `IntersectionObserver`. Default `"200px"`.

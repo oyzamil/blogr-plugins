@@ -948,6 +948,136 @@ interface MenuifyOptions {
 }
 declare function menuify(input: ElementInput, options?: MenuifyOptions): PluginInstance;
 //#endregion
+//#region src/plugins/readMeter.d.ts
+/** How the computed read time is rendered as a string. */
+type ReadMeterFormat = "minutes" | "minutes+seconds" | "text";
+/** Configuration options for {@link readMeter}. */
+interface ReadMeterOptions {
+  /**
+   * CSS selectors, relative to each matched target, for the child
+   * elements to include in the read-time calculation — e.g.
+   * `["article", ".excerpt"]`. Every matching descendant across all
+   * given selectors is included (deduplicated). If omitted, or if none
+   * of the selectors match anything inside the target, the whole
+   * target is used instead.
+   * @default undefined (whole target)
+   */
+  includeElements?: string[];
+  /**
+   * CSS selectors, relative to each matched target, for descendants to
+   * strip out of the calculation — e.g. `[".share-buttons", ".ad"]`.
+   * Applied after {@link includeElements}, so it can exclude a nested
+   * element within whatever was included.
+   * @default undefined (nothing excluded)
+   */
+  excludeElements?: string[];
+  /**
+   * Reading speed in words per minute.
+   * @default 200
+   */
+  wordsPerMinute?: number;
+  /**
+   * Add extra time for images.
+   * @default false
+   */
+  includeImages?: boolean;
+  /**
+   * Seconds per image when includeImages true.
+   * @default 10
+   */
+  imageTimeSeconds?: number;
+  /**
+   * Count code blocks (`<pre>`, `<code>`) separately, at
+   * {@link codeWordsPerMinute} instead of {@link wordsPerMinute}, rather
+   * than folding their text into the regular word count.
+   * @default false
+   */
+  includeCode?: boolean;
+  /**
+   * Words per minute for code when includeCode true.
+   * @default 100
+   */
+  codeWordsPerMinute?: number;
+  /**
+   * Output format.
+   * - "minutes" – e.g., "5"
+   * - "minutes+seconds" – e.g., "5m 30s"
+   * - "text" – e.g., "5 minute read"
+   * @default "minutes"
+   */
+  format?: ReadMeterFormat;
+  /**
+   * Renders the badge's markup. Receives the formatted time string,
+   * returns the HTML to use as the badge's `innerHTML` verbatim —
+   * matches the `template` convention used by {@link createWidget} and
+   * {@link relatify}.
+   * @default (time) => `Read time: ${time}`
+   */
+  template?: (readTime: string) => string;
+  /**
+   * Selector or element where to insert read time. The badge is
+   * *appended* into it (existing content is left alone) and reused on
+   * recalculation rather than duplicated.
+   * If null, no auto-insert – just return value via onUpdate.
+   * @default null
+   */
+  appendTo?: string | HTMLElement | null;
+  /**
+   * Recalculate on window resize (e.g., after layout shift).
+   * @default false
+   */
+  updateOnResize?: boolean;
+  /**
+   * Debounce delay in ms for resize handler.
+   * @default 250
+   */
+  debounceMs?: number;
+  /**
+   * Callback after each calculation.
+   * Receives formatted time string and raw (unrounded) minutes.
+   */
+  onUpdate?: (timeString: string, minutes: number) => void;
+}
+/** Returned by {@link readMeter}. */
+interface ReadMeterInstance extends PluginInstance {
+  /**
+   * Re-runs the calculation immediately (e.g. after content was swapped
+   * in via AJAX, outside of a resize event) and re-renders/fires
+   * `onUpdate` exactly like the initial run.
+   */
+  refresh(): void;
+}
+/**
+ * Estimates reading time for one or more content blocks — word count
+ * (optionally splitting out code blocks at a slower reading speed) plus
+ * optional flat per-image time — and renders it as a small badge, e.g.
+ * `"Read time: 5"`.
+ *
+ * @param input - Selector, element(s), or jQuery collection for the
+ * container(s) to analyze. By default the whole container's text is
+ * measured; use `options.includeElements`/`options.excludeElements` to
+ * narrow that down to specific children.
+ * @param options - {@link ReadMeterOptions}
+ * @returns A {@link ReadMeterInstance} — `refresh()` to force an
+ * immediate recalculation, `destroy()` to remove any inserted badges and
+ * stop listening for resize.
+ *
+ * @example
+ * ```ts
+ * import { readMeter } from "blogr-plugins";
+ *
+ * readMeter(".post", {
+ * 	includeElements: ["article"],
+ * 	excludeElements: [".share-buttons", ".author-bio"],
+ * 	wordsPerMinute: 200,
+ * 	includeImages: true,
+ * 	format: "text",
+ * 	appendTo: ".post-meta",
+ * });
+ * ```
+ */
+declare function readMeter(input: ElementInput, options?: ReadMeterOptions): ReadMeterInstance;
+//#endregion
 //#region src/plugins/relatify.d.ts
 /** How candidate posts are picked once fetched. */
 type RelatifyRelevance = "strict" | "default";
@@ -1558,4 +1688,4 @@ interface TocifyOptions {
  */
 declare function tocify(input: ElementInput, options?: TocifyOptions): PluginInstance;
 //#endregion
-export { type AdsenseLoaderInstance, type AdsenseLoaderOptions, type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodeRegistry, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, adsenseLoader, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
+export { type AdsenseLoaderInstance, type AdsenseLoaderOptions, type AuthorEntry, type AvatarSetDetail, type AvatarStyle, type AvatarSuccessDetail, type AvatarifyConfig, type AvatarifyInstance, type CommentEntry, type Cookify, type CookifySetOptions, type CreateWidgetOptions, type ElementInput, type LabelEntry, type LazifyOptions, type MarqifyDirection, type MarqifyInstance, type MarqifyMarqueeDirection, type MarqifyOptions, type MarqifySpeed, type MarqifyType, type MenuifyOptions, type PluginInstance, type PostEntry, type ReadMeterFormat, type ReadMeterInstance, type ReadMeterOptions, type RelatedPost, type RelatifyOptions, type RelatifyRelevance, type ReplacifyOptions, type ResizeImageOptions, type ShortcodeAttributeValue, type ShortcodeAttributes, type ShortcodeHandler, type ShortcodeRegistry, type ShortcodifyDomOptions, type ShortcodifyOptions, type StackDirection, type StackOrientation, type StackPeekDirection, type StackifyChangeDetail, type StackifyInstance, type StackifyOptions, type StackifySize, type StackifySizeByLayout, type StickifyOptions, type TocifyOptions, type UnknownTagPolicy, type WidgetEntry, type WidgetInstance, type WidgetOrderBy, type WidgetSort, type WidgetSourceType, type WidgetTransformer, type WidgetType, type YouTubeThumbnailQuality, adsenseLoader, avatarify, cookify, createShortcodeRegistry, createWidget, defaultShortcodeTags, isSupportedImage, lazify, marqify, menuify, readMeter, relatify, renderShortcodes, replacify, resizeImage, resizeImageInDom, shortcodify, stackify, stickify, tocify };
