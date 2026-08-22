@@ -8,7 +8,7 @@
 
 > **renderShortcodes**(`text`, `options`): `string`
 
-Defined in: [src/plugins/shortcodify.ts:322](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/shortcodify.ts#L322)
+Defined in: [src/plugins/shortcodify.ts:322](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/shortcodify.ts#L322)
 
 Parses and renders `[tag attr="value"]content[/tag]`-style shortcodes in
 a plain string, given a map of tag → handler. Pure function — does not

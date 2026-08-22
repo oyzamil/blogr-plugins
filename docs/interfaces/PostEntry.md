@@ -6,7 +6,7 @@
 
 # Interface: PostEntry
 
-Defined in: [src/plugins/createWidget.ts:32](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L32)
+Defined in: [src/plugins/createWidget.ts:32](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L32)
 
 A normalized post or page — every field from the raw feed entry (id, url,
 author, labels, comments, geo, links, etc.) is spread directly onto this
@@ -79,7 +79,7 @@ Entry id (numeric string).
 
 > **kind**: `"posts"` \| `"pages"`
 
-Defined in: [src/plugins/createWidget.ts:36](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L36)
+Defined in: [src/plugins/createWidget.ts:36](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L36)
 
 ***
 
@@ -115,7 +115,7 @@ Raw `<link>` entries from the feed.
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:38](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L38)
+Defined in: [src/plugins/createWidget.ts:38](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L38)
 
 Publish date, formatted per `dateFormat`.
 
@@ -125,7 +125,7 @@ Publish date, formatted per `dateFormat`.
 
 > **summary**: `string`
 
-Defined in: [src/plugins/createWidget.ts:42](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L42)
+Defined in: [src/plugins/createWidget.ts:42](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L42)
 
 Plain text — HTML tags and comments stripped — truncated to `summaryLength` characters.
 
@@ -135,7 +135,7 @@ Plain text — HTML tags and comments stripped — truncated to `summaryLength` 
 
 > **thumbnail**: `string`
 
-Defined in: [src/plugins/createWidget.ts:44](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L44)
+Defined in: [src/plugins/createWidget.ts:44](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L44)
 
 Resized thumbnail (via [resizeImage](../functions/resizeImage.md)), falling back to `fallbackImage`. `""` when `thumbnail: false`.
 
@@ -173,7 +173,7 @@ Title of the entry.
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:40](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L40)
+Defined in: [src/plugins/createWidget.ts:40](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/createWidget.ts#L40)
 
 Last-updated date, formatted per `dateFormat`.
 

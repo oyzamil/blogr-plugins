@@ -6,7 +6,7 @@
 
 # Interface: RelatifyOptions
 
-Defined in: [src/plugins/relatify.ts:35](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L35)
+Defined in: [src/plugins/relatify.ts:35](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L35)
 
 Configuration for [relatify](../functions/relatify.md).
 
@@ -16,7 +16,7 @@ Configuration for [relatify](../functions/relatify.md).
 
 > `optional` **afterFetch?**: (`posts`) => `void`
 
-Defined in: [src/plugins/relatify.ts:114](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L114)
+Defined in: [src/plugins/relatify.ts:114](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L114)
 
 Called with the final list of chosen related posts, before any are inserted.
 
@@ -36,7 +36,7 @@ Called with the final list of chosen related posts, before any are inserted.
 
 > `optional` **beforeFetch?**: () => `void`
 
-Defined in: [src/plugins/relatify.ts:112](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L112)
+Defined in: [src/plugins/relatify.ts:112](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L112)
 
 Called right before fetching.
 
@@ -50,7 +50,7 @@ Called right before fetching.
 
 > `optional` **blogUrl?**: `string`
 
-Defined in: [src/plugins/relatify.ts:100](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L100)
+Defined in: [src/plugins/relatify.ts:100](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L100)
 
 URL (or numeric id) of the Blogger blog to read from. Defaults to
 `window.location.origin` — override only if this runs somewhere
@@ -63,7 +63,7 @@ different site).
 
 > `optional` **currentUrl?**: `string`
 
-Defined in: [src/plugins/relatify.ts:106](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L106)
+Defined in: [src/plugins/relatify.ts:106](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L106)
 
 URL of the current post, used to exclude it from its own related
 list. Defaults to `<link rel="canonical">`'s `href`, falling back to
@@ -75,7 +75,7 @@ list. Defaults to `<link rel="canonical">`'s `href`, falling back to
 
 > `optional` **excludeLabels?**: `string`[]
 
-Defined in: [src/plugins/relatify.ts:80](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L80)
+Defined in: [src/plugins/relatify.ts:80](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L80)
 
 Labels to leave out of the *search* — i.e. even if `labels` (or the
 post's own labels) includes one of these, it won't be used to look
@@ -89,7 +89,7 @@ happens to carry an excluded label. Default `[]`.
 
 > `optional` **insertAfter?**: `string` \| `string`[]
 
-Defined in: [src/plugins/relatify.ts:64](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L64)
+Defined in: [src/plugins/relatify.ts:64](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L64)
 
 Element(s) after which a related-post link may be inserted — a CSS
 selector, or an array of selectors (joined with `,`, so
@@ -103,7 +103,7 @@ selector, or an array of selectors (joined with `,`, so
 
 > `optional` **jsonp?**: `boolean`
 
-Defined in: [src/plugins/relatify.ts:37](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L37)
+Defined in: [src/plugins/relatify.ts:37](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L37)
 
 Enable JSONP transport (browser-only).
 
@@ -119,7 +119,7 @@ true
 
 > `optional` **labels?**: `string`[]
 
-Defined in: [src/plugins/relatify.ts:56](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L56)
+Defined in: [src/plugins/relatify.ts:56](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L56)
 
 Labels to find related posts for — paste this straight from your
 Blogger template (see the `<script>` snippet in the README) so it
@@ -144,7 +144,7 @@ of filtering by label at all.
 
 > `optional` **lazy?**: `boolean`
 
-Defined in: [src/plugins/relatify.ts:130](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L130)
+Defined in: [src/plugins/relatify.ts:130](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L130)
 
 Enable lazy loading — plugin initializes only when first `insertAfter`
 element comes near the viewport, preventing API calls on page load.
@@ -156,7 +156,7 @@ Default `true`.
 
 > `optional` **linkClass?**: `string`
 
-Defined in: [src/plugins/relatify.ts:110](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L110)
+Defined in: [src/plugins/relatify.ts:110](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L110)
 
 Wrapper element class for each inserted link. Default `"relatify-link"`.
 
@@ -166,7 +166,7 @@ Wrapper element class for each inserted link. Default `"relatify-link"`.
 
 > `optional` **maxLinks?**: `number`
 
-Defined in: [src/plugins/relatify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L72)
+Defined in: [src/plugins/relatify.ts:72](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L72)
 
 Maximum number of links to insert. Default: scaled to the
 container's word count — 2 for a ~500-word article, 3 for ~1000,
@@ -180,7 +180,7 @@ and related posts actually exist.
 
 > `optional` **onEmpty?**: () => `void`
 
-Defined in: [src/plugins/relatify.ts:122](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L122)
+Defined in: [src/plugins/relatify.ts:122](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L122)
 
 Called when no related posts (or no eligible insertion points) were found.
 
@@ -194,7 +194,7 @@ Called when no related posts (or no eligible insertion points) were found.
 
 > `optional` **onError?**: (`err`) => `void`
 
-Defined in: [src/plugins/relatify.ts:124](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L124)
+Defined in: [src/plugins/relatify.ts:124](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L124)
 
 Called if the fetch fails.
 
@@ -214,7 +214,7 @@ Called if the fetch fails.
 
 > `optional` **onInsert?**: (`detail`) => `void`
 
-Defined in: [src/plugins/relatify.ts:116](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L116)
+Defined in: [src/plugins/relatify.ts:116](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L116)
 
 Called once per link actually inserted.
 
@@ -244,7 +244,7 @@ Called once per link actually inserted.
 
 > `optional` **relevance?**: [`RelatifyRelevance`](../type-aliases/RelatifyRelevance.md)
 
-Defined in: [src/plugins/relatify.ts:87](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L87)
+Defined in: [src/plugins/relatify.ts:87](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L87)
 
 `"strict"` scores every candidate by word overlap against the
 nearest heading inside the container (falling back to
@@ -257,7 +257,7 @@ shuffles the candidates and picks randomly. Default `"strict"`.
 
 > `optional` **rootMargin?**: `string`
 
-Defined in: [src/plugins/relatify.ts:136](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L136)
+Defined in: [src/plugins/relatify.ts:136](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L136)
 
 Margin (in pixels or CSS string) for IntersectionObserver to trigger
 lazy load before element enters viewport. Default `"0px"`.
@@ -269,7 +269,7 @@ Examples: `"100px"`, `"10%"`, `"0px 0px 50px 0px"`.
 
 > `optional` **sampleSize?**: `number`
 
-Defined in: [src/plugins/relatify.ts:108](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L108)
+Defined in: [src/plugins/relatify.ts:108](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L108)
 
 How many candidate posts to fetch (per label, or overall when unfiltered) before scoring/picking from them. Default `20`.
 
@@ -279,7 +279,7 @@ How many candidate posts to fetch (per label, or overall when unfiltered) before
 
 > `optional` **template?**: (`post`, `index`) => `string`
 
-Defined in: [src/plugins/relatify.ts:93](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L93)
+Defined in: [src/plugins/relatify.ts:93](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/relatify.ts#L93)
 
 Renders one inserted link. Same shape as `createWidget`'s
 `template`: `(post, index) => string`. Default:

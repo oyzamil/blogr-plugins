@@ -8,7 +8,7 @@
 
 > **avatarify**(`config`): [`AvatarifyInstance`](../interfaces/AvatarifyInstance.md)
 
-Defined in: [src/plugins/avatarify.ts:589](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L589)
+Defined in: [src/plugins/avatarify.ts:589](https://github.com/oyzamil/blogr-plugins/blob/65c02684e222f1835897abca8b42aab2b12c6582/src/plugins/avatarify.ts#L589)
 
 Auto-generates a [DiceBear](https://www.dicebear.com) avatar for every
 commenter who doesn't already have one — built for Blogger's native
