@@ -16,4 +16,10 @@
  */
 const Blogr: unknown = (globalThis as any).Blogr;
 
+// Named export — createWidget.ts (and anything else) does
+// `import { Blogr } from "blogr"`. Only having `export default` here left
+// that named binding unresolved under the aliased browser-build tsconfig,
+// which surfaced as "Cannot find name 'Blogr'" at every usage site instead
+// of a clear "no exported member" error at the import line.
+export { Blogr };
 export default Blogr;

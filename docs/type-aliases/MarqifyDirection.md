@@ -8,7 +8,7 @@
 
 > **MarqifyDirection** = `"left"` \| `"right"` \| `"top"` \| `"bottom"`
 
-Defined in: [src/plugins/marqify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/marqify.ts#L12)
+Defined in: [src/plugins/marqify.ts:12](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/marqify.ts#L12)
 
 Which way content moves. `"marquee"` only supports `"left"` / `"right"`;
 `"ticker"` supports all four.

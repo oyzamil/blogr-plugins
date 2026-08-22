@@ -501,59 +501,59 @@ type WidgetSourceType = "recent" | "random";
 type WidgetOrderBy = "published" | "updated";
 /** Direction entries are shown in, applied after fetching. */
 type WidgetSort = "asc" | "desc";
-/** A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead. */
-interface PostEntry {
+/**
+ * A normalized post or page — every field from the raw feed entry (id, url,
+ * author, labels, comments, geo, links, etc.) is spread directly onto this
+ * object. `summary`/`published`/`updated`/`thumbnail` are overridden with
+ * processed values; everything else is exactly what the feed returned.
+ */
+interface PostEntry extends Omit<Post, "published" | "updated" | "content" | "thumbnail" | "summary"> {
   kind: "posts" | "pages";
-  /** Numeric id, as reported by Blogger. */
-  id: string;
-  /** Title. `""` for comments (which have none). */
-  title: string;
-  /** Canonical URL. */
-  url: string;
-  /** Author Details. */
-  author: Author;
   /** Publish date, formatted per `dateFormat`. */
   published: string;
   /** Last-updated date, formatted per `dateFormat`. */
   updated: string;
-  /** Labels. Always `[]` for pages/comments (which carry none). */
-  labels: string[];
+  /** Plain text — HTML tags and comments stripped — truncated to `summaryLength` characters. */
+  summary: string;
   /** Resized thumbnail (via {@link resizeImage}), falling back to `fallbackImage`. `""` when `thumbnail: false`. */
   thumbnail: string;
-  /** Plain-text summary, truncated to `summaryLength` characters. */
-  content: string;
-  /** The original, un-normalized SDK object. */
-  raw: Post;
 }
 /**
  * A normalized comment — every field from the raw comment feed entry (id,
  * url, author, post, inReplyTo, extended, etc.) is spread directly onto
- * this object rather than nested under `raw`. `content`/`published`/
+ * this object rather than nested under `raw`. `summary`/`published`/
  * `updated` are overridden with truncated/formatted values; everything
  * else is exactly what the feed returned.
  */
-interface CommentEntry extends Omit<Comment, "published" | "updated" | "content"> {
+interface CommentEntry extends Omit<Comment, "published" | "updated" | "content" | "summary"> {
   kind: "comments";
-  content: string;
+  summary: string;
   published: string;
   updated: string;
 }
-/** A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`, `image`), nothing invented. */
-interface AuthorEntry {
+/**
+ * A normalized author — every field from `blogr`'s `Author` is spread
+ * directly onto this object. `id`/`name`/`url`/`image` are overridden with
+ * fallback-filled values; `email`/`imageWidth`/`imageHeight` pass through
+ * unchanged.
+ */
+interface AuthorEntry extends Omit<Author, "id" | "name" | "url" | "image"> {
   kind: "authors";
   id: string;
   name: string;
   url: string;
   image: string;
-  raw: Author;
 }
-/** A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link. */
+/**
+ * A normalized label — Blogger's `labels()` returns bare strings, so
+ * there's no raw object to spread; this is just that string (humanized,
+ * e.g. `"live-wallpaper"` -> `"Live Wallpaper"`) plus a built search link.
+ */
 interface LabelEntry {
   kind: "labels";
   id: string;
   name: string;
   url: string;
-  raw: string;
 }
 type WidgetEntry = PostEntry | CommentEntry | AuthorEntry | LabelEntry;
 /**
@@ -590,9 +590,9 @@ interface CreateWidgetOptions {
   containerSelector: ElementInput;
   /** URL (or numeric id) of the Blogger blog to read from. **Required.** */
   blogUrl: string;
-  /** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`.
-    labels?: string[];
-    /** Feed field to sort by. Default `"published"`. */
+  /** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`. */
+  labels?: string[];
+  /** Feed field to sort by. Default `"published"`. */
   orderBy?: WidgetOrderBy;
   /** Direction to show entries in. Default `"desc"`. */
   sort?: WidgetSort;
@@ -636,7 +636,7 @@ interface CreateWidgetOptions {
   thumbnail?: false | "default" | ResizeImageOptions;
   /** Shown when an entry has no image of its own. Defaults to a small built-in placeholder. */
   fallbackImage?: string;
-  /** Max characters of plain-text summary kept in `entry.content`. `0` disables truncation. Default `120`. */
+  /** Max characters of plain-text summary kept in `entry.summary`. `0` disables truncation. Default `120`. */
   summaryLength?: number;
   /** Auto-load more entries via `IntersectionObserver` as the user scrolls near the end. Default `false`. */
   infiniteScroll?: boolean;
@@ -726,9 +726,9 @@ interface WidgetInstance extends PluginInstance {
  * 	loadMore: true,
  * 	template: (entry) => `
  * 		<article class="related-post">
- * 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
- * 			<h3>${entry.raw.title}</h3>
- * 			<p>${entry.content}</p>
+ * 			<img src="${entry.thumbnail}" alt="${entry.title}" />
+ * 			<h3>${entry.title}</h3>
+ * 			<p>${entry.summary}</p>
  * 		</article>
  * 	`,
  * });

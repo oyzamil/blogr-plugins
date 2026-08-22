@@ -8,7 +8,7 @@
 
 > **adsenseLoader**(`input`, `options?`): [`PluginInstance`](../interfaces/PluginInstance.md)
 
-Defined in: [src/plugins/adsenseLoader.ts:267](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/adsenseLoader.ts#L267)
+Defined in: [src/plugins/adsenseLoader.ts:267](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/adsenseLoader.ts#L267)
 
 Lazy-loads AdSense units wrapped in a container div — `<div
 class="adsense"><ins class="adsbygoogle" ...></ins></div>` — right as

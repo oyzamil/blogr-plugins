@@ -144,6 +144,3 @@ interface AvatarifyInstance {
 `avatarify` has no jQuery bridge — `container` lives inside its config
 object rather than being the jQuery target, so call
 `BlogrPlugins.avatarify({ ... })` directly either way.
-
-See [`demo/avatarify.html`](./demo/avatarify.html) for a full Tailwind-styled
-example with a live, dynamically-updating comment thread.

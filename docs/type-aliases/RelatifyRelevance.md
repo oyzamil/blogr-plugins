@@ -8,6 +8,6 @@
 
 > **RelatifyRelevance** = `"strict"` \| `"default"`
 
-Defined in: [src/plugins/relatify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/relatify.ts#L9)
+Defined in: [src/plugins/relatify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/relatify.ts#L9)
 
 How candidate posts are picked once fetched.

@@ -121,20 +121,20 @@ examples:
 
 | Plugin | Description |
 |---|---|
-| [`avatarify`](./readme/avatarify.md) | Auto-generates DiceBear avatars for commenters without a photo. |
-| [`cookify`](./readme/cookify.md) | Small, dependency-free cookie utility (a typed replacement for the classic `js-cookie` plugin). |
-| [`createWidget`](./readme/createWidget.MD) | Blogger listing widget — related/recent/random posts, comments, pages. |
-| [`lazify`](./readme/lazify.MD) | Lazy-loads media with `IntersectionObserver` once it scrolls near the viewport |
-| [`marqify`](./readme/marqify.md) | Turns a container's children into an infinite scrolling marquee. |
-| [`menuify`](./readme/menuify.MD) | Turns a flat `<ul><li><a>` link list into a nested dropdown. |
-| [`readMeter`](./readme/readMeter.md) | Estimates reading time and renders it as a badge. |
-| [`relatify`](./readme/relatify.md) | Fetches related posts by label and inserts links within the article. |
-| [`replacify`](./readme/replacify.MD) | Find-and-replace inside text nodes only — never touches tags or attributes. |
-| [`resizeImage`](./readme/resizeImage.MD) | Resize Blogger/Google-hosted image URLs. |
-| [`shortcodify`](./readme/shortcodify.MD) | A full shortcode/templating engine for `[tag attr="value"]content[/tag]` syntax. |
-| [`stackify`](./readme/createWidget.MD) | Turns a container's children into a peeking card stack. |
-| [`stickify`](./readme/stickify.MD) | Sticks a sidebar to the viewport while scrolling, clamped to its container. |
-| [`tocify`](./readme/tocify.MD) | Builds a nested table-of-contents list from the headings inside a container. |
+| [`avatarify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/avatarify.md) | Auto-generates DiceBear avatars for commenters without a photo. |
+| [`cookify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/cookify.md) | Small, dependency-free cookie utility (a typed replacement for the classic `js-cookie` plugin). |
+| [`createWidget`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/createWidget.md) | Blogger listing widget — related/recent/random posts, comments, pages. |
+| [`lazify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/lazify.md) | Lazy-loads media with `IntersectionObserver` once it scrolls near the viewport |
+| [`marqify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/marqify.md) | Turns a container's children into an infinite scrolling marquee. |
+| [`menuify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/menuify.md) | Turns a flat `<ul><li><a>` link list into a nested dropdown. |
+| [`readMeter`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/readMeter.md) | Estimates reading time and renders it as a badge. |
+| [`relatify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/relatify.md) | Fetches related posts by label and inserts links within the article. |
+| [`replacify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/replacify.md) | Find-and-replace inside text nodes only — never touches tags or attributes. |
+| [`resizeImage`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/resizeImage.md) | Resize Blogger/Google-hosted image URLs. |
+| [`shortcodify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/shortcodify.md) | A full shortcode/templating engine for `[tag attr="value"]content[/tag]` syntax. |
+| [`stackify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/stackify.md) | Turns a container's children into a peeking card stack. |
+| [`stickify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/stickify.md) | Sticks a sidebar to the viewport while scrolling, clamped to its container. |
+| [`tocify`](https://github.com/oyzamil/blogr-plugins/blob/main/readme/tocify.md) | Builds a nested table-of-contents list from the headings inside a container. |
 
 > `stickify`, `menuify`, `lazify`, `tocify`, `replacify`, `shortcodify`,
 > `stackify`, and `cookify` are also part of this package (see the Quick
@@ -152,35 +152,6 @@ client-side route change:
 const menu = menuify("#menu");
 // later
 menu.destroy();
-```
-
-`createWidget` returns a `WidgetInstance` — the same `destroy()` plus
-`refresh()` and `setQuery()`; see [createWidget.MD](./createWidget.MD).
-`avatarify` returns an `AvatarifyInstance` — the same `destroy()` plus
-`refresh()`; see [avatarify.md](./avatarify.md).
-
-## Demo
-
-See [`demo/index.html`](./demo/index.html) for a full page exercising
-every plugin via both the vanilla API and the jQuery bridge,
-[`demo/stackify.html`](./demo/stackify.html) for a dedicated stackify demo
-with live option controls, and
-[`demo/avatarify.html`](./demo/avatarify.html) for a dedicated avatarify
-demo with a live, dynamically-updating comment thread, and
-[`demo/relatify.html`](./demo/relatify.html) for a dedicated relatify demo
-reading live from a real Blogger blog, and
-[`demo/marqify.html`](./demo/marqify.html) for a dedicated marqify demo
-with live option controls.
-
-## Development
-
-```bash
-npm install
-npm run dev        # tsdown --watch
-npm test           # vitest
-npm run typecheck  # tsc --noEmit
-npm run build      # esm + cjs + iife (full bundle, per-plugin, plain and minified)
-npm run docs       # typedoc -> markdown API reference
 ```
 
 ## License

@@ -208,7 +208,6 @@ BlogrPlugins.readMeter("main", {
 });
 
 BlogrPlugins.tocify("#toc", {
-	title: "TOC",
 	content: "main",
 	headings: "h2, h3",
 });
@@ -275,7 +274,7 @@ BlogrPlugins.createWidget({
 
 				<div class="entry-body">
 					<h3 class="entry-title">${entry.title}</h3>
-					<p class="entry-description">${entry.content}</p>
+					<p class="entry-description">${entry.summary}</p>
 				</div>
 			</div>
 	</div>
@@ -315,7 +314,7 @@ const featuredPostTemplate = (entry) => {
   <div class="flex flex-col justify-between p-4 gap-3">
     <div class="labels-container s-1">${entry.labels.map((label) => `<a href="/search/label/${label}" class="label">#${label}</a>`).join("")}</div>
 	<p class="text-sm text-gray-800 leading-relaxed">
-      ${entry.content}
+      ${entry.summary}
     </p>
   </div>
 
@@ -407,7 +406,7 @@ const commentWidget = BlogrPlugins.createWidget({
 					<span class="name font-semibold text-sm"><bdi>${comment.author.name}</bdi></span>
 					<span class="date text-xs text-slate-400" data-datetime="2026-01-04T10:00:00Z">${comment.published}</span>
 				</div>
-				<p class="text-sm text-slate-600 mt-1">${capitalizeFirstChar(comment.content)}</p>
+				<p class="text-sm text-slate-600 mt-1">${capitalizeFirstChar(comment.summary)}</p>
 			</div>
 		</div>`;
 	},

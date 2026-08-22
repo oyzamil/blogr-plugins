@@ -8,7 +8,7 @@
 
 > **createWidget**(`options`): [`WidgetInstance`](../interfaces/WidgetInstance.md)
 
-Defined in: [src/plugins/createWidget.ts:437](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L437)
+Defined in: [src/plugins/createWidget.ts:445](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L445)
 
 Builds and mounts a fully self-contained Blogger listing widget — related
 posts, a recent-posts sidebar, random picks, a comment stream, or a page
@@ -51,9 +51,9 @@ const widget = createWidget({
 	loadMore: true,
 	template: (entry) => `
 		<article class="related-post">
-			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
-			<h3>${entry.raw.title}</h3>
-			<p>${entry.content}</p>
+			<img src="${entry.thumbnail}" alt="${entry.title}" />
+			<h3>${entry.title}</h3>
+			<p>${entry.summary}</p>
 		</article>
 	`,
 });

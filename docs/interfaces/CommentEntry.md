@@ -6,17 +6,17 @@
 
 # Interface: CommentEntry
 
-Defined in: [src/plugins/createWidget.ts:56](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L56)
+Defined in: [src/plugins/createWidget.ts:54](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L54)
 
 A normalized comment — every field from the raw comment feed entry (id,
 url, author, post, inReplyTo, extended, etc.) is spread directly onto
-this object rather than nested under `raw`. `content`/`published`/
+this object rather than nested under `raw`. `summary`/`published`/
 `updated` are overridden with truncated/formatted values; everything
 else is exactly what the feed returned.
 
 ## Extends
 
-- `Omit`\<`Comment`, `"published"` \| `"updated"` \| `"content"`\>
+- `Omit`\<`Comment`, `"published"` \| `"updated"` \| `"content"` \| `"summary"`\>
 
 ## Properties
 
@@ -29,14 +29,6 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:100
 #### Inherited from
 
 `Omit.author`
-
-***
-
-### content
-
-> **content**: `string`
-
-Defined in: [src/plugins/createWidget.ts:61](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L61)
 
 ***
 
@@ -82,7 +74,7 @@ Id of the parent comment when this is a reply, else `null`.
 
 > **kind**: `"comments"`
 
-Defined in: [src/plugins/createWidget.ts:60](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L60)
+Defined in: [src/plugins/createWidget.ts:58](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L58)
 
 ***
 
@@ -124,19 +116,15 @@ The post this comment belongs to.
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:62](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L62)
+Defined in: [src/plugins/createWidget.ts:60](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L60)
 
 ***
 
 ### summary
 
-> **summary**: `string` \| `null`
+> **summary**: `string`
 
-Defined in: node\_modules/blogr/dist/blogr.d.ts:102
-
-#### Inherited from
-
-`Omit.summary`
+Defined in: [src/plugins/createWidget.ts:59](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L59)
 
 ***
 
@@ -156,7 +144,7 @@ Defined in: node\_modules/blogr/dist/blogr.d.ts:96
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:63](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L63)
+Defined in: [src/plugins/createWidget.ts:61](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L61)
 
 ***
 

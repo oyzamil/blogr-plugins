@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.3 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.4 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrCookify = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });

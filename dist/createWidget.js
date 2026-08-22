@@ -1,4 +1,4 @@
-/*! blogr-plugins v0.0.3 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
+/*! blogr-plugins v0.0.4 - iife | M.Muzammil <https://muzammil.work/> | MIT License */
 var BlogrCreateWidget = (function(exports) {
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
@@ -35,6 +35,35 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		if (input instanceof Element) return [input];
 		if (input == null) return [];
 		return Array.from(input);
+	}
+
+//#endregion
+//#region src/utils/format.ts
+	const humanize = (str) => str.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+//#endregion
+//#region src/utils/merge-options.ts
+/**
+	* Merges user-supplied options over a set of defaults, dropping any key
+	* whose value is explicitly `undefined` first.
+	*
+	* Plain `{ ...defaults, ...options }` lets `{ someOption: undefined }` (e.g.
+	* from a form field that's blank, or a variable that happens to be
+	* `undefined`) silently overwrite a real default instead of falling back to
+	* it — a common footgun. This closes that gap.
+	*
+	* @param defaultValues - The base/default option values.
+	* @param options - User-supplied options; `undefined`-valued keys are ignored.
+	* @returns A merged object with every default preserved unless the caller
+	* gave it an actual (non-`undefined`) value.
+	*/
+	function mergeOptions(defaultValues, options) {
+		const cleaned = {};
+		for (const key of Object.keys(options)) if (options[key] !== void 0) cleaned[key] = options[key];
+		return {
+			...defaultValues,
+			...cleaned
+		};
 	}
 
 //#endregion
@@ -294,8 +323,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		loading: (status) => `<div class="blogr-widget-loading" style="text-align:center;width:100%"><span class="blogr-widget-loader"></span><p>${status}</p></div>`,
 		error: (errorMsg) => `<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 		empty: () => `<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-		template: (entry) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-		entryClass: () => ""
+		template: (entry, _i) => entry.kind === "authors" || entry.kind === "labels" ? `<div><h2>${entry.name}</h2></div>` : entry.kind === "comments" ? `<div><p><strong>${entry.author.name}</strong>: ${entry.summary}</p></div>` : `<div><h2>${entry.title}</h2><p>${entry.summary}</p></div>`,
+		entryClass: (_entry, _index) => ""
 	};
 	const MONTHS_LONG = [
 		"January",
@@ -412,9 +441,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* 	loadMore: true,
 	* 	template: (entry) => `
 	* 		<article class="related-post">
-	* 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
-	* 			<h3>${entry.raw.title}</h3>
-	* 			<p>${entry.content}</p>
+	* 			<img src="${entry.thumbnail}" alt="${entry.title}" />
+	* 			<h3>${entry.title}</h3>
+	* 			<p>${entry.summary}</p>
 	* 		</article>
 	* 	`,
 	* });
@@ -424,15 +453,15 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	* ```
 	*/
 	function createWidget(options) {
-		if (typeof Blogr === "undefined") {
-			console.warn("[blogr-widget] Blogr SDK not found. Please add it via CDN: <script src=\"https://cdn.jsdelivr.net/npm/blogr\"><\/script> or install via npm: npm install blogr");
+		if (!Blogr) {
+			console.warn("[blogr-widget] Blogr SDK not found. Please add it via CDN: <script src=\"https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js\"><\/script> or install via npm: npm install blogr");
 			const container = resolveElements(options.containerSelector)?.[0];
 			if (container) container.innerHTML = `
 				<div class="blogr-widget-error" style="padding: 1rem; background: #fee; border: 1px solid #fcc; color: #c00; border-radius: 4px;">
 					<p><strong>Blogr SDK not loaded.</strong></p>
 					<p>Please include the Blogr library:</p>
 					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
-						&lt;script src="https://cdn.jsdelivr.net/npm/blogr"&gt;&lt;/script&gt;
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
 					</code>
 				</div>
 			`;
@@ -444,10 +473,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 				}
 			};
 		}
-		const opts = {
-			...defaults,
-			...options
-		};
+		const opts = mergeOptions(defaults, options);
 		const container = resolveElements(opts.containerSelector)[0];
 		if (!container) throw new Error("createWidget: containerSelector matched no element.");
 		const target = container;
@@ -469,24 +495,23 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		let scrollObserver = null;
 		let sentinel = null;
 		let loadMoreBtn = null;
-		const usesBuffer = opts.source === "random" || !opts.deepSearch && !!opts.query;
+		const usesBuffer = opts.source === "random" || !opts.deepSearch;
 		function normalizeAuthor(author, index) {
 			return {
+				...author,
 				kind: "authors",
 				id: author.url || `author-${index}`,
 				name: author.name || "Unknown Author",
 				url: author.url || "#",
-				image: author.image || opts.fallbackImage,
-				raw: author
+				image: author.image || opts.fallbackImage
 			};
 		}
 		function normalizeLabel(label) {
 			return {
 				kind: "labels",
 				id: `label-${label}`,
-				name: label,
-				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
-				raw: label
+				name: humanize(label),
+				url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`
 			};
 		}
 		function truncate(text) {
@@ -502,27 +527,22 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 					thumb = resizeImage(thumb, resizeOpts);
 				} else thumb = opts.fallbackImage;
 			}
-			const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+			const summary = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
 			return {
+				...raw,
 				kind: opts.type,
-				id: raw.id,
-				title: raw?.title ?? "",
-				url: raw.url,
-				author: raw.author,
 				published: formatDate(raw.published, opts.dateFormat),
 				updated: formatDate(raw.updated, opts.dateFormat),
-				labels: raw?.labels ?? [],
 				thumbnail: thumb,
-				content,
-				raw
+				summary
 			};
 		}
 		function normalizeComment(raw) {
-			const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+			const summary = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
 			return {
 				...raw,
 				kind: "comments",
-				content,
+				summary,
 				published: formatDate(raw.published, opts.dateFormat),
 				updated: formatDate(raw.updated, opts.dateFormat)
 			};
@@ -548,7 +568,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		}
 		function applyPostFilters(entries) {
 			let out = entries;
-			if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.raw.id !== currentPostId);
+			if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.id !== currentPostId);
 			if (opts.related && currentPostLabels.length) out = out.filter((e) => e.labels.some((l) => currentPostLabels.includes(l)));
 			if (opts.sort === "asc") out = [...out].reverse();
 			if (opts.random) out = shuffle(out);
@@ -564,8 +584,8 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (!query) return true;
 			const needle = query.toLowerCase();
 			if (entry.kind === "authors" || entry.kind === "labels") return entry.name.toLowerCase().includes(needle);
-			if (entry.kind === "comments") return entry.content.toLowerCase().includes(needle) || (entry.title ?? "").toLowerCase().includes(needle);
-			return entry.raw.title.toLowerCase().includes(needle) || entry.content.toLowerCase().includes(needle);
+			if (entry.kind === "comments") return entry.summary.toLowerCase().includes(needle) || (entry.title ?? "").toLowerCase().includes(needle);
+			return entry.title.toLowerCase().includes(needle) || entry.summary.toLowerCase().includes(needle);
 		}
 		/** `type: "authors"` — no pagination, no query, no labels (blog.authors() has none of these). */
 		async function fetchAuthorsBatch() {
@@ -694,6 +714,13 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (opts.type === "pages") return fetchPagesBuffer();
 			return fetchPostsBuffer();
 		}
+		/** Short, stable identifier for an entry used in error messages — never throws even on a malformed entry. */
+		function describeEntry(entry, index) {
+			const e = entry;
+			const kind = e?.kind ?? "unknown";
+			const id = e?.id;
+			return `entry #${index} (kind: ${kind}${id !== void 0 ? `, id: ${id}` : ""})`;
+		}
 		function renderEntries(entries, append) {
 			if (entries.length === 0 && !append) {
 				target.innerHTML = opts.empty();
@@ -702,15 +729,25 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			}
 			if (!append) target.innerHTML = "";
 			const startIndex = append ? visible.length : 0;
-			for (const [i, entry] of entries.entries()) {
+			for (const [i, entry] of entries.entries()) try {
 				opts.beforeRender?.(entry);
 				const wrapper = document.createElement("div");
-				wrapper.innerHTML = opts.template(entry, startIndex + i).trim();
+				const html = opts.template(entry, startIndex + i);
+				if (typeof html !== "string") throw new Error(`template() must return a string, got ${typeof html}.`);
+				wrapper.innerHTML = html.trim();
 				const el = wrapper.firstElementChild ?? wrapper;
 				const extraClass = opts.entryClass(entry, startIndex + i);
 				if (extraClass) el.classList.add(...extraClass.split(/\s+/).filter(Boolean));
 				target.appendChild(el);
 				opts.afterRender?.(el, entry);
+			} catch (err) {
+				const original = err instanceof Error ? err.message : String(err);
+				const availableFields = entry && typeof entry === "object" ? Object.keys(entry).sort().join(", ") : "(entry is not an object)";
+				const wrapped = /* @__PURE__ */ new Error(`[blogr-widget] Failed to render ${describeEntry(entry, startIndex + i)}: ${original}\nThis usually means a field your template()/entryClass()/beforeRender()/afterRender() reads is missing, renamed, or undefined on this entry type.
+Fields actually present on this entry: ${availableFields}`);
+				wrapped.cause = err;
+				console.error(wrapped.message, "\nEntry:", entry, "\nOriginal error:", err);
+				opts.onError?.(wrapped);
 			}
 			if (append) visible = [...visible, ...entries];
 			else visible = entries;

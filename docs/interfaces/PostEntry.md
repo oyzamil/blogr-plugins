@@ -6,9 +6,16 @@
 
 # Interface: PostEntry
 
-Defined in: [src/plugins/createWidget.ts:25](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L25)
+Defined in: [src/plugins/createWidget.ts:32](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L32)
 
-A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead.
+A normalized post or page — every field from the raw feed entry (id, url,
+author, labels, comments, geo, links, etc.) is spread directly onto this
+object. `summary`/`published`/`updated`/`thumbnail` are overridden with
+processed values; everything else is exactly what the feed returned.
+
+## Extends
+
+- `Omit`\<`Post`, `"published"` \| `"updated"` \| `"content"` \| `"thumbnail"` \| `"summary"`\>
 
 ## Properties
 
@@ -16,19 +23,41 @@ A normalized post or page. Anything not listed here — id, title, url, author, 
 
 > **author**: `Author`
 
-Defined in: [src/plugins/createWidget.ts:34](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L34)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:77
 
-Author Details.
+Entry author.
+
+#### Inherited from
+
+`Omit.author`
 
 ***
 
-### content
+### comments
 
-> **content**: `string`
+> **comments**: `PostCommentInfo`
 
-Defined in: [src/plugins/createWidget.ts:44](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L44)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:87
 
-Plain-text summary, truncated to `summaryLength` characters.
+Comment count/metadata for this entry.
+
+#### Inherited from
+
+`Omit.comments`
+
+***
+
+### geo
+
+> **geo**: `Geo`
+
+Defined in: node\_modules/blogr/dist/blogr.d.ts:89
+
+Geo-location, if attached.
+
+#### Inherited from
+
+`Omit.geo`
 
 ***
 
@@ -36,9 +65,13 @@ Plain-text summary, truncated to `summaryLength` characters.
 
 > **id**: `string`
 
-Defined in: [src/plugins/createWidget.ts:28](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L28)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:65
 
-Numeric id, as reported by Blogger.
+Entry id (numeric string).
+
+#### Inherited from
+
+`Omit.id`
 
 ***
 
@@ -46,7 +79,7 @@ Numeric id, as reported by Blogger.
 
 > **kind**: `"posts"` \| `"pages"`
 
-Defined in: [src/plugins/createWidget.ts:26](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L26)
+Defined in: [src/plugins/createWidget.ts:36](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L36)
 
 ***
 
@@ -54,9 +87,27 @@ Defined in: [src/plugins/createWidget.ts:26](https://github.com/oyzamil/blogr-pl
 
 > **labels**: `string`[]
 
-Defined in: [src/plugins/createWidget.ts:40](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L40)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:75
 
-Labels. Always `[]` for pages/comments (which carry none).
+Labels attached to the entry.
+
+#### Inherited from
+
+`Omit.labels`
+
+***
+
+### links
+
+> **links**: `Link`[]
+
+Defined in: node\_modules/blogr/dist/blogr.d.ts:91
+
+Raw `<link>` entries from the feed.
+
+#### Inherited from
+
+`Omit.links`
 
 ***
 
@@ -64,19 +115,19 @@ Labels. Always `[]` for pages/comments (which carry none).
 
 > **published**: `string`
 
-Defined in: [src/plugins/createWidget.ts:36](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L36)
+Defined in: [src/plugins/createWidget.ts:38](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L38)
 
 Publish date, formatted per `dateFormat`.
 
 ***
 
-### raw
+### summary
 
-> **raw**: `Post`
+> **summary**: `string`
 
-Defined in: [src/plugins/createWidget.ts:46](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L46)
+Defined in: [src/plugins/createWidget.ts:42](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L42)
 
-The original, un-normalized SDK object.
+Plain text — HTML tags and comments stripped — truncated to `summaryLength` characters.
 
 ***
 
@@ -84,9 +135,23 @@ The original, un-normalized SDK object.
 
 > **thumbnail**: `string`
 
-Defined in: [src/plugins/createWidget.ts:42](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L42)
+Defined in: [src/plugins/createWidget.ts:44](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L44)
 
 Resized thumbnail (via [resizeImage](../functions/resizeImage.md)), falling back to `fallbackImage`. `""` when `thumbnail: false`.
+
+***
+
+### thumbnailAlt
+
+> **thumbnailAlt**: `string` \| `null`
+
+Defined in: node\_modules/blogr/dist/blogr.d.ts:85
+
+Thumbnail explicitly selected by Blogger, or `null`.
+
+#### Inherited from
+
+`Omit.thumbnailAlt`
 
 ***
 
@@ -94,9 +159,13 @@ Resized thumbnail (via [resizeImage](../functions/resizeImage.md)), falling back
 
 > **title**: `string`
 
-Defined in: [src/plugins/createWidget.ts:30](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L30)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:67
 
-Title. `""` for comments (which have none).
+Title of the entry.
+
+#### Inherited from
+
+`Omit.title`
 
 ***
 
@@ -104,7 +173,7 @@ Title. `""` for comments (which have none).
 
 > **updated**: `string`
 
-Defined in: [src/plugins/createWidget.ts:38](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L38)
+Defined in: [src/plugins/createWidget.ts:40](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L40)
 
 Last-updated date, formatted per `dateFormat`.
 
@@ -114,6 +183,10 @@ Last-updated date, formatted per `dateFormat`.
 
 > **url**: `string`
 
-Defined in: [src/plugins/createWidget.ts:32](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L32)
+Defined in: node\_modules/blogr/dist/blogr.d.ts:69
 
-Canonical URL.
+Canonical URL of the entry.
+
+#### Inherited from
+
+`Omit.url`

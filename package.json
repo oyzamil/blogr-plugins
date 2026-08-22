@@ -1,6 +1,6 @@
 {
 	"name": "blogr-plugins",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Typed, modular Blogr plugin kit — sticky sidebar, menu, lazy-load, TOC, text-replace and cookie utils. Works standalone or as jQuery plugins.",
 	"type": "module",
 	"main": "./dist/blogr-plugins.cjs",
@@ -76,7 +76,7 @@
 		"vitest": "^4.1.10"
 	},
 	"peerDependencies": {
-		"blogr": "^0.0.2"
+		"blogr": "^0.0.3"
 	},
 	"peerDependenciesMeta": {
 		"blogr": {

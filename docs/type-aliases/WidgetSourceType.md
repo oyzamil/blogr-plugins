@@ -8,6 +8,6 @@
 
 > **WidgetSourceType** = `"recent"` \| `"random"`
 
-Defined in: [src/plugins/createWidget.ts:16](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L16)
+Defined in: [src/plugins/createWidget.ts:18](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L18)
 
 How the initial batch of entries is sourced.

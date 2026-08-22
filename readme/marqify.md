@@ -106,6 +106,3 @@ marquee.destroy();
 
 `marqify` fits the classic `$(sel).plugin(options)` jQuery shape, so it
 **does** get the jQuery bridge: `$(".cards").marqify({ speed: "fast" })`.
-
-See [`demo/marqify.html`](./demo/marqify.html) for a full example with live
-option controls.

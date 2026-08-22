@@ -17,7 +17,7 @@
         "vitest": "^4.1.10",
       },
       "peerDependencies": {
-        "blogr": "^0.0.2",
+        "blogr": "^0.0.3",
       },
       "optionalPeers": [
         "blogr",

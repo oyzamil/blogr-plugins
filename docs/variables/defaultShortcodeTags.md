@@ -8,7 +8,7 @@
 
 > `const` **defaultShortcodeTags**: `Record`\<`string`, [`ShortcodeHandler`](../type-aliases/ShortcodeHandler.md)\>
 
-Defined in: [src/plugins/shortcodify.ts:412](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/shortcodify.ts#L412)
+Defined in: [src/plugins/shortcodify.ts:412](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/shortcodify.ts#L412)
 
 A handful of ready-made handlers (`b`, `i`, `u`, `url`, `color`) you can
 spread into your own tag map instead of writing the common ones by hand.

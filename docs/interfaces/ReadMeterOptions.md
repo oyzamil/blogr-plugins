@@ -6,7 +6,7 @@
 
 # Interface: ReadMeterOptions
 
-Defined in: src/plugins/readMeter.ts:9
+Defined in: [src/plugins/readMeter.ts:9](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L9)
 
 Configuration options for [readMeter](../functions/readMeter.md).
 
@@ -16,7 +16,7 @@ Configuration options for [readMeter](../functions/readMeter.md).
 
 > `optional` **appendTo?**: `string` \| `HTMLElement` \| `null`
 
-Defined in: src/plugins/readMeter.ts:78
+Defined in: [src/plugins/readMeter.ts:78](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L78)
 
 Selector or element where to insert read time. The badge is
 *appended* into it (existing content is left alone) and reused on
@@ -35,7 +35,7 @@ null
 
 > `optional` **codeWordsPerMinute?**: `number`
 
-Defined in: src/plugins/readMeter.ts:54
+Defined in: [src/plugins/readMeter.ts:54](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L54)
 
 Words per minute for code when includeCode true.
 
@@ -51,7 +51,7 @@ Words per minute for code when includeCode true.
 
 > `optional` **debounceMs?**: `number`
 
-Defined in: src/plugins/readMeter.ts:88
+Defined in: [src/plugins/readMeter.ts:88](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L88)
 
 Debounce delay in ms for resize handler.
 
@@ -67,7 +67,7 @@ Debounce delay in ms for resize handler.
 
 > `optional` **excludeElements?**: `string`[]
 
-Defined in: src/plugins/readMeter.ts:27
+Defined in: [src/plugins/readMeter.ts:27](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L27)
 
 CSS selectors, relative to each matched target, for descendants to
 strip out of the calculation — e.g. `[".share-buttons", ".ad"]`.
@@ -86,7 +86,7 @@ undefined (nothing excluded)
 
 > `optional` **format?**: [`ReadMeterFormat`](../type-aliases/ReadMeterFormat.md)
 
-Defined in: src/plugins/readMeter.ts:62
+Defined in: [src/plugins/readMeter.ts:62](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L62)
 
 Output format.
 - "minutes" – e.g., "5"
@@ -105,7 +105,7 @@ Output format.
 
 > `optional` **imageTimeSeconds?**: `number`
 
-Defined in: src/plugins/readMeter.ts:42
+Defined in: [src/plugins/readMeter.ts:42](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L42)
 
 Seconds per image when includeImages true.
 
@@ -121,7 +121,7 @@ Seconds per image when includeImages true.
 
 > `optional` **includeCode?**: `boolean`
 
-Defined in: src/plugins/readMeter.ts:49
+Defined in: [src/plugins/readMeter.ts:49](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L49)
 
 Count code blocks (`<pre>`, `<code>`) separately, at
 [codeWordsPerMinute](#codewordsperminute) instead of [wordsPerMinute](#wordsperminute), rather
@@ -139,7 +139,7 @@ false
 
 > `optional` **includeElements?**: `string`[]
 
-Defined in: src/plugins/readMeter.ts:19
+Defined in: [src/plugins/readMeter.ts:19](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L19)
 
 CSS selectors, relative to each matched target, for the child
 elements to include in the read-time calculation — e.g.
@@ -160,7 +160,7 @@ undefined (whole target)
 
 > `optional` **includeImages?**: `boolean`
 
-Defined in: src/plugins/readMeter.ts:37
+Defined in: [src/plugins/readMeter.ts:37](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L37)
 
 Add extra time for images.
 
@@ -176,7 +176,7 @@ false
 
 > `optional` **onUpdate?**: (`timeString`, `minutes`) => `void`
 
-Defined in: src/plugins/readMeter.ts:93
+Defined in: [src/plugins/readMeter.ts:93](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L93)
 
 Callback after each calculation.
 Receives formatted time string and raw (unrounded) minutes.
@@ -201,7 +201,7 @@ Receives formatted time string and raw (unrounded) minutes.
 
 > `optional` **template?**: (`readTime`) => `string`
 
-Defined in: src/plugins/readMeter.ts:70
+Defined in: [src/plugins/readMeter.ts:70](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L70)
 
 Renders the badge's markup. Receives the formatted time string,
 returns the HTML to use as the badge's `innerHTML` verbatim —
@@ -228,7 +228,7 @@ matches the `template` convention used by [createWidget](../functions/createWidg
 
 > `optional` **updateOnResize?**: `boolean`
 
-Defined in: src/plugins/readMeter.ts:83
+Defined in: [src/plugins/readMeter.ts:83](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L83)
 
 Recalculate on window resize (e.g., after layout shift).
 
@@ -244,7 +244,7 @@ false
 
 > `optional` **wordsPerMinute?**: `number`
 
-Defined in: src/plugins/readMeter.ts:32
+Defined in: [src/plugins/readMeter.ts:32](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L32)
 
 Reading speed in words per minute.
 

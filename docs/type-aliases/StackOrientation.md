@@ -8,6 +8,6 @@
 
 > **StackOrientation** = `"vertical"` \| `"horizontal"`
 
-Defined in: [src/plugins/stackify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/stackify.ts#L9)
+Defined in: [src/plugins/stackify.ts:9](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/stackify.ts#L9)
 
 Which axis a layout peeks/scrolls along, and which axis dragging works on.

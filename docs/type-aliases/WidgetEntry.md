@@ -8,4 +8,4 @@
 
 > **WidgetEntry** = [`PostEntry`](../interfaces/PostEntry.md) \| [`CommentEntry`](../interfaces/CommentEntry.md) \| [`AuthorEntry`](../interfaces/AuthorEntry.md) \| [`LabelEntry`](../interfaces/LabelEntry.md)
 
-Defined in: [src/plugins/createWidget.ts:85](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L85)
+Defined in: [src/plugins/createWidget.ts:93](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L93)

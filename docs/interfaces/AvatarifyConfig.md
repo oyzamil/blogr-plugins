@@ -6,7 +6,7 @@
 
 # Interface: AvatarifyConfig
 
-Defined in: [src/plugins/avatarify.ts:84](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L84)
+Defined in: [src/plugins/avatarify.ts:84](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L84)
 
 Configuration for [avatarify](../functions/avatarify.md).
 
@@ -16,7 +16,7 @@ Configuration for [avatarify](../functions/avatarify.md).
 
 > `optional` **apiUrl?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:148](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L148)
+Defined in: [src/plugins/avatarify.ts:148](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L148)
 
 Full URL template overriding DiceBear entirely — `{style}` and
 `{seed}` are replaced (seed is pre-encoded). Use this to point at a
@@ -28,7 +28,7 @@ self-hosted avatar service instead.
 
 > `optional` **avatarAttribute?**: `"src"` \| `"background-image"`
 
-Defined in: [src/plugins/avatarify.ts:123](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L123)
+Defined in: [src/plugins/avatarify.ts:123](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L123)
 
 Forces how avatar gets applied: `"src"` sets `src` attr,
 `"background-image"` sets inline `background-image` style. Omit for
@@ -41,7 +41,7 @@ tags get `background-image`, plain `<img>` tags get `src`.
 
 > `optional` **avatarDataAttribute?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:130](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L130)
+Defined in: [src/plugins/avatarify.ts:130](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L130)
 
 Data-attribute NAME that holds a real avatar url directly (Blogger
 lazy-src style, e.g. `data-image="//..."`). Checked before `src`/css
@@ -54,7 +54,7 @@ this to match your markup, e.g. `"data-image"`.
 
 > **avatarSelector**: `string`
 
-Defined in: [src/plugins/avatarify.ts:98](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L98)
+Defined in: [src/plugins/avatarify.ts:98](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L98)
 
 Selector (relative to a comment element) for the profile-picture element. **Required.**
 
@@ -64,7 +64,7 @@ Selector (relative to a comment element) for the profile-picture element. **Requ
 
 > `optional` **avatarStyle?**: [`AvatarStyle`](../type-aliases/AvatarStyle.md)
 
-Defined in: [src/plugins/avatarify.ts:132](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L132)
+Defined in: [src/plugins/avatarify.ts:132](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L132)
 
 DiceBear style to request. Default `"thumbs"`.
 
@@ -74,7 +74,7 @@ DiceBear style to request. Default `"thumbs"`.
 
 > **commentSelector**: `string`
 
-Defined in: [src/plugins/avatarify.ts:96](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L96)
+Defined in: [src/plugins/avatarify.ts:96](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L96)
 
 Selector for the comment element that wraps one username + timestamp + avatar. **Required.**
 
@@ -84,7 +84,7 @@ Selector for the comment element that wraps one username + timestamp + avatar. *
 
 > `optional` **container?**: [`ElementInput`](../type-aliases/ElementInput.md)
 
-Defined in: [src/plugins/avatarify.ts:92](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L92)
+Defined in: [src/plugins/avatarify.ts:92](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L92)
 
 Root element to watch (selector, element(s), or jQuery collection).
 The `MutationObserver` (detect dynamically-added comments) watches
@@ -98,7 +98,7 @@ first element matching `avatarSelector`, then to `document.body`.
 
 > `optional` **debounce?**: `number`
 
-Defined in: [src/plugins/avatarify.ts:163](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L163)
+Defined in: [src/plugins/avatarify.ts:163](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L163)
 
 Debounce (ms) applied to `MutationObserver`-triggered rescans, so a batch of DOM changes only triggers one pass. Default `150`.
 
@@ -108,7 +108,7 @@ Debounce (ms) applied to `MutationObserver`-triggered rescans, so a batch of DOM
 
 > `optional` **dicebearVersion?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:142](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L142)
+Defined in: [src/plugins/avatarify.ts:142](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L142)
 
 DiceBear API version segment. Default `"7.x"`.
 
@@ -118,7 +118,7 @@ DiceBear API version segment. Default `"7.x"`.
 
 > `optional` **emptyAvatarPatterns?**: (`string` \| `RegExp`)[]
 
-Defined in: [src/plugins/avatarify.ts:140](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L140)
+Defined in: [src/plugins/avatarify.ts:140](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L140)
 
 Background-image/`src` substrings that count as "no avatar set" —
 checked with `.includes()`. Extend this if your theme's blank
@@ -132,7 +132,7 @@ always counts as empty regardless of this list.
 
 > `optional` **onAvatarSet?**: (`detail`) => `void`
 
-Defined in: [src/plugins/avatarify.ts:165](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L165)
+Defined in: [src/plugins/avatarify.ts:165](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L165)
 
 Called once per avatar actually set (fires right after the url is assigned to the DOM).
 
@@ -152,7 +152,7 @@ Called once per avatar actually set (fires right after the url is assigned to th
 
 > `optional` **onError?**: (`message`) => `void`
 
-Defined in: [src/plugins/avatarify.ts:173](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L173)
+Defined in: [src/plugins/avatarify.ts:173](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L173)
 
 Called on a recoverable issue (selector matched nothing, etc). Defaults to `console.error`.
 
@@ -172,7 +172,7 @@ Called on a recoverable issue (selector matched nothing, etc). Defaults to `cons
 
 > `optional` **onSuccess?**: (`detail`) => `void`
 
-Defined in: [src/plugins/avatarify.ts:171](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L171)
+Defined in: [src/plugins/avatarify.ts:171](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L171)
 
 Called once per avatar, separately, after its image actually finishes
 loading (real success — not just DOM assignment). Gets `index`/`id`
@@ -194,7 +194,7 @@ so you can tell which avatar loaded.
 
 > `optional` **rootMargin?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:161](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L161)
+Defined in: [src/plugins/avatarify.ts:161](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L161)
 
 `rootMargin` for each avatar's own lazy-load `IntersectionObserver` —
 every avatar loads independently once it nears the viewport, so only
@@ -206,7 +206,7 @@ on-screen (or about-to-be) avatars ever fetch. Default `"0px"`.
 
 > `optional` **seed?**: (`username`, `timestamp`) => `string`
 
-Defined in: [src/plugins/avatarify.ts:155](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L155)
+Defined in: [src/plugins/avatarify.ts:155](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L155)
 
 Overrides how the per-comment seed string is built. Default: the
 username alone when `avatarStyle` is `"initials"`, otherwise the
@@ -233,7 +233,7 @@ still gets a distinct avatar per comment).
 
 > `optional` **setRandomAvatarForAll?**: `boolean`
 
-Defined in: [src/plugins/avatarify.ts:116](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L116)
+Defined in: [src/plugins/avatarify.ts:116](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L116)
 
 `true` replaces every avatar, even ones that already have a real
 image. `false` (default) leaves real avatars' image alone but still
@@ -246,7 +246,7 @@ if that differs from where the image currently lives.
 
 > `optional` **timestampAttribute?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:109](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L109)
+Defined in: [src/plugins/avatarify.ts:109](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L109)
 
 Attribute on the timestamp element to read (e.g. `"data-datetime"`).
 Omitted/falsy reads the element's text content instead.
@@ -257,7 +257,7 @@ Omitted/falsy reads the element's text content instead.
 
 > `optional` **timestampSelector?**: `string`
 
-Defined in: [src/plugins/avatarify.ts:104](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L104)
+Defined in: [src/plugins/avatarify.ts:104](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L104)
 
 Selector (relative to a comment element) for the timestamp element.
 Omit to leave the timestamp out of the avatar seed entirely (every
@@ -269,6 +269,6 @@ comment from the same username then gets the same avatar).
 
 > **usernameSelector**: `string`
 
-Defined in: [src/plugins/avatarify.ts:94](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/avatarify.ts#L94)
+Defined in: [src/plugins/avatarify.ts:94](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/avatarify.ts#L94)
 
 Selector (relative to a comment element) for the commenter's username. **Required.**

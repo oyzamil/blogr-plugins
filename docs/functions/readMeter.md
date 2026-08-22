@@ -8,7 +8,7 @@
 
 > **readMeter**(`input`, `options?`): [`ReadMeterInstance`](../interfaces/ReadMeterInstance.md)
 
-Defined in: src/plugins/readMeter.ts:299
+Defined in: [src/plugins/readMeter.ts:299](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/readMeter.ts#L299)
 
 Estimates reading time for one or more content blocks — word count
 (optionally splitting out code blocks at a slower reading speed) plus

@@ -149,6 +149,3 @@ relatedLinks.destroy();
 
 `relatify` fits the classic `$(sel).plugin(options)` jQuery shape, so it
 **does** get the jQuery bridge: `$("article").relatify({ labels })`.
-
-See [`demo/relatify.html`](./demo/relatify.html) for a full example reading
-live from a real Blogger blog.

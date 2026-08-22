@@ -6,9 +6,11 @@
 
 # Interface: LabelEntry
 
-Defined in: [src/plugins/createWidget.ts:77](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L77)
+Defined in: [src/plugins/createWidget.ts:86](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L86)
 
-A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link.
+A normalized label — Blogger's `labels()` returns bare strings, so
+there's no raw object to spread; this is just that string (humanized,
+e.g. `"live-wallpaper"` -> `"Live Wallpaper"`) plus a built search link.
 
 ## Properties
 
@@ -16,7 +18,7 @@ A normalized label — Blogger's `labels()` returns bare strings, so this is jus
 
 > **id**: `string`
 
-Defined in: [src/plugins/createWidget.ts:79](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L79)
+Defined in: [src/plugins/createWidget.ts:88](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L88)
 
 ***
 
@@ -24,7 +26,7 @@ Defined in: [src/plugins/createWidget.ts:79](https://github.com/oyzamil/blogr-pl
 
 > **kind**: `"labels"`
 
-Defined in: [src/plugins/createWidget.ts:78](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L78)
+Defined in: [src/plugins/createWidget.ts:87](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L87)
 
 ***
 
@@ -32,15 +34,7 @@ Defined in: [src/plugins/createWidget.ts:78](https://github.com/oyzamil/blogr-pl
 
 > **name**: `string`
 
-Defined in: [src/plugins/createWidget.ts:80](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L80)
-
-***
-
-### raw
-
-> **raw**: `string`
-
-Defined in: [src/plugins/createWidget.ts:82](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L82)
+Defined in: [src/plugins/createWidget.ts:89](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L89)
 
 ***
 
@@ -48,4 +42,4 @@ Defined in: [src/plugins/createWidget.ts:82](https://github.com/oyzamil/blogr-pl
 
 > **url**: `string`
 
-Defined in: [src/plugins/createWidget.ts:81](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/createWidget.ts#L81)
+Defined in: [src/plugins/createWidget.ts:90](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/createWidget.ts#L90)

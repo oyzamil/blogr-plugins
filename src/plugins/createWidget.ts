@@ -1,7 +1,9 @@
-import Blogr, { type Author, type Comment, type Pager, type Post } from "blogr";
+import { type Author, Blogr, type Comment, type Pager, type Post } from "blogr";
 
 import { type ElementInput, type PluginInstance } from "../types";
 import { resolveElements } from "../utils/dom";
+import { humanize } from "../utils/format";
+import { mergeOptions } from "../utils/merge-options";
 import { type ResizeImageOptions, resizeImage } from "./resizeImage";
 
 /** What data the widget lists — one flag covers both feed and shape. */
@@ -21,65 +23,71 @@ export type WidgetOrderBy = "published" | "updated";
 /** Direction entries are shown in, applied after fetching. */
 export type WidgetSort = "asc" | "desc";
 
-/** A normalized post or page. Anything not listed here — id, title, url, author, etc. — is unchanged from the source feed and lives on `raw` instead. */
-export interface PostEntry {
+/**
+ * A normalized post or page — every field from the raw feed entry (id, url,
+ * author, labels, comments, geo, links, etc.) is spread directly onto this
+ * object. `summary`/`published`/`updated`/`thumbnail` are overridden with
+ * processed values; everything else is exactly what the feed returned.
+ */
+export interface PostEntry extends Omit<
+	Post,
+	"published" | "updated" | "content" | "thumbnail" | "summary"
+> {
 	kind: "posts" | "pages";
-	/** Numeric id, as reported by Blogger. */
-	id: string;
-	/** Title. `""` for comments (which have none). */
-	title: string;
-	/** Canonical URL. */
-	url: string;
-	/** Author Details. */
-	author: Author;
 	/** Publish date, formatted per `dateFormat`. */
 	published: string;
 	/** Last-updated date, formatted per `dateFormat`. */
 	updated: string;
-	/** Labels. Always `[]` for pages/comments (which carry none). */
-	labels: string[];
+	/** Plain text — HTML tags and comments stripped — truncated to `summaryLength` characters. */
+	summary: string;
 	/** Resized thumbnail (via {@link resizeImage}), falling back to `fallbackImage`. `""` when `thumbnail: false`. */
 	thumbnail: string;
-	/** Plain-text summary, truncated to `summaryLength` characters. */
-	content: string;
-	/** The original, un-normalized SDK object. */
-	raw: Post;
 }
 
 /**
  * A normalized comment — every field from the raw comment feed entry (id,
  * url, author, post, inReplyTo, extended, etc.) is spread directly onto
- * this object rather than nested under `raw`. `content`/`published`/
+ * this object rather than nested under `raw`. `summary`/`published`/
  * `updated` are overridden with truncated/formatted values; everything
  * else is exactly what the feed returned.
  */
 export interface CommentEntry extends Omit<
 	Comment,
-	"published" | "updated" | "content"
+	"published" | "updated" | "content" | "summary"
 > {
 	kind: "comments";
-	content: string;
+	summary: string;
 	published: string;
 	updated: string;
 }
 
-/** A normalized author — a thin pass-through of `blogr`'s `Author` (`name`, `url`, `image`), nothing invented. */
-export interface AuthorEntry {
+/**
+ * A normalized author — every field from `blogr`'s `Author` is spread
+ * directly onto this object. `id`/`name`/`url`/`image` are overridden with
+ * fallback-filled values; `email`/`imageWidth`/`imageHeight` pass through
+ * unchanged.
+ */
+export interface AuthorEntry extends Omit<
+	Author,
+	"id" | "name" | "url" | "image"
+> {
 	kind: "authors";
 	id: string;
 	name: string;
 	url: string;
 	image: string;
-	raw: Author;
 }
 
-/** A normalized label — Blogger's `labels()` returns bare strings, so this is just that string plus a built search link. */
+/**
+ * A normalized label — Blogger's `labels()` returns bare strings, so
+ * there's no raw object to spread; this is just that string (humanized,
+ * e.g. `"live-wallpaper"` -> `"Live Wallpaper"`) plus a built search link.
+ */
 export interface LabelEntry {
 	kind: "labels";
 	id: string;
 	name: string;
 	url: string;
-	raw: string;
 }
 
 export type WidgetEntry = PostEntry | CommentEntry | AuthorEntry | LabelEntry;
@@ -122,7 +130,7 @@ export interface CreateWidgetOptions {
 	containerSelector: ElementInput;
 	/** URL (or numeric id) of the Blogger blog to read from. **Required.** */
 	blogUrl: string;
-	/** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`.
+	/** Labels to filter by (AND semantics — an entry must carry every one). Empty/omitted = no label filter. Only applies to `type: "posts"`. */
 	labels?: string[];
 	/** Feed field to sort by. Default `"published"`. */
 	orderBy?: WidgetOrderBy;
@@ -174,7 +182,7 @@ export interface CreateWidgetOptions {
 	fallbackImage?: string;
 
 	// --- Content ---
-	/** Max characters of plain-text summary kept in `entry.content`. `0` disables truncation. Default `120`. */
+	/** Max characters of plain-text summary kept in `entry.summary`. `0` disables truncation. Default `120`. */
 	summaryLength?: number;
 
 	// --- Pagination ---
@@ -282,13 +290,13 @@ const defaults = {
 		`<pre class="blogr-widget-error" style="white-space: pre-wrap;word-break: break-all;">${errorMsg}</pre>`,
 	empty: () =>
 		`<p class="blogr-widget-empty" style="text-align:center">No posts found.</p>`,
-	template: (entry: WidgetEntry) =>
+	template: (entry: WidgetEntry, _i: number) =>
 		entry.kind === "authors" || entry.kind === "labels"
 			? `<div><h2>${entry.name}</h2></div>`
 			: entry.kind === "comments"
-				? `<div><p><strong>${entry.author.name}</strong>: ${entry.content}</p></div>`
-				: `<div><h2>${entry.title}</h2><p>${entry.content}</p></div>`,
-	entryClass: () => "",
+				? `<div><p><strong>${entry.author.name}</strong>: ${entry.summary}</p></div>`
+				: `<div><h2>${entry.title}</h2><p>${entry.summary}</p></div>`,
+	entryClass: (_entry: WidgetEntry, _index: number) => "",
 };
 
 const MONTHS_LONG = [
@@ -423,9 +431,9 @@ function detectCurrentPostId(): string | undefined {
  * 	loadMore: true,
  * 	template: (entry) => `
  * 		<article class="related-post">
- * 			<img src="${entry.thumbnail}" alt="${entry.raw.title}" />
- * 			<h3>${entry.raw.title}</h3>
- * 			<p>${entry.content}</p>
+ * 			<img src="${entry.thumbnail}" alt="${entry.title}" />
+ * 			<h3>${entry.title}</h3>
+ * 			<p>${entry.summary}</p>
  * 		</article>
  * 	`,
  * });
@@ -435,11 +443,15 @@ function detectCurrentPostId(): string | undefined {
  * ```
  */
 export function createWidget(options: CreateWidgetOptions): WidgetInstance {
-	// Check if Blogr is available (for CDN usage)
-	if (typeof Blogr === "undefined") {
+	// Check if Blogr is available (for CDN usage). Covers both a missing
+	// <script> tag (Blogr === undefined) and a loaded-but-empty global
+	// (Blogr === null, per the ambient `{} | null` type) — `typeof x ===
+	// "undefined"` alone only caught the first case, leaving TS (correctly)
+	// thinking Blogr could still be null at the `new Blogr(...)` call below.
+	if (!Blogr) {
 		console.warn(
 			"[blogr-widget] Blogr SDK not found. Please add it via CDN: " +
-				'<script src="https://cdn.jsdelivr.net/npm/blogr"></script> ' +
+				'<script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"></script> ' +
 				"or install via npm: npm install blogr",
 		);
 		// Return a minimal instance that shows an error message
@@ -450,7 +462,7 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 					<p><strong>Blogr SDK not loaded.</strong></p>
 					<p>Please include the Blogr library:</p>
 					<code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
-						&lt;script src="https://cdn.jsdelivr.net/npm/blogr"&gt;&lt;/script&gt;
+						&lt;script src="https://cdn.jsdelivr.net/npm/blogr/dist/blogr.umd.js"&gt;&lt;/script&gt;
 					</code>
 				</div>
 			`;
@@ -464,7 +476,8 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		};
 	}
 
-	const opts = { ...defaults, ...options };
+	const opts = mergeOptions(defaults, options) as typeof defaults &
+		CreateWidgetOptions;
 	const container = resolveElements(opts.containerSelector)[0] as
 		| HTMLElement
 		| undefined;
@@ -481,10 +494,16 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 			? opts.containerSelector
 			: "widget");
 
-	// Existing "typeof Blogr === undefined" guard above already returns
-	// before this point when Blogr isn't available, so no second check
-	// is needed here.
-	const blog = new Blogr(opts.blogUrl, { jsonp: opts.jsonp });
+	// Cast needed: the ambient `Blogr` type from the package is `{} | null`
+	// (a UMD/global-safety type, not an actual class type), so it has no
+	// construct signature as far as TS is concerned. The `!Blogr` guard
+	// above already ruled out null/undefined at runtime — this is purely
+	// telling TS what we already know to be true.
+	const BlogrCtor = Blogr as unknown as new (
+		blogUrl: string,
+		options?: { jsonp?: boolean },
+	) => any;
+	const blog = new BlogrCtor(opts.blogUrl, { jsonp: opts.jsonp });
 
 	if (opts.cache) blog.cache.enable({ ttlMs: opts.cacheTTL * 1000 });
 
@@ -508,17 +527,20 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	let sentinel: HTMLDivElement | null = null;
 	let loadMoreBtn: HTMLButtonElement | null = null;
 
-	const usesBuffer =
-		opts.source === "random" || (!opts.deepSearch && !!opts.query);
+	// FIX (bug 3): buffered mode must apply for *any* deepSearch:false widget,
+	// not only ones that already had an initial `query` — otherwise a later
+	// setQuery() call has no buffer to filter against and silently returns
+	// nothing when the widget started with an empty query.
+	const usesBuffer = opts.source === "random" || !opts.deepSearch;
 
 	function normalizeAuthor(author: Author, index: number): AuthorEntry {
 		return {
+			...author,
 			kind: "authors",
 			id: author.url || `author-${index}`,
 			name: author.name || "Unknown Author",
 			url: author.url || "#",
 			image: author.image || opts.fallbackImage,
-			raw: author,
 		};
 	}
 
@@ -526,9 +548,8 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		return {
 			kind: "labels",
 			id: `label-${label}`,
-			name: label,
+			name: humanize(label),
 			url: `${opts.blogUrl}/search/label/${encodeURIComponent(label)}`,
-			raw: label,
 		};
 	}
 
@@ -556,30 +577,25 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 			}
 		}
 
-		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+		const summary = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
 
 		return {
+			...raw,
 			kind: opts.type as "posts" | "pages",
-			id: raw.id,
-			title: raw?.title ?? "",
-			url: raw.url,
-			author: raw.author,
 			published: formatDate(raw.published, opts.dateFormat),
 			updated: formatDate(raw.updated, opts.dateFormat),
-			labels: raw?.labels ?? [],
 			thumbnail: thumb,
-			content,
-			raw,
+			summary,
 		};
 	}
 
 	function normalizeComment(raw: Comment): CommentEntry {
-		const content = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
+		const summary = truncate(blog.htmlToText(raw.content ?? raw.summary ?? ""));
 
 		return {
 			...raw,
 			kind: "comments",
-			content,
+			summary,
 			published: formatDate(raw.published, opts.dateFormat),
 			updated: formatDate(raw.updated, opts.dateFormat),
 		};
@@ -627,11 +643,11 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 	function applyPostFilters(entries: PostEntry[]): PostEntry[] {
 		let out = entries;
 		if (opts.excludeCurrent && currentPostId) {
-			out = out.filter((e) => e.raw.id !== currentPostId);
+			out = out.filter((e) => e.id !== currentPostId);
 		}
 		if (opts.related && currentPostLabels.length) {
 			out = out.filter((e) =>
-				e.labels.some((l) => currentPostLabels.includes(l)),
+				e.labels.some((l: string) => currentPostLabels.includes(l)),
 			);
 		}
 		if (opts.sort === "asc") out = [...out].reverse();
@@ -654,13 +670,13 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		}
 		if (entry.kind === "comments") {
 			return (
-				entry.content.toLowerCase().includes(needle) ||
+				entry.summary.toLowerCase().includes(needle) ||
 				(entry.title ?? "").toLowerCase().includes(needle)
 			);
 		}
 		return (
-			entry.raw.title.toLowerCase().includes(needle) ||
-			entry.content.toLowerCase().includes(needle)
+			entry.title.toLowerCase().includes(needle) ||
+			entry.summary.toLowerCase().includes(needle)
 		);
 	}
 
@@ -817,6 +833,14 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 		return fetchPostsBuffer();
 	}
 
+	/** Short, stable identifier for an entry used in error messages — never throws even on a malformed entry. */
+	function describeEntry(entry: unknown, index: number): string {
+		const e = entry as Partial<WidgetEntry> | null | undefined;
+		const kind = e?.kind ?? "unknown";
+		const id = (e as { id?: unknown })?.id;
+		return `entry #${index} (kind: ${kind}${id !== undefined ? `, id: ${id}` : ""})`;
+	}
+
 	function renderEntries(entries: WidgetEntry[], append: boolean): void {
 		if (entries.length === 0 && !append) {
 			target.innerHTML = opts.empty();
@@ -827,17 +851,62 @@ export function createWidget(options: CreateWidgetOptions): WidgetInstance {
 
 		const startIndex = append ? visible.length : 0;
 		for (const [i, entry] of entries.entries()) {
-			opts.beforeRender?.(entry);
-			const wrapper = document.createElement("div");
-			wrapper.innerHTML = opts.template(entry, startIndex + i).trim();
-			const el = (wrapper.firstElementChild as HTMLElement) ?? wrapper;
-			const extraClass = opts.entryClass(entry, startIndex + i);
-			if (extraClass)
-				el.classList.add(...extraClass.split(/\s+/).filter(Boolean));
-			target.appendChild(el);
-			opts.afterRender?.(el, entry);
+			try {
+				opts.beforeRender?.(entry);
+				const wrapper = document.createElement("div");
+				const html = opts.template(entry, startIndex + i);
+				if (typeof html !== "string") {
+					throw new Error(
+						`template() must return a string, got ${typeof html}.`,
+					);
+				}
+				wrapper.innerHTML = html.trim();
+				const el = (wrapper.firstElementChild as HTMLElement) ?? wrapper;
+				const extraClass = opts.entryClass(entry, startIndex + i);
+				if (extraClass)
+					el.classList.add(...extraClass.split(/\s+/).filter(Boolean));
+				target.appendChild(el);
+				opts.afterRender?.(el, entry);
+				// FIX (bug 2): removed `rendered.push(entry)` — `rendered` was never
+				// declared anywhere, so this threw a ReferenceError on every
+				// successful render, which the catch block below then misreported
+				// as a render failure via onError for every entry.
+			} catch (err) {
+				// One bad entry (e.g. a template() referencing a field that's
+				// undefined/renamed) shouldn't blank the whole widget — skip
+				// just this entry, but surface exactly which one and why,
+				// instead of letting the original error's often-cryptic
+				// message ("Cannot read properties of null (reading '0')")
+				// be the only clue.
+				const original = err instanceof Error ? err.message : String(err);
+				const availableFields =
+					entry && typeof entry === "object"
+						? Object.keys(entry).sort().join(", ")
+						: "(entry is not an object)";
+				const wrapped = new Error(
+					`[blogr-widget] Failed to render ${describeEntry(entry, startIndex + i)}: ${original}\n` +
+						"This usually means a field your template()/entryClass()/beforeRender()/afterRender() " +
+						"reads is missing, renamed, or undefined on this entry type.\n" +
+						`Fields actually present on this entry: ${availableFields}`,
+				);
+				(wrapped as Error & { cause?: unknown }).cause = err;
+				console.error(
+					wrapped.message,
+					"\nEntry:",
+					entry,
+					"\nOriginal error:",
+					err,
+				);
+				opts.onError?.(wrapped);
+			}
 		}
 
+		// `visible` tracks how far we've advanced through the batch/buffer
+		// (attempted, not just successfully-rendered) — pagination math in
+		// loadMore()/renderPaginationControls() depends on this to move
+		// forward. Using only the rendered subset here would make a
+		// permanently-broken entry get re-sliced and retried forever on
+		// every "load more" click instead of being skipped for good.
 		if (append) visible = [...visible, ...entries];
 		else visible = entries;
 

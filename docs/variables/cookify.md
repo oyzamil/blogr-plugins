@@ -8,7 +8,7 @@
 
 > `const` **cookify**: [`Cookify`](../interfaces/Cookify.md)
 
-Defined in: [src/plugins/cookify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/645bb3710cdb7902190d431c3fddc067c18a5ce0/src/plugins/cookify.ts#L63)
+Defined in: [src/plugins/cookify.ts:63](https://github.com/oyzamil/blogr-plugins/blob/c591c903e2e8cdb9fbed22a758f777d09510ea9f/src/plugins/cookify.ts#L63)
 
 Small, dependency-free cookie utility (a typed replacement for the classic
 `js-cookie` plugin). Values are JSON-encoded automatically, so you can
