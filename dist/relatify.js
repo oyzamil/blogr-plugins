@@ -22,6 +22,21 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	const Blogr = globalThis.Blogr;
 
 //#endregion
+//#region src/utils/array.ts
+/**
+	* Returns a new array with `items` in random order (Fisher-Yates).
+	* Does not mutate the input.
+	*/
+	function shuffle(items) {
+		const out = [...items];
+		for (let i = out.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[out[i], out[j]] = [out[j], out[i]];
+		}
+		return out;
+	}
+
+//#endregion
 //#region src/utils/dom.ts
 /**
 	* Normalizes any supported input (selector string, Element, NodeList, array,
@@ -90,6 +105,15 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
+//#region src/utils/text.ts
+/** Counts words via whitespace splitting — same technique used across the plugin suite. */
+	function countWords(text) {
+		const trimmed = text.trim();
+		if (!trimmed) return 0;
+		return trimmed.split(/\s+/).length;
+	}
+
+//#endregion
 //#region src/plugins/relatify.ts
 	const defaults = {
 		jsonp: true,
@@ -129,9 +153,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	function tokenize(text) {
 		return text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter((word) => word.length > 1 && !STOPWORDS.has(word));
 	}
-	function countWords(text) {
-		return text.trim().split(/\s+/).filter(Boolean).length;
-	}
 	function defaultMaxLinks(wordCount) {
 		return Math.max(1, Math.floor(wordCount / 500) + 1);
 	}
@@ -152,14 +173,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			content: post.summary ?? "",
 			raw: post
 		};
-	}
-	function shuffle(items) {
-		const out = [...items];
-		for (let i = out.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[out[i], out[j]] = [out[j], out[i]];
-		}
-		return out;
 	}
 	function findReferenceTitle(container) {
 		return container.querySelector("h1, h2, h3")?.textContent?.trim() || document.title;
@@ -345,11 +358,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
-//#region src/browser/relatify.ts
-	window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, { relatify });
-	if (hasJQuery()) bindJQueryPlugin(window.jQuery, "relatify", (els, options) => relatify(els, options));
+//#region src/utils/register-plugin.ts
+/**
+	* Merges one or more named exports onto the shared `window.BlogrPlugins`
+	* global. Used by every `src/browser/*.ts` entry so the
+	* `(window as any).BlogrPlugins = Object.assign(...)` boilerplate exists in
+	* exactly one place instead of being copy-pasted per plugin.
+	*
+	* @param exports - Map of export name -> value, e.g. `{ lazify }` or
+	* `{ resizeImage, isSupportedImage }` for plugins with multiple exports.
+	*/
+	function registerGlobalPlugin(exports) {
+		window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, exports);
+	}
 
 //#endregion
+//#region src/browser/relatify.ts
+	registerGlobalPlugin({ relatify });
+	/** Binds `$.fn.relatify` on the given jQuery instance. */
+	function bindJQuery(jq) {
+		bindJQueryPlugin(jq, "relatify", (els, options) => relatify(els, options));
+	}
+	if (hasJQuery()) bindJQuery(window.jQuery);
+
+//#endregion
+exports.bindJQuery = bindJQuery;
 exports.relatify = relatify;
 return exports;
 })({});

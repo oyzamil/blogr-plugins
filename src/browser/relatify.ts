@@ -1,18 +1,17 @@
 import { type RelatifyOptions, relatify } from "../plugins/relatify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ relatify },
-);
+registerGlobalPlugin({ relatify });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"relatify",
-		(els, options?: RelatifyOptions) => relatify(els, options),
+/** Binds `$.fn.relatify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "relatify", (els, options?: RelatifyOptions) =>
+		relatify(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { RelatifyOptions };
 

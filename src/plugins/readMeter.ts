@@ -1,6 +1,7 @@
-import { type ElementInput, type PluginInstance } from "../types.js";
-import { resolveElements } from "../utils/dom.js";
-import { mergeOptions } from "../utils/merge-options.js";
+import { type ElementInput, type PluginInstance } from "../types";
+import { resolveElements } from "../utils/dom";
+import { mergeOptions } from "../utils/merge-options";
+import { countWords } from "../utils/text";
 
 /** How the computed read time is rendered as a string. */
 export type ReadMeterFormat = "minutes" | "minutes+seconds" | "text";
@@ -136,13 +137,6 @@ const defaults: Required<
 
 const BADGE_CLASS = "readmeter";
 const CODE_SELECTOR = "pre, code";
-
-/** Counts words via whitespace splitting — same technique used across the plugin suite. */
-function countWords(text: string): number {
-	const trimmed = text.trim();
-	if (!trimmed) return 0;
-	return trimmed.split(/\s+/).length;
-}
 
 /**
  * Splits `contentEl`'s text into "plain" text and "code" text (the

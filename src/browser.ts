@@ -51,12 +51,27 @@ import { type StackifyOptions, stackify } from "./plugins/stackify";
 import { type StickifyOptions, stickify } from "./plugins/stickify";
 import { type TocifyOptions, tocify } from "./plugins/tocify";
 import { type PluginInstance } from "./types";
-import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge";
+import { hasJQuery } from "./utils/jquery-bridge";
+
+// Each plugin's `$.fn.X` wiring (the actual arg-shape-to-jQuery-call logic)
+// lives in exactly one place: its own `src/browser/X.ts`, exported as
+// `bindJQuery`. We reuse those here instead of redeclaring the bindings —
+// see individual browser/*.ts files for the per-plugin jQuery signatures.
+import { bindJQuery as bindLazify } from "./browser/lazify";
+import { bindJQuery as bindMarqify } from "./browser/marqify";
+import { bindJQuery as bindMenuify } from "./browser/menuify";
+import { bindJQuery as bindRelatify } from "./browser/relatify";
+import { bindJQuery as bindReplacify } from "./browser/replacify";
+import { bindJQuery as bindShortcodify } from "./browser/shortcodify";
+import { bindJQuery as bindStackify } from "./browser/stackify";
+import { bindJQuery as bindStickify } from "./browser/stickify";
+import { bindJQuery as bindTocify } from "./browser/tocify";
+
 /**
  * Registers `$.fn.stickify`, `$.fn.menuify`, `$.fn.lazify`, `$.fn.tocify`,
- * `$.fn.replacify`, `$.fn.shortcodify`, `$.fn.stackify` and `$.fn.relatify` and `$.fn.marqify`
- * on the given jQuery instance, so any plugin can be called the classic
- * jQuery way, e.g. `$("#sidebar").stickify();`.
+ * `$.fn.replacify`, `$.fn.shortcodify`, `$.fn.stackify`, `$.fn.relatify` and
+ * `$.fn.marqify` on the given jQuery instance, so any plugin can be called
+ * the classic jQuery way, e.g. `$("#sidebar").stickify();`.
  *
  * `createWidget` isn't included here: its `containerSelector` lives
  * *inside* its options object rather than being the jQuery target itself,
@@ -68,40 +83,15 @@ import { bindJQueryPlugin, hasJQuery } from "./utils/jquery-bridge";
  * @param jq - A jQuery instance (`window.jQuery` / `window.$`).
  */
 export function registerJQueryPlugins(jq: any): void {
-	bindJQueryPlugin(jq, "stickify", (els, options?: StickifyOptions) =>
-		stickify(els, options),
-	);
-	bindJQueryPlugin(jq, "menuify", (els, options?: MenuifyOptions) =>
-		menuify(els, options),
-	);
-	bindJQueryPlugin(jq, "lazify", (els, options?: LazifyOptions) =>
-		lazify(els, options),
-	);
-	bindJQueryPlugin(jq, "tocify", (els, options?: TocifyOptions) =>
-		tocify(els, options),
-	);
-	bindJQueryPlugin(
-		jq,
-		"replacify",
-		(
-			els,
-			search: string | RegExp,
-			replacement: string,
-			options?: ReplacifyOptions,
-		) => replacify(els, search, replacement, options),
-	);
-	bindJQueryPlugin(jq, "shortcodify", (els, options: ShortcodifyDomOptions) =>
-		shortcodify(els, options),
-	);
-	bindJQueryPlugin(jq, "stackify", (els, options?: StackifyOptions) =>
-		stackify(els, options),
-	);
-	bindJQueryPlugin(jq, "relatify", (els, options?: RelatifyOptions) =>
-		relatify(els, options),
-	);
-	bindJQueryPlugin(jq, "marqify", (els, options?: MarqifyOptions) =>
-		marqify(els, options),
-	);
+	bindStickify(jq);
+	bindMenuify(jq);
+	bindLazify(jq);
+	bindTocify(jq);
+	bindReplacify(jq);
+	bindShortcodify(jq);
+	bindStackify(jq);
+	bindRelatify(jq);
+	bindMarqify(jq);
 }
 
 if (hasJQuery()) {

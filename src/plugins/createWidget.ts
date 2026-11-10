@@ -1,6 +1,7 @@
 import { type Author, Blogr, type Comment, type Pager, type Post } from "blogr";
 
 import { type ElementInput, type PluginInstance } from "../types";
+import { shuffle } from "../utils/array";
 import { resolveElements } from "../utils/dom";
 import { humanize } from "../utils/format";
 import { mergeOptions } from "../utils/merge-options";
@@ -353,15 +354,6 @@ function formatDate(iso: string, pattern: string): string {
 		/EEEE|EEE|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|hh|mm|ss|a/g,
 		(token) => tokens[token] ?? token,
 	);
-}
-
-function shuffle<T>(items: T[]): T[] {
-	const out = [...items];
-	for (let i = out.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[out[i], out[j]] = [out[j], out[i]];
-	}
-	return out;
 }
 
 function readLocalCache(key: string, ttlSeconds: number): WidgetEntry[] | null {

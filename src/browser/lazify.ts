@@ -1,18 +1,17 @@
 import { type LazifyOptions, lazify } from "../plugins/lazify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ lazify },
-);
+registerGlobalPlugin({ lazify });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"lazify",
-		(els, options?: LazifyOptions) => lazify(els, options),
+/** Binds `$.fn.lazify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "lazify", (els, options?: LazifyOptions) =>
+		lazify(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { LazifyOptions };
 

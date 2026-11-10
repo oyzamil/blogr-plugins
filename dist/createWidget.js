@@ -22,6 +22,21 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	const Blogr = globalThis.Blogr;
 
 //#endregion
+//#region src/utils/array.ts
+/**
+	* Returns a new array with `items` in random order (Fisher-Yates).
+	* Does not mutate the input.
+	*/
+	function shuffle(items) {
+		const out = [...items];
+		for (let i = out.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[out[i], out[j]] = [out[j], out[i]];
+		}
+		return out;
+	}
+
+//#endregion
 //#region src/utils/dom.ts
 /**
 	* Normalizes any supported input (selector string, Element, NodeList, array,
@@ -374,14 +389,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			a: d.getHours() < 12 ? "AM" : "PM"
 		};
 		return pattern.replace(/EEEE|EEE|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|hh|mm|ss|a/g, (token) => tokens[token] ?? token);
-	}
-	function shuffle(items) {
-		const out = [...items];
-		for (let i = out.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[out[i], out[j]] = [out[j], out[i]];
-		}
-		return out;
 	}
 	function readLocalCache(key, ttlSeconds) {
 		try {
@@ -883,8 +890,23 @@ Fields actually present on this entry: ${availableFields}`);
 	}
 
 //#endregion
+//#region src/utils/register-plugin.ts
+/**
+	* Merges one or more named exports onto the shared `window.BlogrPlugins`
+	* global. Used by every `src/browser/*.ts` entry so the
+	* `(window as any).BlogrPlugins = Object.assign(...)` boilerplate exists in
+	* exactly one place instead of being copy-pasted per plugin.
+	*
+	* @param exports - Map of export name -> value, e.g. `{ lazify }` or
+	* `{ resizeImage, isSupportedImage }` for plugins with multiple exports.
+	*/
+	function registerGlobalPlugin(exports) {
+		window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, exports);
+	}
+
+//#endregion
 //#region src/browser/createWidget.ts
-	window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, { createWidget });
+	registerGlobalPlugin({ createWidget });
 
 //#endregion
 exports.createWidget = createWidget;

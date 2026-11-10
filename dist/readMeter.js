@@ -43,6 +43,15 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
+//#region src/utils/text.ts
+/** Counts words via whitespace splitting — same technique used across the plugin suite. */
+	function countWords(text) {
+		const trimmed = text.trim();
+		if (!trimmed) return 0;
+		return trimmed.split(/\s+/).length;
+	}
+
+//#endregion
 //#region src/plugins/readMeter.ts
 	const defaults = {
 		includeElements: [],
@@ -60,12 +69,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	};
 	const BADGE_CLASS = "readmeter";
 	const CODE_SELECTOR = "pre, code";
-	/** Counts words via whitespace splitting — same technique used across the plugin suite. */
-	function countWords(text) {
-		const trimmed = text.trim();
-		if (!trimmed) return 0;
-		return trimmed.split(/\s+/).length;
-	}
 	/**
 	* Splits `contentEl`'s text into "plain" text and "code" text (the
 	* concatenated text of every `<pre>`/`<code>` descendant), without
@@ -242,11 +245,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
-//#region src/browser/readMeter.ts
-	window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, { readMeter });
-	if (hasJQuery()) bindJQueryPlugin(window.jQuery, "readMeter", (els, options) => readMeter(els, options));
+//#region src/utils/register-plugin.ts
+/**
+	* Merges one or more named exports onto the shared `window.BlogrPlugins`
+	* global. Used by every `src/browser/*.ts` entry so the
+	* `(window as any).BlogrPlugins = Object.assign(...)` boilerplate exists in
+	* exactly one place instead of being copy-pasted per plugin.
+	*
+	* @param exports - Map of export name -> value, e.g. `{ lazify }` or
+	* `{ resizeImage, isSupportedImage }` for plugins with multiple exports.
+	*/
+	function registerGlobalPlugin(exports) {
+		window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, exports);
+	}
 
 //#endregion
+//#region src/browser/readMeter.ts
+	registerGlobalPlugin({ readMeter });
+	/** Binds `$.fn.readMeter` on the given jQuery instance. */
+	function bindJQuery(jq) {
+		bindJQueryPlugin(jq, "readMeter", (els, options) => readMeter(els, options));
+	}
+	if (hasJQuery()) bindJQuery(window.jQuery);
+
+//#endregion
+exports.bindJQuery = bindJQuery;
 exports.readMeter = readMeter;
 return exports;
 })({});

@@ -2,6 +2,8 @@
 
 Typed, modular plugin kit for Blogr templates — sticky sidebar, dropdown menu, lazy-loading media, table of contents, text replace, shortcodes, a cookie utility, and Blogger image-URL resizing. Modern TypeScript rewrite of the old jQuery-only plugins, usable as plain ES modules **or** as classic jQuery plugins.
 
+[For live previews and docs click me](https://blogr-plugins.blogspot.com)
+
 ![Latest Version](https://img.shields.io/npm/v/blogr-plugins?style=for-the-badge&color=green)
 ![Monthly Downloads](https://img.shields.io/npm/dm/blogr-plugins?style=for-the-badge&color=green)
 ![License: MIT](https://img.shields.io/badge/License-MIT-brown?style=for-the-badge)

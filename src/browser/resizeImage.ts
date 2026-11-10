@@ -4,14 +4,9 @@ import {
 	resizeImage,
 	type YouTubeThumbnailQuality,
 } from "../plugins/resizeImage";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{
-		resizeImage,
-		isSupportedImage,
-	},
-);
+registerGlobalPlugin({ resizeImage, isSupportedImage });
 
 export type { ResizeImageOptions, YouTubeThumbnailQuality };
 

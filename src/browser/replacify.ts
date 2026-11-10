@@ -1,14 +1,13 @@
 import { type ReplacifyOptions, replacify } from "../plugins/replacify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ replacify },
-);
+registerGlobalPlugin({ replacify });
 
-if (hasJQuery()) {
+/** Binds `$.fn.replacify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
 	bindJQueryPlugin(
-		(window as any).jQuery,
+		jq,
 		"replacify",
 		(
 			els,
@@ -18,6 +17,8 @@ if (hasJQuery()) {
 		) => replacify(els, search, replacement, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { ReplacifyOptions };
 

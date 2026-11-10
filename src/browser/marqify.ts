@@ -4,19 +4,18 @@ import {
 	marqify,
 } from "../plugins/marqify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ marqify },
-);
+registerGlobalPlugin({ marqify });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"marqify",
-		(els, options?: MarqifyOptions) => marqify(els, options),
+/** Binds `$.fn.marqify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "marqify", (els, options?: MarqifyOptions) =>
+		marqify(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { MarqifyInstance, MarqifyOptions };
 

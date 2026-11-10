@@ -1,9 +1,11 @@
 import Blogr, { type Post } from "blogr";
 
 import { type ElementInput, type PluginInstance } from "../types";
+import { shuffle } from "../utils/array";
 import { resolveElements } from "../utils/dom";
 import { mergeOptions } from "../utils/merge-options";
 import { requireBlogr } from "../utils/require-blogr";
+import { countWords } from "../utils/text";
 
 /** How candidate posts are picked once fetched. */
 export type RelatifyRelevance = "strict" | "default";
@@ -182,10 +184,6 @@ function tokenize(text: string): string[] {
 		.filter((word) => word.length > 1 && !STOPWORDS.has(word));
 }
 
-function countWords(text: string): number {
-	return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
 function defaultMaxLinks(wordCount: number): number {
 	return Math.max(1, Math.floor(wordCount / 500) + 1);
 }
@@ -212,15 +210,6 @@ function normalize(post: Post): RelatedPost {
 		content: post.summary ?? "",
 		raw: post,
 	};
-}
-
-function shuffle<T>(items: T[]): T[] {
-	const out = [...items];
-	for (let i = out.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[out[i], out[j]] = [out[j], out[i]];
-	}
-	return out;
 }
 
 function findReferenceTitle(container: Element): string {

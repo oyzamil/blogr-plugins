@@ -1,18 +1,17 @@
 import { type TocifyOptions, tocify } from "../plugins/tocify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ tocify },
-);
+registerGlobalPlugin({ tocify });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"tocify",
-		(els, options?: TocifyOptions) => tocify(els, options),
+/** Binds `$.fn.tocify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "tocify", (els, options?: TocifyOptions) =>
+		tocify(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { TocifyOptions };
 

@@ -135,7 +135,7 @@ function updateYouTube() {
 });
 
 /* ---- dom api demo ---- */
-const DEMO_IDS = ["dQw4w9WgXcQ", "9bZkp7q19f0", "kJQP7kiw5Fk", "jNQXAC9IVRw"];
+const DEMO_IDS = ["dQw4w9WgXcQ", "9bZkp7q19f0", "kJQP7kiw5Fk", "Xj0Jtjg3lHQ"];
 const grid = document.getElementById("thumb-grid");
 DEMO_IDS.forEach((id, i) => {
 	const fig = document.createElement("figure");
@@ -151,14 +151,25 @@ DEMO_IDS.forEach((id, i) => {
 });
 
 document.getElementById("run-nodelist").addEventListener("click", () => {
-	BlogrPlugins.resizeImageInDom(document.querySelectorAll(".thumb"), {
-		ytThumbnail: "mqdefault",
+	document.querySelectorAll(".thumb").forEach((img) => {
+		const newUrl = BlogrPlugins.resizeImage(img.src, {
+			ytThumbnail: "maxresdefault",
+		});
+
+		img.src = newUrl;
 	});
+
 	document
 		.querySelectorAll(".thumb-grid figcaption")
-		.forEach((c) => (c.textContent = "mqdefault.webp"));
+		.forEach((c) => (c.textContent = "maxresdefault.webp"));
 	document.getElementById("dom-status").textContent =
-		"ran: document.querySelectorAll('.thumb').resizeImage({ ytThumbnail: 'mqdefault' })";
+		`ran: document.querySelectorAll(".thumb").forEach((img) => {
+		const newUrl = BlogrPlugins.resizeImage(img.src, {
+			ytThumbnail: "maxresdefault",
+		});
+
+		img.src = newUrl;
+	});`;
 });
 document.getElementById("run-reset").addEventListener("click", () => {
 	document

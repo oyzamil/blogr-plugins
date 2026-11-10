@@ -709,6 +709,21 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	const Blogr = globalThis.Blogr;
 
 //#endregion
+//#region src/utils/array.ts
+/**
+	* Returns a new array with `items` in random order (Fisher-Yates).
+	* Does not mutate the input.
+	*/
+	function shuffle(items) {
+		const out = [...items];
+		for (let i = out.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[out[i], out[j]] = [out[j], out[i]];
+		}
+		return out;
+	}
+
+//#endregion
 //#region src/utils/format.ts
 	const humanize = (str) => str.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
@@ -1040,14 +1055,6 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 		};
 		return pattern.replace(/EEEE|EEE|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|hh|mm|ss|a/g, (token) => tokens[token] ?? token);
 	}
-	function shuffle$1(items) {
-		const out = [...items];
-		for (let i = out.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[out[i], out[j]] = [out[j], out[i]];
-		}
-		return out;
-	}
 	function readLocalCache(key, ttlSeconds) {
 		try {
 			const raw = localStorage.getItem(`blogr-widget:${key}`);
@@ -1236,13 +1243,13 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 			if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.id !== currentPostId);
 			if (opts.related && currentPostLabels.length) out = out.filter((e) => e.labels.some((l) => currentPostLabels.includes(l)));
 			if (opts.sort === "asc") out = [...out].reverse();
-			if (opts.random) out = shuffle$1(out);
+			if (opts.random) out = shuffle(out);
 			return out;
 		}
 		function applyCommentFilters(entries) {
 			let out = entries;
 			if (opts.sort === "asc") out = [...out].reverse();
-			if (opts.random) out = shuffle$1(out);
+			if (opts.random) out = shuffle(out);
 			return out;
 		}
 		function matchesQuery(entry, query) {
@@ -2209,6 +2216,15 @@ Fields actually present on this entry: ${availableFields}`);
 	}
 
 //#endregion
+//#region src/utils/text.ts
+/** Counts words via whitespace splitting — same technique used across the plugin suite. */
+	function countWords(text) {
+		const trimmed = text.trim();
+		if (!trimmed) return 0;
+		return trimmed.split(/\s+/).length;
+	}
+
+//#endregion
 //#region src/plugins/readMeter.ts
 	const defaults$6 = {
 		includeElements: [],
@@ -2226,12 +2242,6 @@ Fields actually present on this entry: ${availableFields}`);
 	};
 	const BADGE_CLASS = "readmeter";
 	const CODE_SELECTOR = "pre, code";
-	/** Counts words via whitespace splitting — same technique used across the plugin suite. */
-	function countWords$1(text) {
-		const trimmed = text.trim();
-		if (!trimmed) return 0;
-		return trimmed.split(/\s+/).length;
-	}
 	/**
 	* Splits `contentEl`'s text into "plain" text and "code" text (the
 	* concatenated text of every `<pre>`/`<code>` descendant), without
@@ -2288,8 +2298,8 @@ Fields actually present on this entry: ${availableFields}`);
 			plainText: contentEl.textContent ?? "",
 			codeText: ""
 		};
-		const plainWords = countWords$1(plainText);
-		const codeWords = opts.includeCode ? countWords$1(codeText) : 0;
+		const plainWords = countWords(plainText);
+		const codeWords = opts.includeCode ? countWords(codeText) : 0;
 		const textMinutes = plainWords / opts.wordsPerMinute;
 		const codeMinutes = opts.includeCode ? codeWords / opts.codeWordsPerMinute : 0;
 		const imageMinutes = (opts.includeImages ? contentEl.querySelectorAll("img").length : 0) * opts.imageTimeSeconds / 60;
@@ -2450,9 +2460,6 @@ Fields actually present on this entry: ${availableFields}`);
 	function tokenize(text) {
 		return text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter((word) => word.length > 1 && !STOPWORDS.has(word));
 	}
-	function countWords(text) {
-		return text.trim().split(/\s+/).filter(Boolean).length;
-	}
 	function defaultMaxLinks(wordCount) {
 		return Math.max(1, Math.floor(wordCount / 500) + 1);
 	}
@@ -2473,14 +2480,6 @@ Fields actually present on this entry: ${availableFields}`);
 			content: post.summary ?? "",
 			raw: post
 		};
-	}
-	function shuffle(items) {
-		const out = [...items];
-		for (let i = out.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[out[i], out[j]] = [out[j], out[i]];
-		}
-		return out;
 	}
 	function findReferenceTitle(container) {
 		return container.querySelector("h1, h2, h3")?.textContent?.trim() || document.title;
@@ -4050,12 +4049,113 @@ Fields actually present on this entry: ${availableFields}`);
 	}
 
 //#endregion
+//#region src/utils/register-plugin.ts
+/**
+	* Merges one or more named exports onto the shared `window.BlogrPlugins`
+	* global. Used by every `src/browser/*.ts` entry so the
+	* `(window as any).BlogrPlugins = Object.assign(...)` boilerplate exists in
+	* exactly one place instead of being copy-pasted per plugin.
+	*
+	* @param exports - Map of export name -> value, e.g. `{ lazify }` or
+	* `{ resizeImage, isSupportedImage }` for plugins with multiple exports.
+	*/
+	function registerGlobalPlugin(exports) {
+		window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, exports);
+	}
+
+//#endregion
+//#region src/browser/lazify.ts
+	registerGlobalPlugin({ lazify });
+	/** Binds `$.fn.lazify` on the given jQuery instance. */
+	function bindJQuery$8(jq) {
+		bindJQueryPlugin(jq, "lazify", (els, options) => lazify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$8(window.jQuery);
+
+//#endregion
+//#region src/browser/marqify.ts
+	registerGlobalPlugin({ marqify });
+	/** Binds `$.fn.marqify` on the given jQuery instance. */
+	function bindJQuery$7(jq) {
+		bindJQueryPlugin(jq, "marqify", (els, options) => marqify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$7(window.jQuery);
+
+//#endregion
+//#region src/browser/menuify.ts
+	registerGlobalPlugin({ menuify });
+	/** Binds `$.fn.menuify` on the given jQuery instance. */
+	function bindJQuery$6(jq) {
+		bindJQueryPlugin(jq, "menuify", (els, options) => menuify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$6(window.jQuery);
+
+//#endregion
+//#region src/browser/relatify.ts
+	registerGlobalPlugin({ relatify });
+	/** Binds `$.fn.relatify` on the given jQuery instance. */
+	function bindJQuery$5(jq) {
+		bindJQueryPlugin(jq, "relatify", (els, options) => relatify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$5(window.jQuery);
+
+//#endregion
+//#region src/browser/replacify.ts
+	registerGlobalPlugin({ replacify });
+	/** Binds `$.fn.replacify` on the given jQuery instance. */
+	function bindJQuery$4(jq) {
+		bindJQueryPlugin(jq, "replacify", (els, search, replacement, options) => replacify(els, search, replacement, options));
+	}
+	if (hasJQuery()) bindJQuery$4(window.jQuery);
+
+//#endregion
+//#region src/browser/shortcodify.ts
+	registerGlobalPlugin({
+		shortcodify,
+		renderShortcodes,
+		createShortcodeRegistry,
+		defaultShortcodeTags
+	});
+	/** Binds `$.fn.shortcodify` on the given jQuery instance. */
+	function bindJQuery$3(jq) {
+		bindJQueryPlugin(jq, "shortcodify", (els, options) => shortcodify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$3(window.jQuery);
+
+//#endregion
+//#region src/browser/stackify.ts
+	registerGlobalPlugin({ stackify });
+	/** Binds `$.fn.stackify` on the given jQuery instance. */
+	function bindJQuery$2(jq) {
+		bindJQueryPlugin(jq, "stackify", (els, options) => stackify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$2(window.jQuery);
+
+//#endregion
+//#region src/browser/stickify.ts
+	registerGlobalPlugin({ stickify });
+	/** Binds `$.fn.stickify` on the given jQuery instance. */
+	function bindJQuery$1(jq) {
+		bindJQueryPlugin(jq, "stickify", (els, options) => stickify(els, options));
+	}
+	if (hasJQuery()) bindJQuery$1(window.jQuery);
+
+//#endregion
+//#region src/browser/tocify.ts
+	registerGlobalPlugin({ tocify });
+	/** Binds `$.fn.tocify` on the given jQuery instance. */
+	function bindJQuery(jq) {
+		bindJQueryPlugin(jq, "tocify", (els, options) => tocify(els, options));
+	}
+	if (hasJQuery()) bindJQuery(window.jQuery);
+
+//#endregion
 //#region src/browser.ts
 /**
 	* Registers `$.fn.stickify`, `$.fn.menuify`, `$.fn.lazify`, `$.fn.tocify`,
-	* `$.fn.replacify`, `$.fn.shortcodify`, `$.fn.stackify` and `$.fn.relatify` and `$.fn.marqify`
-	* on the given jQuery instance, so any plugin can be called the classic
-	* jQuery way, e.g. `$("#sidebar").stickify();`.
+	* `$.fn.replacify`, `$.fn.shortcodify`, `$.fn.stackify`, `$.fn.relatify` and
+	* `$.fn.marqify` on the given jQuery instance, so any plugin can be called
+	* the classic jQuery way, e.g. `$("#sidebar").stickify();`.
 	*
 	* `createWidget` isn't included here: its `containerSelector` lives
 	* *inside* its options object rather than being the jQuery target itself,
@@ -4067,15 +4167,15 @@ Fields actually present on this entry: ${availableFields}`);
 	* @param jq - A jQuery instance (`window.jQuery` / `window.$`).
 	*/
 	function registerJQueryPlugins(jq) {
-		bindJQueryPlugin(jq, "stickify", (els, options) => stickify(els, options));
-		bindJQueryPlugin(jq, "menuify", (els, options) => menuify(els, options));
-		bindJQueryPlugin(jq, "lazify", (els, options) => lazify(els, options));
-		bindJQueryPlugin(jq, "tocify", (els, options) => tocify(els, options));
-		bindJQueryPlugin(jq, "replacify", (els, search, replacement, options) => replacify(els, search, replacement, options));
-		bindJQueryPlugin(jq, "shortcodify", (els, options) => shortcodify(els, options));
-		bindJQueryPlugin(jq, "stackify", (els, options) => stackify(els, options));
-		bindJQueryPlugin(jq, "relatify", (els, options) => relatify(els, options));
-		bindJQueryPlugin(jq, "marqify", (els, options) => marqify(els, options));
+		bindJQuery$1(jq);
+		bindJQuery$6(jq);
+		bindJQuery$8(jq);
+		bindJQuery(jq);
+		bindJQuery$4(jq);
+		bindJQuery$3(jq);
+		bindJQuery$2(jq);
+		bindJQuery$5(jq);
+		bindJQuery$7(jq);
 	}
 	if (hasJQuery()) registerJQueryPlugins(window.jQuery);
 

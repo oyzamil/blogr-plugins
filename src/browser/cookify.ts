@@ -1,8 +1,6 @@
 import { cookify } from "../plugins/cookify";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ cookify },
-);
+registerGlobalPlugin({ cookify });
 
 export { cookify };

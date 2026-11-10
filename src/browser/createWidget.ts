@@ -5,11 +5,9 @@ import {
 	type WidgetInstance,
 	type WidgetTransformer,
 } from "../plugins/createWidget";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ createWidget },
-);
+registerGlobalPlugin({ createWidget });
 
 export type {
 	CreateWidgetOptions,

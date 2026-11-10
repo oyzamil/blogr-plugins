@@ -1,18 +1,17 @@
 import { type ReadMeterOptions, readMeter } from "../plugins/readMeter";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ readMeter },
-);
+registerGlobalPlugin({ readMeter });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"readMeter",
-		(els, options?: ReadMeterOptions) => readMeter(els, options),
+/** Binds `$.fn.readMeter` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "readMeter", (els, options?: ReadMeterOptions) =>
+		readMeter(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { ReadMeterOptions };
 

@@ -2249,6 +2249,21 @@ var Blogr = class Blogr {
 };
 
 //#endregion
+//#region src/utils/array.ts
+/**
+* Returns a new array with `items` in random order (Fisher-Yates).
+* Does not mutate the input.
+*/
+function shuffle(items) {
+	const out = [...items];
+	for (let i = out.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[out[i], out[j]] = [out[j], out[i]];
+	}
+	return out;
+}
+
+//#endregion
 //#region src/utils/format.ts
 const humanize = (str) => str.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
@@ -2630,14 +2645,6 @@ function formatDate(iso, pattern) {
 	};
 	return pattern.replace(/EEEE|EEE|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|hh|mm|ss|a/g, (token) => tokens[token] ?? token);
 }
-function shuffle$1(items) {
-	const out = [...items];
-	for (let i = out.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[out[i], out[j]] = [out[j], out[i]];
-	}
-	return out;
-}
 function readLocalCache(key, ttlSeconds) {
 	try {
 		const raw = localStorage.getItem(`blogr-widget:${key}`);
@@ -2826,13 +2833,13 @@ function createWidget(options) {
 		if (opts.excludeCurrent && currentPostId) out = out.filter((e) => e.id !== currentPostId);
 		if (opts.related && currentPostLabels.length) out = out.filter((e) => e.labels.some((l) => currentPostLabels.includes(l)));
 		if (opts.sort === "asc") out = [...out].reverse();
-		if (opts.random) out = shuffle$1(out);
+		if (opts.random) out = shuffle(out);
 		return out;
 	}
 	function applyCommentFilters(entries) {
 		let out = entries;
 		if (opts.sort === "asc") out = [...out].reverse();
-		if (opts.random) out = shuffle$1(out);
+		if (opts.random) out = shuffle(out);
 		return out;
 	}
 	function matchesQuery(entry, query) {
@@ -3799,6 +3806,15 @@ function menuify(input, options = {}) {
 }
 
 //#endregion
+//#region src/utils/text.ts
+/** Counts words via whitespace splitting — same technique used across the plugin suite. */
+function countWords(text) {
+	const trimmed = text.trim();
+	if (!trimmed) return 0;
+	return trimmed.split(/\s+/).length;
+}
+
+//#endregion
 //#region src/plugins/readMeter.ts
 const defaults$6 = {
 	includeElements: [],
@@ -3816,12 +3832,6 @@ const defaults$6 = {
 };
 const BADGE_CLASS = "readmeter";
 const CODE_SELECTOR = "pre, code";
-/** Counts words via whitespace splitting — same technique used across the plugin suite. */
-function countWords$1(text) {
-	const trimmed = text.trim();
-	if (!trimmed) return 0;
-	return trimmed.split(/\s+/).length;
-}
 /**
 * Splits `contentEl`'s text into "plain" text and "code" text (the
 * concatenated text of every `<pre>`/`<code>` descendant), without
@@ -3878,8 +3888,8 @@ function calculate(contentEl, opts) {
 		plainText: contentEl.textContent ?? "",
 		codeText: ""
 	};
-	const plainWords = countWords$1(plainText);
-	const codeWords = opts.includeCode ? countWords$1(codeText) : 0;
+	const plainWords = countWords(plainText);
+	const codeWords = opts.includeCode ? countWords(codeText) : 0;
 	const textMinutes = plainWords / opts.wordsPerMinute;
 	const codeMinutes = opts.includeCode ? codeWords / opts.codeWordsPerMinute : 0;
 	const imageMinutes = (opts.includeImages ? contentEl.querySelectorAll("img").length : 0) * opts.imageTimeSeconds / 60;
@@ -4040,9 +4050,6 @@ const STOPWORDS = /* @__PURE__ */ new Set([
 function tokenize(text) {
 	return text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter((word) => word.length > 1 && !STOPWORDS.has(word));
 }
-function countWords(text) {
-	return text.trim().split(/\s+/).filter(Boolean).length;
-}
 function defaultMaxLinks(wordCount) {
 	return Math.max(1, Math.floor(wordCount / 500) + 1);
 }
@@ -4063,14 +4070,6 @@ function normalize(post) {
 		content: post.summary ?? "",
 		raw: post
 	};
-}
-function shuffle(items) {
-	const out = [...items];
-	for (let i = out.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[out[i], out[j]] = [out[j], out[i]];
-	}
-	return out;
 }
 function findReferenceTitle(container) {
 	return container.querySelector("h1, h2, h3")?.textContent?.trim() || document.title;

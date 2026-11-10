@@ -1,86 +1,86 @@
 {
-	"name": "blogr-plugins",
-	"version": "0.0.4",
-	"description": "Typed, modular Blogr plugin kit — sticky sidebar, menu, lazy-load, TOC, text-replace and cookie utils. Works standalone or as jQuery plugins.",
-	"type": "module",
-	"main": "./dist/blogr-plugins.cjs",
-	"module": "./dist/blogr-plugins.esm.js",
-	"types": "./dist/blogr-plugins.d.ts",
-	"typings": "./dist/blogr-plugins.d.ts",
-	"unpkg": "./dist/blogr-plugins.min.js",
-	"jsdelivr": "./dist/blogr-plugins.min.js",
-	"exports": {
-		".": {
-			"types": "./dist/blogr-plugins.d.ts",
-			"import": "./dist/blogr-plugins.esm.js",
-			"require": "./dist/blogr-plugins.cjs"
-		},
-		"./iife": "./dist/blogr-plugins.js",
-		"./iife.min": "./dist/blogr-plugins.min.js",
-		"./stickify": "./dist/stickify.js",
-		"./menuify": "./dist/menuify.js",
-		"./lazify": "./dist/lazify.js",
-		"./tocify": "./dist/tocify.js",
-		"./replacify": "./dist/replacify.js",
-		"./cookify": "./dist/cookify.js",
-		"./resizeImage": "./dist/resizeImage.js",
-		"./shortcodify": "./dist/shortcodify.js",
-		"./createWidget": "./dist/createWidget.js",
-		"./stackify": "./dist/stackify.js",
-		"./avatarify": "./dist/avatarify.js",
-		"./relatify": "./dist/relatify.js",
-		"./marqify": "./dist/marqify.js",
-		"./adsenseLoader": "./dist/adsenseLoader.js",
-		"./package.json": "./package.json"
-	},
-	"files": [
-		"dist"
-	],
-	"sideEffects": false,
-	"scripts": {
-		"docs": "typedoc",
-		"build": "tsdown",
-		"dev": "tsdown --watch",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"typecheck": "tsc --noEmit",
-		"prepublishOnly": "bun run build && bun run test && bun run docs",
-		"format": "biome format --write ./src",
-		"git": "bun run ./scripts/git-helper.ts add-git"
-	},
-	"keywords": [
-		"blogr",
-		"blogger",
-		"plugins",
-		"jquery",
-		"sticky-sidebar",
-		"lazy-load",
-		"table-of-contents",
-		"shortcode",
-		"widget",
-		"related-posts",
-		"typescript"
-	],
-	"author": "M.Muzammil <qazi.web@gmail.com> (https://muzammil.work/)",
-	"license": "MIT",
-	"devDependencies": {
-		"@biomejs/biome": "^2.5.6",
-		"@types/jquery": "^4.0.1",
-		"@types/node": "^26.1.2",
-		"jsdom": "^30.0.1",
-		"tsdown": "^0.22.14",
-		"typedoc": "^0.28.20",
-		"typedoc-plugin-markdown": "^4.12.0",
-		"typescript": "6.0.3",
-		"unrun": "^0.3.1",
-		"vitest": "^4.1.10"
-	},
-	"peerDependencies": {
-		"blogr": "^0.0.3"
-	},
-	"peerDependenciesMeta": {
-		"blogr": {
-			"optional": true
-		}
-	}
+  "name": "blogr-plugins",
+  "version": "0.0.4",
+  "description": "Typed, modular Blogr plugin kit — sticky sidebar, menu, lazy-load, TOC, text-replace and cookie utils. Works standalone or as jQuery plugins.",
+  "type": "module",
+  "main": "./dist/blogr-plugins.cjs",
+  "module": "./dist/blogr-plugins.esm.js",
+  "types": "./dist/blogr-plugins.d.ts",
+  "typings": "./dist/blogr-plugins.d.ts",
+  "unpkg": "./dist/blogr-plugins.min.js",
+  "jsdelivr": "./dist/blogr-plugins.min.js",
+  "exports": {
+    ".": {
+      "types": "./dist/blogr-plugins.d.ts",
+      "import": "./dist/blogr-plugins.esm.js",
+      "require": "./dist/blogr-plugins.cjs"
+    },
+    "./iife": "./dist/blogr-plugins.js",
+    "./iife.min": "./dist/blogr-plugins.min.js",
+    "./stickify": "./dist/stickify.js",
+    "./menuify": "./dist/menuify.js",
+    "./lazify": "./dist/lazify.js",
+    "./tocify": "./dist/tocify.js",
+    "./replacify": "./dist/replacify.js",
+    "./cookify": "./dist/cookify.js",
+    "./resizeImage": "./dist/resizeImage.js",
+    "./shortcodify": "./dist/shortcodify.js",
+    "./createWidget": "./dist/createWidget.js",
+    "./stackify": "./dist/stackify.js",
+    "./avatarify": "./dist/avatarify.js",
+    "./relatify": "./dist/relatify.js",
+    "./marqify": "./dist/marqify.js",
+    "./adsenseLoader": "./dist/adsenseLoader.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "docs": "typedoc",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build && bun run test && bun run docs",
+    "format": "biome format --write ./src",
+    "git": "bun run ./scripts/git-helper.ts add-git"
+  },
+  "keywords": [
+    "blogr",
+    "blogger",
+    "plugins",
+    "jquery",
+    "sticky-sidebar",
+    "lazy-load",
+    "table-of-contents",
+    "shortcode",
+    "widget",
+    "related-posts",
+    "typescript"
+  ],
+  "author": "M.Muzammil <qazi.web@gmail.com> (https://muzammil.work/)",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.6",
+    "@types/jquery": "^4.0.1",
+    "@types/node": "^26.1.2",
+    "jsdom": "^30.0.1",
+    "tsdown": "^0.22.14",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "6.0.3",
+    "unrun": "^0.3.1",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "blogr": "^0.0.3"
+  },
+  "peerDependenciesMeta": {
+    "blogr": {
+      "optional": true
+    }
+  }
 }

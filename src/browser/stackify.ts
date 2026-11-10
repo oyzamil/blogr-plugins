@@ -1,18 +1,17 @@
 import { type StackifyOptions, stackify } from "../plugins/stackify";
 import { bindJQueryPlugin, hasJQuery } from "../utils/jquery-bridge";
+import { registerGlobalPlugin } from "../utils/register-plugin";
 
-(window as any).BlogrPlugins = Object.assign(
-	(window as any).BlogrPlugins ?? {},
-	{ stackify },
-);
+registerGlobalPlugin({ stackify });
 
-if (hasJQuery()) {
-	bindJQueryPlugin(
-		(window as any).jQuery,
-		"stackify",
-		(els, options?: StackifyOptions) => stackify(els, options),
+/** Binds `$.fn.stackify` on the given jQuery instance. */
+export function bindJQuery(jq: any): void {
+	bindJQueryPlugin(jq, "stackify", (els, options?: StackifyOptions) =>
+		stackify(els, options),
 	);
 }
+
+if (hasJQuery()) bindJQuery((window as any).jQuery);
 
 export type { StackifyOptions };
 

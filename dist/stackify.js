@@ -762,11 +762,31 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 	}
 
 //#endregion
-//#region src/browser/stackify.ts
-	window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, { stackify });
-	if (hasJQuery()) bindJQueryPlugin(window.jQuery, "stackify", (els, options) => stackify(els, options));
+//#region src/utils/register-plugin.ts
+/**
+	* Merges one or more named exports onto the shared `window.BlogrPlugins`
+	* global. Used by every `src/browser/*.ts` entry so the
+	* `(window as any).BlogrPlugins = Object.assign(...)` boilerplate exists in
+	* exactly one place instead of being copy-pasted per plugin.
+	*
+	* @param exports - Map of export name -> value, e.g. `{ lazify }` or
+	* `{ resizeImage, isSupportedImage }` for plugins with multiple exports.
+	*/
+	function registerGlobalPlugin(exports) {
+		window.BlogrPlugins = Object.assign(window.BlogrPlugins ?? {}, exports);
+	}
 
 //#endregion
+//#region src/browser/stackify.ts
+	registerGlobalPlugin({ stackify });
+	/** Binds `$.fn.stackify` on the given jQuery instance. */
+	function bindJQuery(jq) {
+		bindJQueryPlugin(jq, "stackify", (els, options) => stackify(els, options));
+	}
+	if (hasJQuery()) bindJQuery(window.jQuery);
+
+//#endregion
+exports.bindJQuery = bindJQuery;
 exports.stackify = stackify;
 return exports;
 })({});
